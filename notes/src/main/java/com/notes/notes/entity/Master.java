@@ -17,6 +17,7 @@ public class Master {
 
     private String name;
 
-    @OneToMany(mappedBy = "master", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "master", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<MasterField> fields = new ArrayList<>();
+
 }

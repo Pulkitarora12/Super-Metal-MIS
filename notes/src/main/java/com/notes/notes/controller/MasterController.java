@@ -3,13 +3,25 @@ package com.notes.notes.controller;
 import com.notes.notes.dto.FieldDataCreateDTO;
 import com.notes.notes.dto.MasterCreateDTO;
 import com.notes.notes.dto.MasterFieldCreateDTO;
+import com.notes.notes.entity.DataType;
+import com.notes.notes.entity.FieldData;
 import com.notes.notes.entity.Master;
+import com.notes.notes.entity.MasterField;
+import com.notes.notes.repository.MasterRepository;
 import com.notes.notes.service.MasterService;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -19,16 +31,15 @@ public class MasterController {
     @Autowired
     private MasterService masterService;
 
+    @Autowired
+    private MasterRepository masterRepository;
+
     @GetMapping("/new")
     public String showCreateMasterForm(Model model) {
         MasterCreateDTO dto = new MasterCreateDTO();
-
-        // Initialize 1 empty field
         MasterFieldCreateDTO fieldDTO = new MasterFieldCreateDTO();
-        fieldDTO.setFieldData(List.of(new FieldDataCreateDTO())); // At least 1 data input
-
-        dto.setFields(List.of(fieldDTO)); // Set default list
-
+        fieldDTO.setFieldData(List.of(new FieldDataCreateDTO()));
+        dto.setFields(List.of(fieldDTO));
         model.addAttribute("master", dto);
         return "user/master-create-form";
     }
@@ -57,28 +68,169 @@ public class MasterController {
         return "user/master-list";
     }
 
-//    @GetMapping("/{id}/edit")
-//    public String showEditMasterForm(@PathVariable Long id, Model model) {
-//        Master master = masterService.getMasterById(id);
-//        if (master == null) {
-//            model.addAttribute("error", "Master not found!");
-//            return "redirect:/masters";
-//        }
-//
-//        model.addAttribute("master", master);
-//        return "user/master-edit-form";
-//    }
-//
-//    @PostMapping("/{id}/update")
-//    public String updateMaster(@PathVariable Long id, @ModelAttribute("master") MasterCreateDTO masterDTO) {
-//        masterService.updateMaster(id, masterDTO);
-//        return "redirect:/masters/" + id;
-//    }
-
     @PostMapping("/{id}/delete")
     public String deleteMaster(@PathVariable Long id) {
         masterService.deleteMaster(id);
-        return "redirect:/masters"; // Redirect back to master list after deletion
+        return "redirect:/masters";
     }
 
+    @GetMapping("/upload")
+    public String showUploadPage() {
+        return "/user/upload-master";
+    }
+
+    @PostMapping("/upload")
+    public String uploadMasterFile(
+            @RequestParam("file") MultipartFile file,
+            RedirectAttributes redirectAttributes) {
+
+        if (file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Please upload a file.");
+            return "redirect:/masters/upload";
+        }
+
+        try {
+            String filename = file.getOriginalFilename();
+
+            // Check if Excel file
+            if (filename != null && filename.endsWith(".xlsx")) {
+                return uploadExcel(file, redirectAttributes);
+            } else {
+                return uploadCSV(file, redirectAttributes);
+            }
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+            return "redirect:/masters/upload";
+        }
+    }
+
+    // Handle Excel files
+    private String uploadExcel(MultipartFile file, RedirectAttributes redirectAttributes) throws Exception {
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+        Sheet sheet = workbook.getSheetAt(0);
+
+        // Row 1: Master name
+        String masterName = sheet.getRow(0).getCell(0).getStringCellValue().trim();
+        masterName = masterName.substring(0, Math.min(masterName.length(), 100));
+
+        Master master = new Master();
+        master.setName(masterName);
+
+        // Row 2: Field names
+        Row fieldRow = sheet.getRow(1);
+        List<MasterField> masterFields = new ArrayList<>();
+
+        for (Cell cell : fieldRow) {
+            String fieldName = getCellValue(cell).trim();
+            if (!fieldName.isEmpty()) {
+                MasterField mf = new MasterField();
+                mf.setFieldName(fieldName);
+                mf.setDataType(DataType.STRING);
+                mf.setMaster(master);
+                masterFields.add(mf);
+            }
+        }
+
+        master.setFields(masterFields);
+
+        // Row 3+: Data
+        for (int i = 2; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row == null) continue;
+
+            for (int j = 0; j < masterFields.size(); j++) {
+                Cell cell = row.getCell(j);
+                String value = getCellValue(cell).trim();
+
+                if (value.length() > 255) value = value.substring(0, 255);
+
+                if (!value.isEmpty()) {
+                    FieldData data = new FieldData();
+                    data.setValue(value);
+                    data.setField(masterFields.get(j));
+                    masterFields.get(j).getFieldData().add(data);
+                }
+            }
+        }
+
+        workbook.close();
+        masterRepository.save(master);
+
+        redirectAttributes.addFlashAttribute("success", "Master created successfully!");
+        return "redirect:/masters/" + master.getId();
+    }
+
+    // Handle CSV files (your original code)
+    private String uploadCSV(MultipartFile file, RedirectAttributes redirectAttributes) throws Exception {
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+
+        String masterNameRaw = reader.readLine();
+        String fieldLine = reader.readLine();
+
+        if (masterNameRaw == null || fieldLine == null) {
+            redirectAttributes.addFlashAttribute("error", "CSV must have master name in row 1 and fields in row 2.");
+            return "redirect:/masters/upload";
+        }
+
+        String masterName = masterNameRaw.split(",")[0].trim().replaceAll(",+$", "");
+        masterName = masterName.substring(0, Math.min(masterName.length(), 100));
+
+        Master master = new Master();
+        master.setName(masterName);
+
+        String[] fields = fieldLine.split(",");
+        List<MasterField> masterFields = new ArrayList<>();
+
+        for (String field : fields) {
+            field = field.trim();
+            if (field.isEmpty()) continue;
+            MasterField mf = new MasterField();
+            mf.setFieldName(field);
+            mf.setDataType(DataType.STRING);
+            mf.setMaster(master);
+            masterFields.add(mf);
+        }
+
+        master.setFields(masterFields);
+
+        String row;
+        while ((row = reader.readLine()) != null) {
+            String[] values = row.split(",");
+            for (int i = 0; i < masterFields.size(); i++) {
+                if (i < values.length) {
+                    String value = values[i].trim().replaceAll("\\s+", " ").trim();
+
+                    if (value.length() > 255) {
+                        value = value.substring(0, 255);
+                    }
+
+                    if (!value.isEmpty()) {
+                        FieldData data = new FieldData();
+                        data.setValue(value);
+                        data.setField(masterFields.get(i));
+                        masterFields.get(i).getFieldData().add(data);
+                    }
+                }
+            }
+        }
+
+        masterRepository.save(master);
+
+        redirectAttributes.addFlashAttribute("success", "Master created successfully!");
+        return "redirect:/masters/" + master.getId();
+    }
+
+    // Simple helper to get cell value as string
+    private String getCellValue(Cell cell) {
+        if (cell == null) return "";
+
+        if (cell.getCellType() == CellType.STRING) {
+            return cell.getStringCellValue();
+        } else if (cell.getCellType() == CellType.NUMERIC) {
+            return String.valueOf((long) cell.getNumericCellValue());
+        }
+        return "";
+    }
 }
