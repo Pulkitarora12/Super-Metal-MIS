@@ -184,8 +184,7 @@
             color: #2d3748;
         }
 
-        tr:last-child td,
-        tr:last-child th {
+        tr:last-child td, tr:last-child th {
             border-bottom: none;
         }
 
@@ -257,6 +256,7 @@
         }
     </style>
 </head>
+
 <body>
 <div class="container">
     <div class="header">
@@ -271,7 +271,8 @@
             <div class="module-card">
                 <div class="module-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                     </svg>
                 </div>
                 <h3>Production</h3>
@@ -286,7 +287,8 @@
             <div class="module-card">
                 <div class="module-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
                 <h3>RMIR & Quality</h3>
@@ -297,7 +299,20 @@
                 </div>
             </div>
 
-            <!-- Add more module cards here -->
+            <!-- Generic Masters Module -->
+            <div class="module-card">
+                <div class="module-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <h3>Generic Masters</h3>
+                <p>Manage custom data templates for multiple system modules.</p>
+                <div class="module-actions">
+                    <a th:href="@{/masters}" class="module-btn module-btn-primary">Master List</a>
+                    <a th:href="@{/masters/new}" class="module-btn module-btn-secondary">Create Master</a>
+                </div>
+            </div>
         </div>
 
         <!-- Right Side: User Details & Admin Panel -->
@@ -305,44 +320,15 @@
             <div class="card">
                 <h3>Account Information</h3>
                 <table>
-                    <tr>
-                        <th>User ID</th>
-                        <td th:text="${loggedInUser.userId}">12345</td>
-                    </tr>
-                    <tr>
-                        <th>Username</th>
-                        <td th:text="${loggedInUser.userName}">admin</td>
-                    </tr>
-                    <tr>
-                        <th>Email</th>
-                        <td th:text="${loggedInUser.email}">admin@example.com</td>
-                    </tr>
-
-                    <!-- 🔹 New Fields -->
-                    <tr>
-                        <th>Employee Name</th>
-                        <td th:text="${loggedInUser.employeeFullName}">John Doe</td>
-                    </tr>
-                    <tr>
-                        <th>Department</th>
-                        <td th:text="${loggedInUser.employeeDepartment}">Production</td>
-                    </tr>
-                    <tr>
-                        <th>Phone</th>
-                        <td th:text="${loggedInUser.employeePhone}">9876543210</td>
-                    </tr>
-                    <!-- 🔹 End -->
-
-                    <tr>
-                        <th>Role</th>
-                        <td th:text="${loggedInUser.role.roleName}">ADMIN</td>
-                    </tr>
-                    <tr>
-                        <th>Created</th>
-                        <td th:text="${loggedInUser.createdDate}">2024-01-01</td>
-                    </tr>
+                    <tr><th>User ID</th> <td th:text="${loggedInUser.userId}">12345</td></tr>
+                    <tr><th>Username</th> <td th:text="${loggedInUser.userName}">admin</td></tr>
+                    <tr><th>Email</th> <td th:text="${loggedInUser.email}">admin@example.com</td></tr>
+                    <tr><th>Employee Name</th> <td th:text="${loggedInUser.employeeFullName}">John Doe</td></tr>
+                    <tr><th>Department</th> <td th:text="${loggedInUser.employeeDepartment}">Production</td></tr>
+                    <tr><th>Phone</th> <td th:text="${loggedInUser.employeePhone}">9876543210</td></tr>
+                    <tr><th>Role</th> <td th:text="${loggedInUser.role.roleName}">ADMIN</td></tr>
+                    <tr><th>Created</th> <td th:text="${loggedInUser.createdDate}">2024-01-01</td></tr>
                 </table>
-
             </div>
 
             <div th:if="${loggedInUser.role.roleName.toString() == 'ROLE_ADMIN'}" class="admin-panel">

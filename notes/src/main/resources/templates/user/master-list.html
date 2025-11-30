@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>All Masters</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #1a202c;
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #1976d2;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #f6f9fc;
+        }
+
+        ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>All Masters</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th style="width:30%;">Master Name</th>
+            <th style="width:50%;">Fields</th>
+            <th style="width:20%;">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="master : ${masters}">
+            <td th:text="${master.name}"></td>
+            <td>
+                <ul>
+                    <li th:each="field : ${master.fields}" th:text="${field.fieldName}"></li>
+                </ul>
+            </td>
+            <td>
+                <a th:href="@{'/masters/' + ${master.id}}">
+                    <button class="btn btn-primary">View Details</button>
+                </a>
+            </td>
+        </tr>
+
+        <tr th:if="${masters == null or masters.isEmpty()}">
+            <td colspan="3" style="text-align:center; color: #718096;">
+                No masters available.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Action Buttons -->
+    <div class="actions">
+        <a th:href="@{/masters/new}">
+            <button class="btn btn-primary">Create New Master</button>
+        </a>
+        <a th:href="@{/auth/dashboard}">
+            <button class="btn btn-secondary">Back to Dashboard</button>
+        </a>
+    </div>
+</div>
+
+</body>
+</html>
