@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Production Entry History</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h2 {
+            color: #1976d2;
+            font-size: 26px;
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #1976d2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1565c0;
+        }
+
+        .btn-secondary {
+            background-color: #757575;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #616161;
+        }
+
+        .table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1300px;
+        }
+
+        thead {
+            background-color: #1976d2;
+            color: white;
+        }
+
+        th {
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 12px;
+            color: #333;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .id-cell {
+            font-weight: 600;
+            color: #1976d2;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* Scrollbar styling */
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #1976d2;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #1565c0;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            .table-container {
+                padding: 15px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Production Entry History</h2>
+        <div class="actions">
+            <a th:href="@{/production-entry}" class="btn btn-primary">New Entry</a>
+            <a th:href="@{/production-entry/export}" class="btn btn-secondary">Export</a>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Shift</th>
+                <th>Line</th>
+                <th>Machine</th>
+                <th>Operation</th>
+                <th>Operator 1</th>
+                <th>Operator 2</th>
+                <th>Part No</th>
+                <th>Part Name</th>
+                <th>Remarks</th>
+                <th>Time Slots</th>
+                <th>Downtime</th>
+                <th sec:authorize="hasRole('ADMIN')">Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="entry : ${entries}">
+                <td class="id-cell" th:text="${entry.id}"></td>
+                <td th:text="${entry.date}"></td>
+                <td th:text="${entry.shift}"></td>
+                <td th:text="${entry.line}"></td>
+                <td th:text="${entry.machine}"></td>
+                <td th:text="${entry.operation}"></td>
+                <td th:text="${entry.operator1}"></td>
+                <td th:text="${entry.operator2}"></td>
+                <td th:text="${entry.partNo}"></td>
+                <td th:text="${entry.partName}"></td>
+                <td th:text="${entry.remarks}"></td>
+                <td>
+                    <a th:href="@{/production-entry/{id}/timeslots(id=${entry.id})}"
+                       class="btn btn-primary">View Slots</a>
+                </td>
+                <td>
+                    <a th:href="@{/production-entry/{id}/downtime(id=${entry.id})}"
+                       class="btn btn-secondary">View Downtime</a>
+                </td>
+                <td sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/production-entry/{id}/delete(id=${entry.id})}"
+                       class="btn btn-secondary"
+                       style="background-color:#d32f2f;">Delete</a>
+                </td>
+            </tr>
+            <!-- Empty state when no entries -->
+            <tr th:if="${#lists.isEmpty(entries)}">
+                <td colspan="11">
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                        <h3>No entries found</h3>
+                        <p>Start by creating your first production entry</p>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

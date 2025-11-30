@@ -1,0 +1,15 @@
+# IDE
+.idea/
+
+# Environment variables
+.env
+env.sh
+
+# Node
+node_modules/
+
+# Maven build
+target/
+
+# Misc
+*.log

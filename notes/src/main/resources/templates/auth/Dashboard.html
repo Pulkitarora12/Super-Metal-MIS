@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h2 {
+            color: #1a202c;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            background: #e53e3e;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c53030;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+
+        .modules-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .module-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .module-icon {
+            width: 48px;
+            height: 48px;
+            background: #1976d2;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .module-icon svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .module-card h3 {
+            color: #1a202c;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .module-card p {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .module-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .module-btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+
+        .module-btn-primary:hover {
+            background: #1565c0;
+        }
+
+        .module-btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .module-btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+
+        .card h3 {
+            color: #2d3748;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px 0;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+
+        th {
+            color: #718096;
+            font-weight: 600;
+            width: 45%;
+        }
+
+        td {
+            color: #2d3748;
+        }
+
+        tr:last-child td,
+        tr:last-child th {
+            border-bottom: none;
+        }
+
+        .admin-panel {
+            background: #1976d2;
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-panel h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .admin-panel ul {
+            list-style: none;
+        }
+
+        .admin-panel li {
+            margin-bottom: 10px;
+        }
+
+        .admin-panel a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: inline-block;
+            transition: background 0.3s ease;
+            font-size: 14px;
+        }
+
+        .admin-panel a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .modules-section {
+                order: 1;
+            }
+
+            .sidebar {
+                order: 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .modules-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>Welcome, <span th:text="${loggedInUser.userName}"></span>!</h2>
+        <a th:href="@{/logout}" class="logout-btn">Logout</a>
+    </div>
+
+    <div class="main-content">
+        <!-- Left Side: Module Cards -->
+        <div class="modules-section">
+            <!-- Production Module -->
+            <div class="module-card">
+                <div class="module-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </div>
+                <h3>Production</h3>
+                <p>Daily production entry, shift logs, and efficiency reports.</p>
+                <div class="module-actions">
+                    <a th:href="@{/production-entry}" class="module-btn module-btn-primary">Entry</a>
+                    <a th:href="@{/production-entry/getAll}" class="module-btn module-btn-primary">View Production History</a>
+                </div>
+            </div>
+
+            <!-- RMIR & Quality Module -->
+            <div class="module-card">
+                <div class="module-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3>RMIR & Quality</h3>
+                <p>Raw Material Inspection Reports and Quality Observations.</p>
+                <div class="module-actions">
+                    <a th:href="@{/rmir-entry}" class="module-btn module-btn-primary">New RMIR</a>
+                    <a th:href="@{/rmir-entry/getAll}" class="module-btn module-btn-primary">View RMIR History</a>
+                </div>
+            </div>
+
+            <!-- Add more module cards here -->
+        </div>
+
+        <!-- Right Side: User Details & Admin Panel -->
+        <div class="sidebar">
+            <div class="card">
+                <h3>Account Information</h3>
+                <table>
+                    <tr>
+                        <th>User ID</th>
+                        <td th:text="${loggedInUser.userId}">12345</td>
+                    </tr>
+                    <tr>
+                        <th>Username</th>
+                        <td th:text="${loggedInUser.userName}">admin</td>
+                    </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td th:text="${loggedInUser.email}">admin@example.com</td>
+                    </tr>
+
+                    <!-- 🔹 New Fields -->
+                    <tr>
+                        <th>Employee Name</th>
+                        <td th:text="${loggedInUser.employeeFullName}">John Doe</td>
+                    </tr>
+                    <tr>
+                        <th>Department</th>
+                        <td th:text="${loggedInUser.employeeDepartment}">Production</td>
+                    </tr>
+                    <tr>
+                        <th>Phone</th>
+                        <td th:text="${loggedInUser.employeePhone}">9876543210</td>
+                    </tr>
+                    <!-- 🔹 End -->
+
+                    <tr>
+                        <th>Role</th>
+                        <td th:text="${loggedInUser.role.roleName}">ADMIN</td>
+                    </tr>
+                    <tr>
+                        <th>Created</th>
+                        <td th:text="${loggedInUser.createdDate}">2024-01-01</td>
+                    </tr>
+                </table>
+
+            </div>
+
+            <div th:if="${loggedInUser.role.roleName.toString() == 'ROLE_ADMIN'}" class="admin-panel">
+                <h3>Admin Panel</h3>
+                <ul>
+                    <li><a th:href="@{/admin/users}">View All Users</a></li>
+                    <li><a th:href="@{/admin/update-role}">Update User Role</a></li>
+                    <li><a th:href="@{/admin/register-employee}">Register Employee</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
