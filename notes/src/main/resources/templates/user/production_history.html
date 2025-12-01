@@ -218,6 +218,7 @@
                 <th>Remarks</th>
                 <th>Time Slots</th>
                 <th>Downtime</th>
+                <th>Inspector</th>
                 <th sec:authorize="hasRole('ADMIN')">Delete</th>
             </tr>
             </thead>
@@ -242,6 +243,7 @@
                     <a th:href="@{/production-entry/{id}/downtime(id=${entry.id})}"
                        class="btn btn-secondary">View Downtime</a>
                 </td>
+                <td th:text="${entry.inspector}"></td>
                 <td sec:authorize="hasRole('ADMIN')">
                     <a th:href="@{/production-entry/{id}/delete(id=${entry.id})}"
                        class="btn btn-secondary"

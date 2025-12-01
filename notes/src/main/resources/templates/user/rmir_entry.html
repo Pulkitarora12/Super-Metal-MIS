@@ -256,11 +256,8 @@
         </div>
 
         <div class="form-field">
-            <label>Inspectors:</label>
-            <select th:field="*{inspector}">
-                <option value="">-- Select Inspector --</option>
-                <option th:each="m : ${inspectors}" th:value="${m}" th:text="${m}"></option>
-            </select>
+            <label>Inspector:</label>
+            <input type="text" th:field="*{inspector}" />
         </div>
 
         <div class="form-field">

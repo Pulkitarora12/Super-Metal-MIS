@@ -11,6 +11,8 @@ import com.notes.notes.service.impl.ProductionEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -34,21 +36,34 @@ public class ProductionEntryController {
     private MasterService masterService;
 
     @GetMapping
-    public String showProductionEntryForm(Model model) {
+    public String showProductionEntryForm(@AuthenticationPrincipal UserDetails userDetails,
+            Model model) {
 
-        //fetching masters
         List<String> machineNames = masterService.getMachineNames();
         List<String> rejectionReasons = masterService.getRejectionReasons();
         List<Map<String, String>> partDetails = masterService.getPartDetailsList();
+        List<String> operations = masterService.getOperations();
+        List<String> operators = masterService.getOperators();
+        List<String> downtimeReasons = masterService.getDowntimeReasons();
+        String username = userDetails.getUsername();
 
-        // 3. Send to frontend
+        ProductionEntryRequestDTO dto = new ProductionEntryRequestDTO();
+        dto.setInspector(username);
+
+        // Send to frontend
         model.addAttribute("machineNames", machineNames);
         model.addAttribute("rejectionReasons", rejectionReasons);
         model.addAttribute("partDetails", partDetails);
-        model.addAttribute("dto", new ProductionEntryRequestDTO());
+        model.addAttribute("operations", operations);
+        model.addAttribute("operators", operators);
+        model.addAttribute("downtimeReasons", downtimeReasons);
+        model.addAttribute("username", username);
 
-        return "user/production_entry"; // Your production form page
+        model.addAttribute("dto", dto);
+
+        return "user/production_entry";
     }
+
 
     @PostMapping
     public String saveProduction(@ModelAttribute ProductionEntryRequestDTO dto,

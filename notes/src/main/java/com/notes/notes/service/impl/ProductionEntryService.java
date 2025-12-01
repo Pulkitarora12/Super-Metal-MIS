@@ -33,6 +33,7 @@ public class ProductionEntryService {
         entry.setPartName(dto.getPartName());
         entry.setRemarks(dto.getRemarks());
         entry.setSheetSize(dto.getSheetSize());
+        entry.setInspector(dto.getInspector());
 
         // Time slots
         List<TimeSlot> timeSlots = dto.getTimeSlots().stream().map(ts -> {

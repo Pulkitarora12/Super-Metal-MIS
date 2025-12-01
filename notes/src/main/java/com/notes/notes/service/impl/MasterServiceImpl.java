@@ -216,5 +216,49 @@ public class MasterServiceImpl implements MasterService {
         return result;
     }
 
+    @Override
+    public List<String> getOperations() {
+        Master operationMaster = masterRepository.findByName("Operation Master");
+
+        List<String> operations = new ArrayList<>();
+
+        if (operationMaster != null && !operationMaster.getFields().isEmpty()) {
+            MasterField field = operationMaster.getFields().get(0);
+            for (FieldData data : field.getFieldData()) {
+                operations.add(data.getValue());
+            }
+        }
+        return operations;
+    }
+
+    @Override
+    public List<String> getOperators() {
+        Master operatorMaster = masterRepository.findByName("Operator Master");
+
+        List<String> operators = new ArrayList<>();
+
+        if (operatorMaster != null && !operatorMaster.getFields().isEmpty()) {
+            MasterField field = operatorMaster.getFields().get(0);
+            for (FieldData data : field.getFieldData()) {
+                operators.add(data.getValue());
+            }
+        }
+        return operators;
+    }
+
+    @Override
+    public List<String> getDowntimeReasons() {
+        Master downtimeMaster = masterRepository.findByName("Downtime Master");
+
+        List<String> downtimes = new ArrayList<>();
+
+        if (downtimeMaster != null && !downtimeMaster.getFields().isEmpty()) {
+            MasterField field = downtimeMaster.getFields().get(0);
+            for (FieldData data : field.getFieldData()) {
+                downtimes.add(data.getValue());
+            }
+        }
+        return downtimes;
+    }
 
 }

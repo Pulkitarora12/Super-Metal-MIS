@@ -9,6 +9,8 @@ import com.notes.notes.service.RMIRService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +33,8 @@ public class RMIRController {
 
 
     @GetMapping
-    public String showForm(Model model, @ModelAttribute("loggedInUser") User loggedInUser) {
+    public String showForm(Model model, @ModelAttribute("loggedInUser") User loggedInUser,
+                           @AuthenticationPrincipal UserDetails userDetails) {
 
         List<String> grades = masterService.getGrades();
         List<String> suppliers = masterService.getSuppliers();
@@ -39,12 +42,16 @@ public class RMIRController {
         List<Map<String, String>> partDetails = masterService.getPartDetailsList();
 
         RMIRRequestDTO dto = new RMIRRequestDTO();
+        String username = userDetails.getUsername();
+        dto.setInspector(username);
 
         model.addAttribute("dto", dto);
         model.addAttribute("grades", grades);
         model.addAttribute("suppliers", suppliers);
         model.addAttribute("inspectors", inspectors);
         model.addAttribute("partDetails", partDetails);
+
+
 
         return "user/rmir_entry";
     }

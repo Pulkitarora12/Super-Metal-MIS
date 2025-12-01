@@ -1,6 +1,5 @@
 package com.notes.notes.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 

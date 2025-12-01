@@ -28,4 +28,10 @@ public interface MasterService {
     List<String> getInspectors();
 
     List<Map<String, String>> getPartDetailsList();
+
+    List<String> getOperations();
+
+    List<String> getOperators();
+
+    List<String> getDowntimeReasons();
 }
