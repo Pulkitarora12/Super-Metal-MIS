@@ -14,7 +14,7 @@ public class RMIRRequestDTO {
     private String partNo;
     private String partName;
     private String rmSize;
-    private String gradeMaster;
+    private String grade;
     private String stdGW;
     private String bundleGrade;
     private String bundleNo;

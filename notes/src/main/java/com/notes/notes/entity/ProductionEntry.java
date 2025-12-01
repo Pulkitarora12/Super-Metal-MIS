@@ -33,6 +33,7 @@ public class ProductionEntry {
     private String partNo;
     private String partName;
     private String remarks;
+    private String sheetSize;
 
     @OneToMany(mappedBy = "productionEntry", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimeSlot> timeSlots;

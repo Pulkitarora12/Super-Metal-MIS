@@ -67,7 +67,8 @@
             font-weight: 500;
             font-size: 14px;
             white-space: nowrap;
-            min-width: 140px;
+            width: 140px;
+            flex-shrink: 0;
         }
 
         input[type="text"],
@@ -187,36 +188,42 @@
 
     <div class="form-grid">
         <div class="form-field">
-            <label>Part No:</label>
-            <select th:field="*{partNo}">
-                <option value="">Select</option>
+            <label>Part Name:</label>
+            <select id="partNameSelect" th:field="*{partName}">
+                <option value="">-- Select Part Name --</option>
+                <option th:each="p : ${partDetails}"
+                        th:value="${p.partName}"
+                        th:text="${p.partName + ' (' + p.partNo + ')'}"
+                        th:attr="data-partNo=${p.partNo}, data-rmSize=${p.rmSize}, data-grade=${p.grade}, data-gw=${p.gw}">
+                </option>
             </select>
         </div>
 
         <div class="form-field">
-            <label>Part Name:</label>
-            <input type="text" th:field="*{partName}" />
+            <label>Part No:</label>
+            <input type="text" id="partNoInput" th:field="*{partNo}" readonly />
         </div>
 
         <div class="form-field">
             <label>RM Size:</label>
-            <input type="text" th:field="*{rmSize}" />
+            <input id="rmSizeInput" type="text" th:field="*{rmSize}" readonly />
         </div>
 
         <div class="form-field">
-            <label>Grade (Master):</label>
-            <input type="text" th:field="*{gradeMaster}" />
+            <label>RM Grade:</label>
+            <input id="rmGradeInput" type="text" th:field="*{grade}" readonly />
         </div>
 
         <div class="form-field">
             <label>Std GW:</label>
-            <input type="text" th:field="*{stdGW}" />
+            <input id="stdGWInput" type="text" th:field="*{stdGW}" readonly />
         </div>
 
         <div class="form-field">
             <label>Bundle Grade:</label>
-            <select th:field="*{bundleGrade}">
-                <option value="">Select</option>
+            <select id="bundleGradeInput" th:field="*{bundleGrade}">
+                <option value="">-- Select Grades --</option>
+                <option th:each="m : ${grades}" th:value="${m}" th:text="${m}"></option>
             </select>
         </div>
 
@@ -241,16 +248,18 @@
         </div>
 
         <div class="form-field">
-            <label>Supplier:</label>
+            <label>Suppliers:</label>
             <select th:field="*{supplier}">
-                <option value="">Select</option>
+                <option value="">-- Select Supplier --</option>
+                <option th:each="m : ${suppliers}" th:value="${m}" th:text="${m}"></option>
             </select>
         </div>
 
         <div class="form-field">
-            <label>Inspector:</label>
+            <label>Inspectors:</label>
             <select th:field="*{inspector}">
-                <option value="">Select</option>
+                <option value="">-- Select Inspector --</option>
+                <option th:each="m : ${inspectors}" th:value="${m}" th:text="${m}"></option>
             </select>
         </div>
 
@@ -307,6 +316,20 @@
         tableBody.innerHTML = "";
         observationIndex = 0;
     }
+
+    document.getElementById('partNameSelect').addEventListener('change', function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const partNo = selectedOption.getAttribute('data-partNo');
+        const rmSize = selectedOption.getAttribute('data-rmSize');
+        const grade = selectedOption.getAttribute('data-grade');
+        const gw = selectedOption.getAttribute('data-gw');
+
+        document.getElementById('partNoInput').value = partNo || '';
+        document.getElementById('rmSizeInput').value = rmSize || '';
+        document.getElementById('rmGradeInput').value = grade || '';
+        document.getElementById('stdGWInput').value = gw || '';
+    });
+
 </script>
 
 </body>

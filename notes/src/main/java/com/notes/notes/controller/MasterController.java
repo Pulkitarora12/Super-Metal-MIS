@@ -3,6 +3,7 @@ package com.notes.notes.controller;
 import com.notes.notes.dto.FieldDataCreateDTO;
 import com.notes.notes.dto.MasterCreateDTO;
 import com.notes.notes.dto.MasterFieldCreateDTO;
+import com.notes.notes.dto.ProductionEntryRequestDTO;
 import com.notes.notes.entity.DataType;
 import com.notes.notes.entity.FieldData;
 import com.notes.notes.entity.Master;
@@ -12,6 +13,7 @@ import com.notes.notes.service.MasterService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -69,6 +71,7 @@ public class MasterController {
     }
 
     @PostMapping("/{id}/delete")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String deleteMaster(@PathVariable Long id) {
         masterService.deleteMaster(id);
         return "redirect:/masters";
@@ -222,15 +225,34 @@ public class MasterController {
         return "redirect:/masters/" + master.getId();
     }
 
-    // Simple helper to get cell value as string
     private String getCellValue(Cell cell) {
         if (cell == null) return "";
 
-        if (cell.getCellType() == CellType.STRING) {
-            return cell.getStringCellValue();
-        } else if (cell.getCellType() == CellType.NUMERIC) {
-            return String.valueOf((long) cell.getNumericCellValue());
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim();
+
+            case NUMERIC:
+                double numericValue = cell.getNumericCellValue();
+                // If it's an integer (like 1.0), avoid trailing .0
+                if (numericValue == Math.floor(numericValue)) {
+                    return String.valueOf((long) numericValue);
+                } else {
+                    return String.valueOf(numericValue);
+                }
+
+            case FORMULA:
+                // Evaluate formula if needed
+                try {
+                    return cell.getStringCellValue();
+                } catch (IllegalStateException e) {
+                    double val = cell.getNumericCellValue();
+                    return (val == Math.floor(val)) ? String.valueOf((long) val) : String.valueOf(val);
+                }
+
+            default:
+                return "";
         }
-        return "";
     }
+
 }

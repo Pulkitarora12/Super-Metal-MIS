@@ -2,7 +2,9 @@ package com.notes.notes.controller;
 
 import com.notes.notes.dto.RMIRRequestDTO;
 import com.notes.notes.entity.RMIR;
+import com.notes.notes.entity.User;
 import com.notes.notes.repository.RMIRRepository;
+import com.notes.notes.service.MasterService;
 import com.notes.notes.service.RMIRService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/rmir-entry")
@@ -23,12 +26,29 @@ public class RMIRController {
 
     @Autowired
     private RMIRRepository repository;
+    @Autowired
+    private MasterService masterService;
+
 
     @GetMapping
-    public String showForm(Model model) {
-        model.addAttribute("dto", new RMIRRequestDTO());
+    public String showForm(Model model, @ModelAttribute("loggedInUser") User loggedInUser) {
+
+        List<String> grades = masterService.getGrades();
+        List<String> suppliers = masterService.getSuppliers();
+        List<String> inspectors = masterService.getInspectors();
+        List<Map<String, String>> partDetails = masterService.getPartDetailsList();
+
+        RMIRRequestDTO dto = new RMIRRequestDTO();
+
+        model.addAttribute("dto", dto);
+        model.addAttribute("grades", grades);
+        model.addAttribute("suppliers", suppliers);
+        model.addAttribute("inspectors", inspectors);
+        model.addAttribute("partDetails", partDetails);
+
         return "user/rmir_entry";
     }
+
 
     @PostMapping
     public String submitRMIR(@ModelAttribute RMIRRequestDTO dto,
@@ -55,7 +75,7 @@ public class RMIRController {
                     .append(entry.getPartNo()).append(",")
                     .append(entry.getPartName()).append(",")
                     .append(entry.getRmSize()).append(",")
-                    .append(entry.getGradeMaster()).append(",")
+                    .append(entry.getGrade()).append(",")
                     .append(entry.getBundleGrade()).append(",")
                     .append(entry.getBundleNo()).append(",")
                     .append(entry.getBundleGW()).append(",")

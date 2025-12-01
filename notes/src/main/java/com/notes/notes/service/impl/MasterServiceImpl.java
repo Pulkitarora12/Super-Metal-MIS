@@ -11,7 +11,10 @@ import com.notes.notes.service.MasterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MasterServiceImpl implements MasterService {
@@ -111,6 +114,106 @@ public class MasterServiceImpl implements MasterService {
     @Override
     public void deleteMaster(Long id) {
         masterRepository.deleteById(id);
+    }
+
+    @Override
+    public List<String> getMachineNames() {
+        Master machineMaster = masterRepository.findByName("Machine Master");
+
+        List<String> machineNames = new ArrayList<>();
+
+        if (machineMaster != null && !machineMaster.getFields().isEmpty()) {
+            MasterField field = machineMaster.getFields().get(0); // First column only
+            for (FieldData data : field.getFieldData()) {
+                machineNames.add(data.getValue());
+            }
+        }
+
+        return machineNames;
+    }
+
+    @Override
+    public List<String> getRejectionReasons() {
+        Master rejectionMaster = masterRepository.findByName("Rejection Master");
+
+        List<String> rejectionReasons = new ArrayList<>();
+
+        if (rejectionMaster != null && !rejectionMaster.getFields().isEmpty()) {
+            MasterField field = rejectionMaster.getFields().get(0); // First column only
+            for (FieldData data : field.getFieldData()) {
+                rejectionReasons.add(data.getValue());
+            }
+        }
+
+        return rejectionReasons;
+    }
+
+    @Override
+    public List<String> getGrades() {
+        Master gradeMaster = masterRepository.findByName("Grade Master");
+
+        List<String> grades = new ArrayList<>();
+
+        if (gradeMaster != null && !gradeMaster.getFields().isEmpty()) {
+            MasterField field = gradeMaster.getFields().get(0); // First column only
+            for (FieldData data : field.getFieldData()) {
+                grades.add(data.getValue());
+            }
+        }
+
+        return grades;
+    }
+
+    @Override
+    public List<String> getSuppliers() {
+        Master supplierMaster = masterRepository.findByName("Supplier Master");
+
+        List<String> suppliers = new ArrayList<>();
+
+        if (supplierMaster != null && !supplierMaster.getFields().isEmpty()) {
+            MasterField field = supplierMaster.getFields().get(0); // First column only
+            for (FieldData data : field.getFieldData()) {
+                suppliers.add(data.getValue());
+            }
+        }
+
+        return suppliers;
+    }
+
+    @Override
+    public List<String> getInspectors() {
+        Master inspectorMaster = masterRepository.findByName("Inspector Master");
+
+        List<String> inspectors = new ArrayList<>();
+
+        if (inspectorMaster != null && !inspectorMaster.getFields().isEmpty()) {
+            MasterField field = inspectorMaster.getFields().get(0); // First column only
+            for (FieldData data : field.getFieldData()) {
+                inspectors.add(data.getValue());
+            }
+        }
+
+        return inspectors;
+    }
+
+    @Override
+    public List<Map<String, String>> getPartDetailsList() {
+        Master master = masterRepository.findByName("Parts");
+        List<Map<String, String>> result = new ArrayList<>();
+
+        if (master != null) {
+            for (int i = 0; i < master.getFields().get(0).getFieldData().size(); i++) {
+                Map<String, String> map = new HashMap<>();
+                map.put("model", master.getFields().get(0).getFieldData().get(i).getValue());
+                map.put("partNo", master.getFields().get(1).getFieldData().get(i).getValue());
+                map.put("partName", master.getFields().get(2).getFieldData().get(i).getValue());
+                map.put("rmSize", master.getFields().get(3).getFieldData().get(i).getValue());
+                map.put("grade", master.getFields().get(4).getFieldData().get(i).getValue());
+                map.put("gw", master.getFields().get(5).getFieldData().get(i).getValue());
+                result.add(map);
+            }
+        }
+        return result;
     }
 
 

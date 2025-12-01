@@ -88,15 +88,27 @@
         }
 
         .actions {
-            margin-top: 20px;
             display: flex;
+            justify-content: flex-end;
             gap: 10px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
+
+    <!-- Buttons moved to TOP -->
+    <div class="actions">
+        <a th:href="@{/masters/new}">
+            <button class="btn btn-primary">Create New Master</button>
+        </a>
+        <a th:href="@{/auth/dashboard}">
+            <button class="btn btn-secondary">Back to Dashboard</button>
+        </a>
+    </div>
+
     <h2>All Masters</h2>
 
     <table>
@@ -130,15 +142,6 @@
         </tbody>
     </table>
 
-    <!-- Action Buttons -->
-    <div class="actions">
-        <a th:href="@{/masters/new}">
-            <button class="btn btn-primary">Create New Master</button>
-        </a>
-        <a th:href="@{/auth/dashboard}">
-            <button class="btn btn-secondary">Back to Dashboard</button>
-        </a>
-    </div>
 </div>
 
 </body>

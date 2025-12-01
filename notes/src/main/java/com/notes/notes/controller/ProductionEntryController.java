@@ -1,7 +1,12 @@
 package com.notes.notes.controller;
 
 import com.notes.notes.dto.ProductionEntryRequestDTO;
+import com.notes.notes.entity.FieldData;
+import com.notes.notes.entity.Master;
+import com.notes.notes.entity.MasterField;
 import com.notes.notes.entity.ProductionEntry;
+import com.notes.notes.repository.MasterRepository;
+import com.notes.notes.service.MasterService;
 import com.notes.notes.service.impl.ProductionEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +16,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/production-entry")
@@ -20,10 +27,27 @@ public class ProductionEntryController {
     @Autowired
     private ProductionEntryService service;
 
+    @Autowired
+    private MasterRepository  masterRepository;
+
+    @Autowired
+    private MasterService masterService;
+
     @GetMapping
-    public String showProductionForm(Model model) {
+    public String showProductionEntryForm(Model model) {
+
+        //fetching masters
+        List<String> machineNames = masterService.getMachineNames();
+        List<String> rejectionReasons = masterService.getRejectionReasons();
+        List<Map<String, String>> partDetails = masterService.getPartDetailsList();
+
+        // 3. Send to frontend
+        model.addAttribute("machineNames", machineNames);
+        model.addAttribute("rejectionReasons", rejectionReasons);
+        model.addAttribute("partDetails", partDetails);
         model.addAttribute("dto", new ProductionEntryRequestDTO());
-        return "user/production_entry"; // your HTML page name
+
+        return "user/production_entry"; // Your production form page
     }
 
     @PostMapping

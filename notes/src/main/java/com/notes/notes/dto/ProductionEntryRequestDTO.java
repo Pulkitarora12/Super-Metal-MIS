@@ -23,6 +23,7 @@ public class ProductionEntryRequestDTO {
     private String partNo;
     private String partName;
     private String remarks;
+    private String sheetSize;
 
     private List<TimeSlotDTO> timeSlots = new ArrayList<>();
     private List<DowntimeDTO> downtimeEntries = new ArrayList<>();

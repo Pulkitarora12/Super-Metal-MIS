@@ -25,7 +25,7 @@ public class RMIRServiceImpl implements RMIRService {
         rmir.setPartNo(dto.getPartNo());
         rmir.setPartName(dto.getPartName());
         rmir.setRmSize(dto.getRmSize());
-        rmir.setGradeMaster(dto.getGradeMaster());
+        rmir.setGrade(dto.getGrade());
         rmir.setStdGW(dto.getStdGW());
         rmir.setBundleGrade(dto.getBundleGrade());
         rmir.setBundleNo(dto.getBundleNo());
