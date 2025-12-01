@@ -34,6 +34,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     VerificationTokenRepository verificationTokenRepository;
 
+    @Autowired
+    GoogleSheetsService googleSheetsService;
 
     @Override
     public User saveUser(User user) {
@@ -65,6 +67,13 @@ public class UserServiceImpl implements UserService {
 
         verificationTokenRepository.save(token);
 
+        try {
+            googleSheetsService.addUserToSheet(savedUser);
+        } catch (Exception e) {
+            System.err.println("⚠️ Failed to sync user to Google Sheets: " + e.getMessage());
+            // Don't throw exception - we still want the user saved to DB even if Sheets fails
+        }
+
         // Send email to admin
         emailService.sendVerificationEmailToAdmin(savedUser, tokenValue);
 
@@ -89,7 +98,14 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
 
         user.setRole(role);
-        userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+
+        // ✅ NEW: Update in Google Sheets
+        try {
+            googleSheetsService.updateUserInSheet(updatedUser);
+        } catch (Exception e) {
+            System.err.println("⚠️ Failed to update user in Google Sheets: " + e.getMessage());
+        }
     }
 
 
@@ -99,6 +115,11 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User not found with ID: " + userId);
         }
         userRepository.deleteById(userId);
+        try {
+            googleSheetsService.deleteUserFromSheet(userId);
+        } catch (Exception e) {
+            System.err.println("⚠️ Failed to delete user from Google Sheets: " + e.getMessage());
+        }
     }
 
     @Override

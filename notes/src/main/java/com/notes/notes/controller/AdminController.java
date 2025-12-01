@@ -6,6 +6,7 @@ import com.notes.notes.repository.UserRepository;
 import com.notes.notes.repository.VerificationTokenRepository;
 import com.notes.notes.security.request.SignupRequest;
 import com.notes.notes.service.UserService;
+import com.notes.notes.service.impl.GoogleSheetsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,9 @@ public class AdminController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    GoogleSheetsService googleSheetsService;
 
     @GetMapping("/users")
     public String viewAllUsers(Model model) {
@@ -93,6 +97,13 @@ public class AdminController {
         user.setVerified(true);
 
         userRepository.save(user);
+
+        try {
+            googleSheetsService.updateUserInSheet(user);
+            System.out.println("✅ User verification synced to Google Sheets: " + user.getUserName());
+        } catch (Exception e) {
+            System.err.println("⚠️ Failed to update verification status in Google Sheets: " + e.getMessage());
+        }
 
         // Mark token as used or delete it
         verificationToken.setUsed(true);

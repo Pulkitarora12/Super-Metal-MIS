@@ -61,6 +61,7 @@ public class ProductionEntryService {
         entry.setTimeSlots(timeSlots);
         entry.setDowntimeEntries(downtimeList);
 
+
         return repository.save(entry);
     }
 

@@ -120,6 +120,7 @@ public class AuthController {
             user.setEnabled(true);
         }
 
+        user.setEnabled(true);
         userService.saveUser(user);
 
         model.addAttribute("success", "Employee registered successfully!");
