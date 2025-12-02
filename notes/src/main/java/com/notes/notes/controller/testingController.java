@@ -14,7 +14,7 @@ public class testingController {
 //
     @GetMapping("/")
     public static String nil() {
-        return "home";
+        return "auth/login";
     }
 //
 //    @GetMapping("/public/hello")

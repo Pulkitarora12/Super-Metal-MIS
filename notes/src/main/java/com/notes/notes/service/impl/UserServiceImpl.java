@@ -52,6 +52,12 @@ public class UserServiceImpl implements UserService {
 
         // If user already verified, don't send email
         if (savedUser.isVerified()) {
+            try {
+                googleSheetsService.addUserToSheet(savedUser);
+            } catch (Exception e) {
+                System.err.println("⚠️ Failed to sync user to Google Sheets: " + e.getMessage());
+                // Don't throw exception - we still want the user saved to DB even if Sheets fails
+            }
             return savedUser;
         }
 

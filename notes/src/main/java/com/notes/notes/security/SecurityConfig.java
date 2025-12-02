@@ -5,8 +5,6 @@ import com.notes.notes.entity.Role;
 import com.notes.notes.entity.User;
 import com.notes.notes.repository.RoleRepository;
 import com.notes.notes.repository.UserRepository;
-import com.notes.notes.security.jwt.AuthEntryPointJwt;
-import com.notes.notes.security.jwt.AuthTokenFilter;
 import com.notes.notes.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -33,13 +31,6 @@ import java.time.LocalDate;
         securedEnabled = true,
         jsr250Enabled = true)
 public class SecurityConfig {
-    @Autowired
-    private AuthEntryPointJwt unauthorizedHandler;
-
-    @Bean
-    public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
-    }
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -60,9 +51,6 @@ public class SecurityConfig {
                                 response.sendRedirect("/auth/login")
                 )
         );
-
-
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
 // ---- FORM LOGIN CONFIG ----
         http.formLogin(form -> form
@@ -94,6 +82,50 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CommandLineRunner createAdminUser(UserRepository userRepository,
+                                             RoleRepository roleRepository,
+                                             PasswordEncoder passwordEncoder) {
+        return args -> {
+
+            String adminEmail = "admin@supermetal.com";
+
+            // If admin user already exists, skip
+            if (userRepository.findByEmail(adminEmail).isPresent()) {
+                System.out.println("[ADMIN] Admin user already exists.");
+                return;
+            }
+
+            // Ensure ADMIN role exists
+            Role adminRole = roleRepository.findByRoleName(AppRole.valueOf(AppRole.ROLE_ADMIN.name()))
+                    .orElseGet(() -> {
+                        Role newRole = new Role();
+                        newRole.setRoleName(AppRole.valueOf(AppRole.ROLE_ADMIN.name()));
+                        return roleRepository.save(newRole);
+                    });
+
+            // Create Admin User
+            User admin = new User();
+            admin.setUserName("superadmin");
+            admin.setEmail(adminEmail);
+            admin.setPassword(passwordEncoder.encode("Admin@123"));
+            admin.setVerified(true);
+            admin.setEnabled(true);
+            admin.setAccountNonExpired(true);
+            admin.setAccountNonLocked(true);
+            admin.setCredentialsNonExpired(true);
+            admin.setRole(adminRole);
+
+            admin.setEmployeeFullName("Super Admin");
+            admin.setEmployeeDepartment("Management");
+            admin.setEmployeePhone("9999999999");
+
+            userRepository.save(admin);
+
+            System.out.println("[ADMIN] Default admin created successfully!");
+        };
     }
 
 }

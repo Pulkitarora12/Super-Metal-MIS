@@ -3,7 +3,6 @@ package com.notes.notes.controller;
 import com.notes.notes.entity.User;
 import com.notes.notes.repository.RoleRepository;
 import com.notes.notes.repository.UserRepository;
-import com.notes.notes.security.jwt.JwtUtils;
 import com.notes.notes.security.request.SignupRequest;
 import com.notes.notes.security.services.UserDetailsImpl;
 import com.notes.notes.service.UserService;
@@ -24,9 +23,6 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
-
-    @Autowired
-    JwtUtils jwtUtils;
 
     @Autowired
     AuthenticationManager authenticationManager;
