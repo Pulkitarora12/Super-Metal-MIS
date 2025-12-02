@@ -1,10 +1,7 @@
 package com.notes.notes.controller;
 
 import com.notes.notes.dto.ProductionEntryRequestDTO;
-import com.notes.notes.entity.FieldData;
-import com.notes.notes.entity.Master;
-import com.notes.notes.entity.MasterField;
-import com.notes.notes.entity.ProductionEntry;
+import com.notes.notes.entity.*;
 import com.notes.notes.repository.MasterRepository;
 import com.notes.notes.service.MasterService;
 import com.notes.notes.service.impl.ProductionEntryService;
@@ -115,7 +112,16 @@ public class ProductionEntryController {
 
     @GetMapping("/{id}/downtime")
     public String viewDowntime(@PathVariable Long id, Model model) {
-        model.addAttribute("downtimes", service.getDowntimeByEntry(id));
+        List<DowntimeEntry> downtimes = service.getDowntimeByEntry(id);
+
+        // Ensure no null minutes
+        downtimes.forEach(dt -> {
+            if (dt.getMinutes() == null) {
+                dt.setMinutes(0);
+            }
+        });
+
+        model.addAttribute("downtimes", downtimes);
         model.addAttribute("entryId", id);
         return "user/downtime";
     }

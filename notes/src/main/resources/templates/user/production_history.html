@@ -224,7 +224,7 @@
             </thead>
             <tbody>
             <tr th:each="entry : ${entries}">
-                <td class="id-cell" th:text="${entry.id}"></td>
+                <td th:text="${entry.id}"></td>
                 <td th:text="${entry.date}"></td>
                 <td th:text="${entry.shift}"></td>
                 <td th:text="${entry.line}"></td>
@@ -235,15 +235,27 @@
                 <td th:text="${entry.partNo}"></td>
                 <td th:text="${entry.partName}"></td>
                 <td th:text="${entry.remarks}"></td>
+
+                <!-- Time Slots Column -->
                 <td>
-                    <a th:href="@{/production-entry/{id}/timeslots(id=${entry.id})}"
-                       class="btn btn-primary">View Slots</a>
+                    <a th:href="@{'/production-entry/' + ${entry.id} + '/timeslots'}"
+                       class="btn btn-primary">
+                        Timeslots
+                    </a>
                 </td>
+
+                <!-- Downtime Column -->
                 <td>
-                    <a th:href="@{/production-entry/{id}/downtime(id=${entry.id})}"
-                       class="btn btn-secondary">View Downtime</a>
+                    <a th:href="@{'/production-entry/' + ${entry.id} + '/downtime'}"
+                       class="btn btn-secondary">
+                        Downtime
+                    </a>
                 </td>
+
+                <!-- Inspector Column -->
                 <td th:text="${entry.inspector}"></td>
+
+                <!-- Delete Column (ADMIN only) -->
                 <td sec:authorize="hasRole('ADMIN')">
                     <a th:href="@{/production-entry/{id}/delete(id=${entry.id})}"
                        class="btn btn-secondary"

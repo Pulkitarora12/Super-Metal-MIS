@@ -313,7 +313,7 @@
     <div class="summary-card" th:if="${!#lists.isEmpty(downtimes)}">
         <span class="summary-label">Total Downtime</span>
         <span class="summary-value">
-            <span th:text="${#aggregates.sum(downtimes.![minutes])}"></span> minutes
+            <span th:text="${#aggregates.sum(downtimes.![minutes != null ? minutes : 0])}"></span> minutes
         </span>
     </div>
 </div>
