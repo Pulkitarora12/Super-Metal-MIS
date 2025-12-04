@@ -26,7 +26,8 @@ public class ProductionEntryRequestDTO {
     private String sheetSize;
     private String inspector;
 
-    private List<TimeSlotDTO> timeSlots = new ArrayList<>();
+    // Changed from List to single object
+    private TimeSlotDTO timeSlot;
     private List<DowntimeDTO> downtimeEntries = new ArrayList<>();
 
 

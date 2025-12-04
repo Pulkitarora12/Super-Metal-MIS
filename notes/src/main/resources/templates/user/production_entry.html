@@ -106,7 +106,7 @@
         }
 
         table thead {
-            background: #1976d2; /* Blue headers */
+            background: #1976d2;
             color: white;
         }
 
@@ -189,7 +189,7 @@
         /* Align cells better */
         #downtimeTable td {
             vertical-align: middle;
-            padding: 10px 15px;  /* More spacing */
+            padding: 10px 15px;
         }
 
         /* Move Remove button slightly right */
@@ -201,6 +201,18 @@
 
         .button-group.downtime-btn {
             margin-top: 12px;
+        }
+
+        /* Time slot table styling */
+        #timeSlotTable td input,
+        #timeSlotTable td select {
+            width: 95%;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        #timeSlotTable td {
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -292,14 +304,10 @@
         </div>
     </div>
 
-    <!-- Time Slots -->
+    <!-- Time Slot (Single Row Table) -->
     <div class="section">
-        <h3>Time Slots</h3>
-        <div class="button-group">
-            <button type="button" onclick="addPreset()">Preset</button>
-            <button type="button" onclick="addTimeSlot()">+ Add Row</button>
-        </div>
-        <table id="timeSlotsTable">
+        <h3>Time Slot</h3>
+        <table id="timeSlotTable">
             <thead>
             <tr>
                 <th>From</th>
@@ -309,15 +317,25 @@
                 <th>Rejected</th>
                 <th>Reason</th>
                 <th>Remarks</th>
-                <th>Action</th>
             </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+            <tr>
+                <td><input type="time" th:field="*{timeSlot.fromTime}" /></td>
+                <td><input type="time" th:field="*{timeSlot.toTime}" /></td>
+                <td><input type="number" th:field="*{timeSlot.produced}" /></td>
+                <td><input type="number" th:field="*{timeSlot.segregated}" /></td>
+                <td><input type="number" th:field="*{timeSlot.rejected}" /></td>
+                <td>
+                    <select th:field="*{timeSlot.reason}">
+                        <option value="">-- Select Reason --</option>
+                        <option th:each="r : ${rejectionReasons}" th:value="${r}" th:text="${r}"></option>
+                    </select>
+                </td>
+                <td><input type="text" th:field="*{timeSlot.remarks}" /></td>
+            </tr>
+            </tbody>
         </table>
-        <select id="reasonTemplate" style="display:none;">
-            <option value="">-- Select Reason --</option>
-            <option th:each="r : ${rejectionReasons}" th:value="${r}" th:text="${r}"></option>
-        </select>
     </div>
 
     <!-- Downtime -->
@@ -350,37 +368,7 @@
 </form>
 
 <script>
-    let timeSlotIndex = 0, downtimeIndex = 0, presetIndex = 0;
-    const presetTimes = [
-        { from: "08:30", to: "11:00" },
-        { from: "11:00", to: "13:30" },
-        { from: "13:30", to: "15:30" },
-        { from: "15:30", to: "17:30" },
-        { from: "17:30", to: "20:00" }
-    ];
-
-    function addPreset() {
-        if (presetIndex >= presetTimes.length) return alert("All preset time slots have been used!");
-        const preset = presetTimes[presetIndex++];
-        addTimeSlot(preset.from, preset.to);
-    }
-
-    function addTimeSlot(fromTime = "", toTime = "") {
-        const table = document.querySelector('#timeSlotsTable tbody');
-        const reasonOptions = document.getElementById('reasonTemplate').innerHTML;
-        table.insertAdjacentHTML('beforeend', `
-            <tr>
-                <td><input type="time" name="timeSlots[${timeSlotIndex}].fromTime" value="${fromTime}"></td>
-                <td><input type="time" name="timeSlots[${timeSlotIndex}].toTime" value="${toTime}"></td>
-                <td><input type="number" name="timeSlots[${timeSlotIndex}].produced"></td>
-                <td><input type="number" name="timeSlots[${timeSlotIndex}].segregated"></td>
-                <td><input type="number" name="timeSlots[${timeSlotIndex}].rejected"></td>
-                <td><select name="timeSlots[${timeSlotIndex}].reason">${reasonOptions}</select></td>
-                <td><input type="text" name="timeSlots[${timeSlotIndex}].remarks"></td>
-                <td><button type="button" onclick="this.closest('tr').remove()">Remove</button></td>
-            </tr>`);
-        timeSlotIndex++;
-    }
+    let downtimeIndex = 0;
 
     function addDowntime() {
         const table = document.querySelector('#downtimeTable tbody');

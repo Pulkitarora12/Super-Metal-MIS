@@ -24,7 +24,6 @@ public class ProductionGoogleSheetsService {
     private String spreadsheetId;
 
     private static final String PRODUCTION_SHEET = "ProductionEntry";
-    private static final String TIMESLOT_SHEET = "TimeSlots";
     private static final String DOWNTIME_SHEET = "DowntimeEntries";
 
     // ==================== PRODUCTION ENTRY OPERATIONS ====================
@@ -35,7 +34,6 @@ public class ProductionGoogleSheetsService {
      */
     public void addProductionEntryToSheet(ProductionEntry entry) {
         try {
-            // Add main production entry
             List<Object> row = convertProductionEntryToRow(entry);
             ValueRange body = new ValueRange().setValues(Arrays.asList(row));
 
@@ -44,26 +42,20 @@ public class ProductionGoogleSheetsService {
                     .setValueInputOption("RAW")
                     .execute();
 
-            System.out.println("✅ ProductionEntry added to Google Sheets: ID " + entry.getId());
+            System.out.println("✅ ProductionEntry added: " + entry.getId());
 
-            // Add all time slots
-            if (entry.getTimeSlots() != null && !entry.getTimeSlots().isEmpty()) {
-                for (TimeSlot timeSlot : entry.getTimeSlots()) {
-                    addTimeSlotToSheet(timeSlot);
-                }
-            }
-
-            // Add all downtime entries
-            if (entry.getDowntimeEntries() != null && !entry.getDowntimeEntries().isEmpty()) {
-                for (DowntimeEntry downtime : entry.getDowntimeEntries()) {
-                    addDowntimeEntryToSheet(downtime);
+            // Downtime entries still added separately
+            if (entry.getDowntimeEntries() != null) {
+                for (DowntimeEntry d : entry.getDowntimeEntries()) {
+                    addDowntimeEntryToSheet(d);
                 }
             }
 
         } catch (IOException e) {
-            System.err.println("❌ Error adding ProductionEntry to Google Sheets: " + e.getMessage());
+            System.err.println("❌ Error: " + e.getMessage());
         }
     }
+
 
     /**
      * UPDATE: Update existing production entry in Google Sheets
@@ -71,46 +63,38 @@ public class ProductionGoogleSheetsService {
      */
     public void updateProductionEntryInSheet(ProductionEntry entry) {
         try {
-            // Find and update main production entry
             int rowNumber = findRowByProductionEntryId(entry.getId());
 
             if (rowNumber == -1) {
-                System.out.println("⚠️ ProductionEntry not found in sheet, adding new row");
                 addProductionEntryToSheet(entry);
                 return;
             }
 
             List<Object> row = convertProductionEntryToRow(entry);
             ValueRange body = new ValueRange().setValues(Arrays.asList(row));
-            String range = PRODUCTION_SHEET + "!A" + rowNumber + ":M" + rowNumber; // A to M columns
+
+            String range = PRODUCTION_SHEET + "!A" + rowNumber + ":T" + rowNumber;
 
             sheetsClient.spreadsheets().values()
                     .update(spreadsheetId, range, body)
                     .setValueInputOption("RAW")
                     .execute();
 
-            System.out.println("✅ ProductionEntry updated in Google Sheets: ID " + entry.getId());
+            System.out.println("✅ ProductionEntry updated: " + entry.getId());
 
-            // Delete and re-add all timeslots (simpler than selective update)
-            deleteAllTimeSlotsForProductionEntry(entry.getId());
-            if (entry.getTimeSlots() != null && !entry.getTimeSlots().isEmpty()) {
-                for (TimeSlot timeSlot : entry.getTimeSlots()) {
-                    addTimeSlotToSheet(timeSlot);
-                }
-            }
-
-            // Delete and re-add all downtime entries
+            // remove old downtime and re-add
             deleteAllDowntimeEntriesForProductionEntry(entry.getId());
-            if (entry.getDowntimeEntries() != null && !entry.getDowntimeEntries().isEmpty()) {
-                for (DowntimeEntry downtime : entry.getDowntimeEntries()) {
-                    addDowntimeEntryToSheet(downtime);
+            if (entry.getDowntimeEntries() != null) {
+                for (DowntimeEntry d : entry.getDowntimeEntries()) {
+                    addDowntimeEntryToSheet(d);
                 }
             }
 
         } catch (IOException e) {
-            System.err.println("❌ Error updating ProductionEntry in Google Sheets: " + e.getMessage());
+            System.err.println("❌ Error updating: " + e.getMessage());
         }
     }
+
 
     /**
      * DELETE: Delete production entry from Google Sheets
@@ -118,8 +102,6 @@ public class ProductionGoogleSheetsService {
      */
     public void deleteProductionEntryFromSheet(Long productionEntryId) {
         try {
-            // Delete all timeslots first
-            deleteAllTimeSlotsForProductionEntry(productionEntryId);
 
             // Delete all downtime entries
             deleteAllDowntimeEntriesForProductionEntry(productionEntryId);
@@ -151,70 +133,6 @@ public class ProductionGoogleSheetsService {
 
         } catch (IOException e) {
             System.err.println("❌ Error deleting ProductionEntry from Google Sheets: " + e.getMessage());
-        }
-    }
-
-    // ==================== TIMESLOT OPERATIONS ====================
-
-    /**
-     * Add a single timeslot to Google Sheets
-     */
-    private void addTimeSlotToSheet(TimeSlot timeSlot) {
-        try {
-            List<Object> row = convertTimeSlotToRow(timeSlot);
-            ValueRange body = new ValueRange().setValues(Arrays.asList(row));
-
-            sheetsClient.spreadsheets().values()
-                    .append(spreadsheetId, TIMESLOT_SHEET, body)
-                    .setValueInputOption("RAW")
-                    .execute();
-
-            System.out.println("  ✅ TimeSlot added: ID " + timeSlot.getId());
-
-        } catch (IOException e) {
-            System.err.println("  ❌ Error adding TimeSlot: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Delete all timeslots for a specific production entry
-     */
-    private void deleteAllTimeSlotsForProductionEntry(Long productionEntryId) throws IOException {
-        String range = TIMESLOT_SHEET + "!B:B"; // Column B contains productionEntryId
-        ValueRange response = sheetsClient.spreadsheets().values()
-                .get(spreadsheetId, range)
-                .execute();
-
-        List<List<Object>> values = response.getValues();
-        if (values == null || values.isEmpty()) {
-            return;
-        }
-
-        List<Request> deleteRequests = new ArrayList<>();
-
-        // Collect all rows to delete (iterate backwards to handle row shifting)
-        for (int i = values.size() - 1; i >= 0; i--) {
-            List<Object> row = values.get(i);
-            if (row != null && !row.isEmpty()) {
-                String cellValue = row.get(0).toString();
-                if (cellValue.equals(productionEntryId.toString())) {
-                    DeleteDimensionRequest deleteRequest = new DeleteDimensionRequest()
-                            .setRange(new DimensionRange()
-                                    .setSheetId(getSheetId(TIMESLOT_SHEET))
-                                    .setDimension("ROWS")
-                                    .setStartIndex(i)
-                                    .setEndIndex(i + 1));
-
-                    deleteRequests.add(new Request().setDeleteDimension(deleteRequest));
-                }
-            }
-        }
-
-        if (!deleteRequests.isEmpty()) {
-            BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest()
-                    .setRequests(deleteRequests);
-            sheetsClient.spreadsheets().batchUpdate(spreadsheetId, body).execute();
-            System.out.println("  ✅ Deleted " + deleteRequests.size() + " TimeSlots for ProductionEntry: " + productionEntryId);
         }
     }
 
@@ -289,36 +207,38 @@ public class ProductionGoogleSheetsService {
      */
     private List<Object> convertProductionEntryToRow(ProductionEntry entry) {
         List<Object> row = new ArrayList<>();
+
         row.add(entry.getId());
         row.add(entry.getDate() != null ? entry.getDate().toString() : "");
-        row.add(entry.getShift() != null ? entry.getShift() : "");
-        row.add(entry.getLine() != null ? entry.getLine() : "");
-        row.add(entry.getMachine() != null ? entry.getMachine() : "");
-        row.add(entry.getOperation() != null ? entry.getOperation() : "");
-        row.add(entry.getOperator1() != null ? entry.getOperator1() : "");
-        row.add(entry.getOperator2() != null ? entry.getOperator2() : "");
-        row.add(entry.getPartNo() != null ? entry.getPartNo() : "");
-        row.add(entry.getPartName() != null ? entry.getPartName() : "");
-        row.add(entry.getRemarks() != null ? entry.getRemarks() : "");
-        row.add(entry.getSheetSize() != null ? entry.getSheetSize() : "");
-        row.add(entry.getInspector() != null ? entry.getInspector() : "");
-        return row;
-    }
+        row.add(entry.getShift());
+        row.add(entry.getLine());
+        row.add(entry.getMachine());
+        row.add(entry.getOperation());
+        row.add(entry.getOperator1());
+        row.add(entry.getOperator2());
+        row.add(entry.getPartNo());
+        row.add(entry.getPartName());
+        row.add(entry.getRemarks());
+        row.add(entry.getSheetSize());
+        row.add(entry.getInspector());
 
-    /**
-     * Convert TimeSlot to row of values (9 columns: A-I)
-     */
-    private List<Object> convertTimeSlotToRow(TimeSlot timeSlot) {
-        List<Object> row = new ArrayList<>();
-        row.add(timeSlot.getId());
-        row.add(timeSlot.getProductionEntry() != null ? timeSlot.getProductionEntry().getId() : "");
-        row.add(timeSlot.getFromTime() != null ? timeSlot.getFromTime().toString() : "");
-        row.add(timeSlot.getToTime() != null ? timeSlot.getToTime().toString() : "");
-        row.add(timeSlot.getProduced() != null ? timeSlot.getProduced() : "");
-        row.add(timeSlot.getSegregated() != null ? timeSlot.getSegregated() : "");
-        row.add(timeSlot.getRejected() != null ? timeSlot.getRejected() : "");
-        row.add(timeSlot.getReason() != null ? timeSlot.getReason() : "");
-        row.add(timeSlot.getRemarks() != null ? timeSlot.getRemarks() : "");
+        // ===== TimeSlot Fields (N – T) =====
+        TimeSlot ts = entry.getTimeSlot();
+
+        if (ts != null) {
+            row.add(ts.getFromTime() != null ? ts.getFromTime().toString() : "");
+            row.add(ts.getToTime() != null ? ts.getToTime().toString() : "");
+            row.add(ts.getProduced());
+            row.add(ts.getSegregated());
+            row.add(ts.getRejected());
+            row.add(ts.getReason());
+            row.add(ts.getRemarks());
+        } else {
+            // Add 7 empty columns if no timeslot
+            row.add(""); row.add(""); row.add("");
+            row.add(""); row.add(""); row.add(""); row.add("");
+        }
+
         return row;
     }
 

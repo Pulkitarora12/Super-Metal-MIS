@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,19 +39,19 @@ public class ProductionEntryService {
         entry.setSheetSize(dto.getSheetSize());
         entry.setInspector(dto.getInspector());
 
-        // Time slots
-        List<TimeSlot> timeSlots = dto.getTimeSlots().stream().map(ts -> {
+        // Single time slot
+        if (dto.getTimeSlot() != null) {
             TimeSlot t = new TimeSlot();
-            t.setFromTime(ts.getFromTime());
-            t.setToTime(ts.getToTime());
-            t.setProduced(ts.getProduced());
-            t.setSegregated(ts.getSegregated());
-            t.setRejected(ts.getRejected());
-            t.setReason(ts.getReason());
-            t.setRemarks(ts.getRemarks());
+            t.setFromTime(dto.getTimeSlot().getFromTime());
+            t.setToTime(dto.getTimeSlot().getToTime());
+            t.setProduced(dto.getTimeSlot().getProduced());
+            t.setSegregated(dto.getTimeSlot().getSegregated());
+            t.setRejected(dto.getTimeSlot().getRejected());
+            t.setReason(dto.getTimeSlot().getReason());
+            t.setRemarks(dto.getTimeSlot().getRemarks());
             t.setProductionEntry(entry);
-            return t;
-        }).collect(Collectors.toList());
+            entry.setTimeSlot(t);
+        }
 
         // Downtime
         List<DowntimeEntry> downtimeList = dto.getDowntimeEntries().stream().map(d -> {
@@ -61,13 +62,12 @@ public class ProductionEntryService {
             return down;
         }).collect(Collectors.toList());
 
-        entry.setTimeSlots(timeSlots);
         entry.setDowntimeEntries(downtimeList);
 
         // Save to database
         ProductionEntry savedEntry = repository.save(entry);
 
-        // ✅ NEW: Sync to Google Sheets
+        // Sync to Google Sheets
         try {
             productionGoogleSheetsService.addProductionEntryToSheet(savedEntry);
         } catch (Exception e) {
@@ -83,10 +83,10 @@ public class ProductionEntryService {
         return entries;
     }
 
-    public List<TimeSlot> getTimeSlotsByEntry(Long id) {
+    public TimeSlot getTimeSlotByEntry(Long id) {
         ProductionEntry entry = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Entry not found"));
-        return entry.getTimeSlots();
+        return entry.getTimeSlot();
     }
 
     public List<DowntimeEntry> getDowntimeByEntry(Long id) {
@@ -100,10 +100,10 @@ public class ProductionEntryService {
             throw new RuntimeException("Entry not found");
         }
 
-        // Delete from database (cascades to TimeSlots and DowntimeEntries)
+        // Delete from database (cascades to TimeSlot and DowntimeEntries)
         repository.deleteById(id);
 
-        // ✅ NEW: Delete from Google Sheets
+        // Delete from Google Sheets
         try {
             productionGoogleSheetsService.deleteProductionEntryFromSheet(id);
         } catch (Exception e) {
@@ -111,7 +111,6 @@ public class ProductionEntryService {
         }
     }
 
-    // ✅ NEW: Update method (add this if you need update functionality)
     public ProductionEntry updateProduction(Long id, ProductionEntryRequestDTO dto) {
         ProductionEntry entry = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Entry not found with ID: " + id));
@@ -130,21 +129,24 @@ public class ProductionEntryService {
         entry.setSheetSize(dto.getSheetSize());
         entry.setInspector(dto.getInspector());
 
-        // Clear and rebuild time slots
-        entry.getTimeSlots().clear();
-        List<TimeSlot> timeSlots = dto.getTimeSlots().stream().map(ts -> {
-            TimeSlot t = new TimeSlot();
-            t.setFromTime(ts.getFromTime());
-            t.setToTime(ts.getToTime());
-            t.setProduced(ts.getProduced());
-            t.setSegregated(ts.getSegregated());
-            t.setRejected(ts.getRejected());
-            t.setReason(ts.getReason());
-            t.setRemarks(ts.getRemarks());
-            t.setProductionEntry(entry);
-            return t;
-        }).collect(Collectors.toList());
-        entry.getTimeSlots().addAll(timeSlots);
+        // Update time slot (single)
+        if (dto.getTimeSlot() != null) {
+            TimeSlot t = entry.getTimeSlot();
+            if (t == null) {
+                t = new TimeSlot();
+                t.setProductionEntry(entry);
+            }
+            t.setFromTime(dto.getTimeSlot().getFromTime());
+            t.setToTime(dto.getTimeSlot().getToTime());
+            t.setProduced(dto.getTimeSlot().getProduced());
+            t.setSegregated(dto.getTimeSlot().getSegregated());
+            t.setRejected(dto.getTimeSlot().getRejected());
+            t.setReason(dto.getTimeSlot().getReason());
+            t.setRemarks(dto.getTimeSlot().getRemarks());
+            entry.setTimeSlot(t);
+        } else {
+            entry.setTimeSlot(null);
+        }
 
         // Clear and rebuild downtime entries
         entry.getDowntimeEntries().clear();

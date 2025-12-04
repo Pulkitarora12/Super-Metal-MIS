@@ -29,7 +29,7 @@ public class TimeSlot {
     private String reason;
     private String remarks;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "production_entry_id")
     private ProductionEntry productionEntry;
 }

@@ -34,7 +34,7 @@ public class ProductionEntryController {
 
     @GetMapping
     public String showProductionEntryForm(@AuthenticationPrincipal UserDetails userDetails,
-            Model model) {
+                                          Model model) {
 
         List<String> machineNames = masterService.getMachineNames();
         List<String> rejectionReasons = masterService.getRejectionReasons();
@@ -103,11 +103,12 @@ public class ProductionEntryController {
                 .body(csvData.toString());
     }
 
-    @GetMapping("/{id}/timeslots")
-    public String viewTimeSlots(@PathVariable Long id, Model model) {
-        model.addAttribute("timeSlots", service.getTimeSlotsByEntry(id));
+    @GetMapping("/{id}/timeslot")
+    public String viewTimeSlot(@PathVariable Long id, Model model) {
+        TimeSlot timeSlot = service.getTimeSlotByEntry(id);
+        model.addAttribute("timeSlot", timeSlot);
         model.addAttribute("entryId", id);
-        return "user/timeslots";
+        return "user/timeslot";
     }
 
     @GetMapping("/{id}/downtime")

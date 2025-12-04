@@ -12,7 +12,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "production_entries")
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,8 +25,8 @@ public class ProductionEntry {
     private LocalDate date;
     private String shift;      // A or B
     private String line;       // Line 1 or Line 2
-    private String machine;    // Future use
-    private String operation;  // Future use
+    private String machine;
+    private String operation;
     private String operator1;
     private String operator2;
     private String partNo;
@@ -36,10 +35,10 @@ public class ProductionEntry {
     private String sheetSize;
     private String inspector;
 
-    @OneToMany(mappedBy = "productionEntry", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TimeSlot> timeSlots;
+    // Single TimeSlot instead of List
+    @OneToOne(mappedBy = "productionEntry", cascade = CascadeType.ALL, orphanRemoval = true)
+    private TimeSlot timeSlot;
 
     @OneToMany(mappedBy = "productionEntry", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DowntimeEntry> downtimeEntries;
 }
-
