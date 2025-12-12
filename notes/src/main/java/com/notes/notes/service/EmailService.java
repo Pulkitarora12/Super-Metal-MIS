@@ -15,10 +15,10 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     public void sendVerificationEmailToAdmin(User user, String token) {
-        String verifyLink = "http://localhost:8080/admin/verify?token=" + token;
+        String verifyLink = "http://157.20.196.25:8080/admin/verify?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo("pulkitpulkitarr@gmail.com"); // change if needed
+        message.setTo("info@supermetal.co.in"); // change if needed
         message.setSubject("New Account Verification Required");
         message.setText(
                 "New user registered!\n\n" +

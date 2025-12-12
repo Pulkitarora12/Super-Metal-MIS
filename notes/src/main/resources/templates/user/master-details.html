@@ -61,6 +61,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            flex-direction: row-reverse;
         }
 
         .btn {
@@ -106,6 +107,17 @@
 
 <div class="container">
 
+    <div class="actions">
+        <a th:href="@{/masters}" class="btn btn-secondary">Back to Master List</a>
+        <form th:if="${master != null and #authorization.expression('hasRole(''ROLE_ADMIN'')')}"
+              th:action="@{'/masters/' + ${master.id} + '/delete'}" method="post">
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Are you sure you want to delete this master?')">
+                Delete Master
+            </button>
+        </form>
+    </div>
+
     <div th:if="${master != null}">
         <h2>Master Details</h2>
         <p><strong>Master ID:</strong> <span th:text="${master.id}"></span></p>
@@ -148,17 +160,6 @@
 
     <div th:if="${master == null}">
         <p><i>Master not found.</i></p>
-    </div>
-
-    <div class="actions">
-        <a th:href="@{/masters}" class="btn btn-secondary">Back to Master List</a>
-        <form th:if="${master != null and #authorization.expression('hasRole(''ROLE_ADMIN'')')}"
-              th:action="@{'/masters/' + ${master.id} + '/delete'}" method="post">
-            <button type="submit" class="btn btn-danger"
-                    onclick="return confirm('Are you sure you want to delete this master?')">
-                Delete Master
-            </button>
-        </form>
     </div>
 
 </div>

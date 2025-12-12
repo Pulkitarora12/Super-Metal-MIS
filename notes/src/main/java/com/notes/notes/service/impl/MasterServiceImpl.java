@@ -198,7 +198,7 @@ public class MasterServiceImpl implements MasterService {
 
     @Override
     public List<Map<String, String>> getPartDetailsList() {
-        Master master = masterRepository.findByName("Parts");
+        Master master = masterRepository.findByName("Part Master");
         List<Map<String, String>> result = new ArrayList<>();
 
         if (master != null) {

@@ -90,7 +90,7 @@ public class SecurityConfig {
                                              PasswordEncoder passwordEncoder) {
         return args -> {
 
-            String adminEmail = "admin@supermetal.com";
+            String adminEmail = "info@supermetal.co.in";
 
             // If admin user already exists, skip
             if (userRepository.findByEmail(adminEmail).isPresent()) {
@@ -103,6 +103,13 @@ public class SecurityConfig {
                     .orElseGet(() -> {
                         Role newRole = new Role();
                         newRole.setRoleName(AppRole.valueOf(AppRole.ROLE_ADMIN.name()));
+                        return roleRepository.save(newRole);
+                    });
+
+            Role userRole = roleRepository.findByRoleName(AppRole.valueOf(AppRole.ROLE_USER.name()))
+                    .orElseGet(() -> {
+                        Role newRole = new Role();
+                        newRole.setRoleName(AppRole.valueOf(AppRole.ROLE_USER.name()));
                         return roleRepository.save(newRole);
                     });
 
@@ -120,7 +127,7 @@ public class SecurityConfig {
 
             admin.setEmployeeFullName("Super Admin");
             admin.setEmployeeDepartment("Management");
-            admin.setEmployeePhone("9999999999");
+            admin.setEmployeePhone("9990627700");
 
             userRepository.save(admin);
 

@@ -79,7 +79,7 @@ public class MasterController {
 
     @GetMapping("/upload")
     public String showUploadPage() {
-        return "/user/upload-master";
+        return "user/upload-master";
     }
 
     @PostMapping("/upload")
