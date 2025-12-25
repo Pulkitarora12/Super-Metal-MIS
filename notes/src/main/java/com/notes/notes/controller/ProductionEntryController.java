@@ -108,7 +108,7 @@ public class ProductionEntryController {
         TimeSlot timeSlot = service.getTimeSlotByEntry(id);
         model.addAttribute("timeSlot", timeSlot);
         model.addAttribute("entryId", id);
-        return "user/timeslot";
+        return "user/timeslots";
     }
 
     @GetMapping("/{id}/downtime")

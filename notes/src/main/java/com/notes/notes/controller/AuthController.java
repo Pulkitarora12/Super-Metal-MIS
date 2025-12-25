@@ -123,8 +123,6 @@ public class AuthController {
         return "redirect:/auth/login";
     }
 
-
-
     @GetMapping("/verification-pending")
     public String verificationPending() {
         return "auth/Verification-pending";

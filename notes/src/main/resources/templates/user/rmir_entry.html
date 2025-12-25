@@ -144,6 +144,13 @@
             background-color: #1565c0;
         }
 
+        button[type="reset"] {
+            background: #f44336;
+            color: white;
+            padding: 10px 30px;
+            font-size: 15px;
+        }
+
         button[type="submit"] {
             background-color: #4caf50;
             color: white;
@@ -190,7 +197,7 @@
     <div class="form-grid">
         <div class="form-field">
             <label>Part Name:</label>
-            <select id="partNameSelect" th:field="*{partName}">
+            <select id="partNameSelect" th:field="*{partName}" required>
                 <option value="">-- Select Part Name --</option>
                 <option th:each="p : ${partDetails}"
                         th:value="${p.partName}"
@@ -222,7 +229,7 @@
 
         <div class="form-field">
             <label>Bundle Grade:</label>
-            <select id="bundleGradeInput" th:field="*{bundleGrade}">
+            <select id="bundleGradeInput" th:field="*{bundleGrade}" required>
                 <option value="">-- Select Grades --</option>
                 <option th:each="m : ${grades}" th:value="${m}" th:text="${m}"></option>
             </select>
@@ -230,27 +237,27 @@
 
         <div class="form-field">
             <label>Bundle No:</label>
-            <input type="text" th:field="*{bundleNo}" />
+            <input type="text" th:field="*{bundleNo}" required />
         </div>
 
         <div class="form-field">
             <label>Bundle GW (kg):</label>
-            <input type="number" th:field="*{bundleGW}" />
+            <input type="number" th:field="*{bundleGW}" step="any" required />
         </div>
 
         <div class="form-field">
             <label>Bundle NW (kg):</label>
-            <input type="number" th:field="*{bundleNW}" />
+            <input type="number" th:field="*{bundleNW}" step="any" required />
         </div>
 
         <div class="form-field">
             <label>Bundle Size (L×W×H):</label>
-            <input type="text" th:field="*{bundleSize}" />
+            <input type="text" th:field="*{bundleSize}" required />
         </div>
 
         <div class="form-field">
             <label>Suppliers:</label>
-            <select th:field="*{supplier}">
+            <select th:field="*{supplier}" required>
                 <option value="">-- Select Supplier --</option>
                 <option th:each="m : ${suppliers}" th:value="${m}" th:text="${m}"></option>
             </select>
@@ -258,7 +265,7 @@
 
         <div class="form-field">
             <label>Inspector:</label>
-            <input type="text" th:field="*{inspector}" />
+            <input type="text" th:field="*{inspector}" readonly />
         </div>
 
         <div class="form-field">
@@ -284,36 +291,55 @@
             <th>Action</th>
         </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+        <tr>
+            <td><input type="number" name="observations[0].l" step="any" required></td>
+            <td><input type="number" name="observations[0].b" step="any" required></td>
+            <td><input type="number" name="observations[0].h" step="any" required></td>
+            <td><input type="text" name="observations[0].gwSheet" step="any" required></td>
+            <td><button type="button" onclick="removeRow(this)" disabled style="opacity: 0.5; cursor: not-allowed;">Remove</button></td>
+        </tr>
+        </tbody>
     </table>
 
     <div class="form-actions">
         <button type="submit">Submit RMIR</button>
+        <button type="reset">Reset</button>
     </div>
 
 </form>
 
 <script>
-    let observationIndex = 0;
+        let observationIndex = 1; // Start from 1 since row 0 exists
 
-    function addObservation() {
+        function addObservation() {
         const table = document.getElementById('observationTable').querySelector('tbody');
         const row = `<tr>
-            <td><input type="number" name="observations[${observationIndex}].l"></td>
-            <td><input type="number" name="observations[${observationIndex}].b"></td>
-            <td><input type="number" name="observations[${observationIndex}].h"></td>
-            <td><input type="text" name="observations[${observationIndex}].gwSheet"></td>
-            <td><button type="button" onclick="this.parentElement.parentElement.remove()">Remove</button></td>
+            <td><input type="number" name="observations[${observationIndex}].l" required></td>
+            <td><input type="number" name="observations[${observationIndex}].b" required></td>
+            <td><input type="number" name="observations[${observationIndex}].h" required></td>
+            <td><input type="text" name="observations[${observationIndex}].gwSheet" required></td>
+            <td><button type="button" onclick="removeRow(this)">Remove</button></td>
         </tr>`;
         table.insertAdjacentHTML('beforeend', row);
         observationIndex++;
-    }
+        }
 
-    function resetObservations() {
+        function removeRow(btn) {
+        btn.parentElement.parentElement.remove();
+        }
+
+        function resetObservations() {
         const tableBody = document.getElementById('observationTable').querySelector('tbody');
-        tableBody.innerHTML = "";
-        observationIndex = 0;
-    }
+        tableBody.innerHTML = `<tr>
+            <td><input type="number" name="observations[0].l" required></td>
+            <td><input type="number" name="observations[0].b" required></td>
+            <td><input type="number" name="observations[0].h" required></td>
+            <td><input type="text" name="observations[0].gwSheet" required></td>
+            <td><button type="button" onclick="removeRow(this)" disabled style="opacity: 0.5; cursor: not-allowed;">Remove</button></td>
+        </tr>`;
+        observationIndex = 1;
+        }
 
     document.getElementById('partNameSelect').addEventListener('change', function () {
         const selectedOption = this.options[this.selectedIndex];

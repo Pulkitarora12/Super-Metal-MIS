@@ -230,31 +230,33 @@
 
     <!-- Basic Info -->
     <div class="form-grid">
-        <div class="form-field"><label>Date:</label><input type="date" th:field="*{date}" /></div>
+        <div class="form-field"><label>Date:</label><input type="date" th:field="*{date}" required /></div>
         <div class="form-field">
             <label>Shift:</label>
-            <select th:field="*{shift}">
+            <select th:field="*{shift}" required>
+                <option value="">-- Select Shift --</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
             </select>
         </div>
         <div class="form-field">
             <label>Line:</label>
-            <select th:field="*{line}">
+            <select th:field="*{line}" required>
+                <option value="">-- Select Line --</option>
                 <option value="Line 1">Line 1</option>
                 <option value="Line 2">Line 2</option>
             </select>
         </div>
         <div class="form-field">
             <label>Machine:</label>
-            <select th:field="*{machine}">
+            <select th:field="*{machine}" required>
                 <option value="">-- Select Machine --</option>
                 <option th:each="m : ${machineNames}" th:value="${m}" th:text="${m}"></option>
             </select>
         </div>
         <div class="form-field">
             <label>Operation:</label>
-            <select th:field="*{operation}">
+            <select th:field="*{operation}" required>
                 <option value="">-- Select Operation --</option>
                 <option th:each="o : ${operations}" th:value="${o}" th:text="${o}"></option>
             </select>
@@ -262,7 +264,7 @@
 
         <div class="form-field">
             <label>Operator 1:</label>
-            <select th:field="*{operator1}">
+            <select th:field="*{operator1}" required>
                 <option value="">-- Select Operator --</option>
                 <option th:each="op : ${operators}" th:value="${op}" th:text="${op}"></option>
             </select>
@@ -270,7 +272,7 @@
 
         <div class="form-field">
             <label>Operator 2:</label>
-            <select th:field="*{operator2}">
+            <select th:field="*{operator2}" required>
                 <option value="">-- Select Operator --</option>
                 <option th:each="op : ${operators}" th:value="${op}" th:text="${op}"></option>
             </select>
@@ -278,7 +280,7 @@
 
         <div class="form-field">
             <label>Part Name:</label>
-            <select id="partNameSelect" th:field="*{partName}">
+            <select id="partNameSelect" th:field="*{partName}" required>
                 <option value="">-- Select Part Name --</option>
                 <option th:each="p : ${partDetails}"
                         th:value="${p.partName}"
@@ -296,12 +298,12 @@
             <label>Remarks:</label><input type="text" th:field="*{remarks}" />
         </div>
         <div class="form-field" style="grid-column: span 1;">
-            <label>Sheet Size:</label><input type="text" th:field="*{sheetSize}" />
+            <label>Sheet Size:</label><input type="text" th:field="*{sheetSize}" required />
         </div>
 
         <div class="form-field">
             <label>Inspector:</label>
-            <input type="text" th:field="*{inspector}" />
+            <input type="text" th:field="*{inspector}" readonly />
         </div>
     </div>
 
@@ -322,10 +324,10 @@
             </thead>
             <tbody>
             <tr>
-                <td><input type="time" th:field="*{timeSlot.fromTime}" /></td>
-                <td><input type="time" th:field="*{timeSlot.toTime}" /></td>
-                <td><input type="number" th:field="*{timeSlot.produced}" /></td>
-                <td><input type="number" th:field="*{timeSlot.segregated}" /></td>
+                <td><input type="time" th:field="*{timeSlot.fromTime}" required /></td>
+                <td><input type="time" th:field="*{timeSlot.toTime}" required /></td>
+                <td><input type="number" th:field="*{timeSlot.produced}" required /></td>
+                <td><input type="number" th:field="*{timeSlot.segregated}" required /></td>
                 <td><input type="number" th:field="*{timeSlot.rejected}" /></td>
                 <td>
                     <select th:field="*{timeSlot.reason}">
@@ -390,6 +392,37 @@
         const partNo = selectedOption.getAttribute('data-partNo');
 
         document.getElementById('partNoInput').value = partNo || '';
+    });
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const rejected = document.querySelector('input[name="timeSlot.rejected"]').value;
+        const reason = document.querySelector('select[name="timeSlot.reason"]').value;
+        const fromTime = document.querySelector('input[name="timeSlot.fromTime"]').value;
+        const toTime = document.querySelector('input[name="timeSlot.toTime"]').value;
+
+        if (rejected && parseInt(rejected) > 0 && !reason) {
+            e.preventDefault();
+            alert('Please select a rejection reason');
+            return false;
+        }
+
+        if (fromTime && toTime && toTime <= fromTime) {
+            e.preventDefault();
+            alert('To Time must be greater than From Time');
+            return false;
+        }
+        const downtimeRows = document.querySelectorAll('#downtimeTable tbody tr');
+        for (let row of downtimeRows) {
+            const minutes = row.querySelector('input[type="number"]').value;
+            const downtimeReason = row.querySelector('select').value;
+
+            if (minutes && parseInt(minutes) > 0 && !downtimeReason) {
+                e.preventDefault();
+                alert('Please select a downtime reason');
+                return false;
+            }
+        }
+
     });
 
 </script>

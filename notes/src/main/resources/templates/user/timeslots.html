@@ -267,7 +267,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="slot : ${timeSlots}">
+            <tr th:each="slot : ${timeSlot}">
                 <td th:text="${slot.fromTime}"></td>
                 <td th:text="${slot.toTime}"></td>
                 <td>
@@ -283,7 +283,7 @@
                 <td th:text="${slot.remarks}"></td>
             </tr>
             <!-- Empty State (shown when no data) -->
-            <tr th:if="${#lists.isEmpty(timeSlots)}">
+            <tr th:if="${#lists.isEmpty(timeSlot)}">
                 <td colspan="7">
                     <div class="empty-state">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
