@@ -1,10 +1,11 @@
 package com.notes.notes.controller;
 
+import com.notes.notes.dto.ForgotPasswordRequest;
 import com.notes.notes.entity.User;
-import com.notes.notes.repository.RoleRepository;
 import com.notes.notes.repository.UserRepository;
 import com.notes.notes.security.request.SignupRequest;
 import com.notes.notes.security.services.UserDetailsImpl;
+import com.notes.notes.service.EmailService;
 import com.notes.notes.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +15,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/auth")
@@ -31,7 +32,7 @@ public class AuthController {
     UserRepository userRepository;
 
     @Autowired
-    RoleRepository roleRepository;
+    EmailService emailService;
 
     @Autowired
     PasswordEncoder encoder;
@@ -40,7 +41,7 @@ public class AuthController {
     UserService userService;
 
     @GetMapping("/login")
-    public String showLoginPage() {
+    public String showLoginPage(){
         return "auth/login"; // login.html
     }
 
@@ -56,12 +57,10 @@ public class AuthController {
                     .authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (AuthenticationException exception) {
             model.addAttribute("error", "Invalid username or password");
-            return "redirect:/auth/login"; // return back with error
+            return "auth/login"; // return directly, no redirect
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
         return "redirect:/auth/dashboard";
     }
 
@@ -128,5 +127,38 @@ public class AuthController {
         return "auth/Verification-pending";
     }
 
+    @GetMapping("/forgot-password")
+    public String showForgotPasswordPage() {
+        return "auth/forgot-password"; // HTML page
+    }
 
+    @PostMapping("/forgot-password")
+    public String processForgotPassword(
+            @Valid @ModelAttribute ForgotPasswordRequest request,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            // Check if user exists
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new RuntimeException("No account found with this email"));
+
+            // Generate random 6-digit password
+            String newPassword = userService.generateRandomPassword();
+
+            // Reset password in database
+            userService.resetPassword(request.getEmail(), newPassword);
+
+            // Send email with new password
+            emailService.sendNewPasswordEmail(request.getEmail(), newPassword);
+
+            redirectAttributes.addFlashAttribute("success",
+                    "New password has been sent to your email!");
+            return "redirect:/auth/login";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Failed to reset password. Please try again.");
+            return "redirect:/auth/forgot-password";
+        }
+    }
 }

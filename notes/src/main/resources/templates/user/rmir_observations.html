@@ -222,6 +222,29 @@
                 font-size: 14px;
             }
         }
+        /*overweight-red*/
+        .gw-badge.overweight {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #fca5a5;
+            position: relative;
+            font-weight: 700;
+        }
+
+        .gw-badge.overweight::after {
+            content: 'Overweight';
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Normal Badge - Keep existing blue */
+        .gw-badge.normal {
+            background: #dbeafe;
+            color: #1e40af;
+        }
     </style>
 </head>
 <body>
@@ -248,8 +271,8 @@
             <tr>
                 <th>Measurement Type</th>
                 <th>Length (L)</th>
-                <th>Breadth (B)</th>
-                <th>Height (H)</th>
+                <th>Width (W)</th>
+                <th>Thickness (T)</th>
                 <th>GW Sheet</th>
             </tr>
             </thead>
@@ -259,7 +282,12 @@
                 <td><span class="measurement" th:text="${obs.l}"></span></td>
                 <td><span class="measurement" th:text="${obs.b}"></span></td>
                 <td><span class="measurement" th:text="${obs.h}"></span></td>
-                <td><span class="gw-badge" th:text="${obs.gwSheet}"></span></td>
+                <td>
+        <span class="gw-badge"
+              th:classappend="${obs.gwSheet > stdGW} ? 'overweight' : 'normal'"
+              th:text="${obs.gwSheet}">
+        </span>
+                </td>
             </tr>
 
             <!-- Handle no observations -->

@@ -289,7 +289,8 @@
                     <th>Part No</th>
                     <th>Part Name</th>
                     <th>RM Size</th>
-                    <th>Grade (Master)</th>
+                    <th>Grade</th>                    <!-- Changed -->
+                    <th>Std GW</th>                   <!-- Changed -->
                     <th>Bundle Grade</th>
                     <th>Bundle No</th>
                     <th>Bundle GW</th>
@@ -308,7 +309,8 @@
                     <td th:text="${entry.partNo}"></td>
                     <td th:text="${entry.partName}"></td>
                     <td th:text="${entry.rmSize}"></td>
-                    <td th:text="${entry.grade}"></td>
+                    <td th:text="${entry.grade}"></td>           <!-- Changed -->
+                    <td th:text="${entry.stdGW}"></td>           <!-- Changed -->
                     <td th:text="${entry.bundleGrade}"></td>
                     <td th:text="${entry.bundleNo}"></td>
                     <td th:text="${entry.bundleGW}"></td>
@@ -348,7 +350,7 @@
 
                 <!-- Empty state -->
                 <tr th:if="${#lists.isEmpty(entries)}">
-                    <td colspan="15" class="empty-state">
+                    <td colspan="16" class="empty-state">
                         <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 20px;">
                             <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>

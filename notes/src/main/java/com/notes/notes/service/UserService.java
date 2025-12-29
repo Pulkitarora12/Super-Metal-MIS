@@ -17,4 +17,8 @@ public interface UserService {
     User getUserById(Long id);
 
     User findByUsername(String username);
+
+    String generateRandomPassword();
+
+    void resetPassword(String email, String newPassword);
 }

@@ -11,11 +11,13 @@ import com.notes.notes.service.EmailService;
 import com.notes.notes.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +26,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder encoder;
 
     @Autowired
     RoleRepository roleRepository;
@@ -143,5 +148,21 @@ public class UserServiceImpl implements UserService {
     public User findByUsername(String username) {
         return userRepository.findByUserName(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+    }
+
+    @Override
+    public String generateRandomPassword() {
+        Random random = new Random();
+        int password = 100000 + random.nextInt(900000); // generates 6-digit number
+        return String.valueOf(password);
+    }
+
+    @Override
+    public void resetPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        user.setPassword(encoder.encode(newPassword));
+        userRepository.save(user);
     }
 }

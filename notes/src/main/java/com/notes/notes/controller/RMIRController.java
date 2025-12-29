@@ -105,6 +105,7 @@ public class RMIRController {
         if (rmir != null) {
             model.addAttribute("observations", rmir.getObservations());
             model.addAttribute("entryId", id);
+            model.addAttribute("stdGW", rmir.getStdGW());
         }
         return "user/rmir_observations"; // Make this page
     }
