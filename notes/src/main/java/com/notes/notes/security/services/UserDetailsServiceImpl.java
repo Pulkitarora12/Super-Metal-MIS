@@ -1,7 +1,7 @@
 package com.notes.notes.security.services;
 
-import com.notes.notes.entity.User;
-import com.notes.notes.repository.UserRepository;
+import com.notes.notes.entity.authEntities.User;
+import com.notes.notes.repository.authRepo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

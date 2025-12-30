@@ -1,17 +1,14 @@
 package com.notes.notes.security;
 
-import com.notes.notes.entity.AppRole;
-import com.notes.notes.entity.Role;
-import com.notes.notes.entity.User;
-import com.notes.notes.repository.RoleRepository;
-import com.notes.notes.repository.UserRepository;
-import com.notes.notes.security.services.UserDetailsImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.notes.notes.entity.authEntities.AppRole;
+import com.notes.notes.entity.authEntities.Role;
+import com.notes.notes.entity.authEntities.User;
+import com.notes.notes.repository.authRepo.RoleRepository;
+import com.notes.notes.repository.authRepo.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,11 +16,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import java.time.LocalDate;
 
 @Configuration
 @EnableWebSecurity

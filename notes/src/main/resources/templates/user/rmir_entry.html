@@ -303,7 +303,7 @@
     </table>
 
     <div class="form-actions">
-        <button type="submit">Submit RMIR</button>
+        <button type="submit" id="submitBtn">Submit RMIR</button>
         <button type="reset">Reset</button>
     </div>
 
@@ -353,6 +353,16 @@
         document.getElementById('rmGradeInput').value = grade || '';
         document.getElementById('stdGWInput').value = gw || '';
     });
+
+        const form = document.querySelector("form");
+        const submitBtn = document.getElementById("submitBtn");
+
+        form.addEventListener("submit", function () {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting...";
+            submitBtn.style.opacity = "0.7";
+            submitBtn.style.cursor = "not-allowed";
+        });
 
 </script>
 

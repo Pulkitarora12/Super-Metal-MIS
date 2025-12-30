@@ -366,7 +366,7 @@
 
     <div class="form-actions">
         <button type="reset">Reset</button>
-        <button type="submit">Submit Production</button>
+        <button type="submit" id="submitBtn">Submit Production Entry</button>
     </div>
 </form>
 
@@ -385,16 +385,17 @@
         downtimeIndex++;
     }
 
-    const partDetails = /*[[${partDetails}]]*/ [];
-
     document.getElementById('partNameSelect').addEventListener('change', function () {
         const selectedOption = this.options[this.selectedIndex];
         const partNo = selectedOption.getAttribute('data-partNo');
-
         document.getElementById('partNoInput').value = partNo || '';
     });
 
-    document.querySelector('form').addEventListener('submit', function(e) {
+    const form = document.querySelector("form");
+    const submitBtn = document.getElementById("submitBtn");
+
+    form.addEventListener('submit', function (e) {
+
         const rejected = document.querySelector('input[name="timeSlot.rejected"]').value;
         const reason = document.querySelector('select[name="timeSlot.reason"]').value;
         const fromTime = document.querySelector('input[name="timeSlot.fromTime"]').value;
@@ -403,14 +404,15 @@
         if (rejected && parseInt(rejected) > 0 && !reason) {
             e.preventDefault();
             alert('Please select a rejection reason');
-            return false;
+            return;
         }
 
         if (fromTime && toTime && toTime <= fromTime) {
             e.preventDefault();
             alert('To Time must be greater than From Time');
-            return false;
+            return;
         }
+
         const downtimeRows = document.querySelectorAll('#downtimeTable tbody tr');
         for (let row of downtimeRows) {
             const minutes = row.querySelector('input[type="number"]').value;
@@ -419,12 +421,16 @@
             if (minutes && parseInt(minutes) > 0 && !downtimeReason) {
                 e.preventDefault();
                 alert('Please select a downtime reason');
-                return false;
+                return;
             }
         }
 
+        // ✅ Disable button ONLY after validation passes
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Submitting...";
+        submitBtn.style.opacity = "0.7";
+        submitBtn.style.cursor = "not-allowed";
     });
-
 </script>
 
 </body>

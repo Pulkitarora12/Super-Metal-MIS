@@ -214,6 +214,7 @@
                 <th>Operation</th>
                 <th>Operator 1</th>
                 <th>Operator 2</th>
+                <th>Sheet Size</th>
                 <th>Part No</th>
                 <th>Part Name</th>
                 <th>Remarks</th>
@@ -233,10 +234,10 @@
                 <td th:text="${entry.operation}"></td>
                 <td th:text="${entry.operator1}"></td>
                 <td th:text="${entry.operator2}"></td>
+                <td th:text="${entry.sheetSize}"></td>
                 <td th:text="${entry.partNo}"></td>
                 <td th:text="${entry.partName}"></td>
                 <td th:text="${entry.remarks}"></td>
-
                 <!-- Time Slots Column -->
                 <td>
                     <a th:href="@{'/production-entry/' + ${entry.id} + '/timeslot'}"

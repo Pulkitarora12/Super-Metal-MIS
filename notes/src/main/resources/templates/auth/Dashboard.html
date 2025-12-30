@@ -255,6 +255,28 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .change-password-btn {
+            background: #1976d2;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .change-password-btn:hover {
+            background: #1565c0;
+        }
+
+
     </style>
 </head>
 
@@ -262,7 +284,10 @@
 <div class="container">
     <div class="header">
         <h2>Welcome, <span th:text="${loggedInUser.userName}"></span>!</h2>
-        <a th:href="@{/logout}" class="logout-btn">Logout</a>
+        <div class="header-actions">
+            <a th:href="@{/auth/change-password}" class="change-password-btn">Change Password</a>
+            <a th:href="@{/logout}" class="logout-btn">Logout</a>
+        </div>
     </div>
 
     <div class="main-content">
