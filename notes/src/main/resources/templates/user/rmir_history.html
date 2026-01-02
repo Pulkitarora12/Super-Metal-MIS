@@ -299,6 +299,8 @@
                     <th>Supplier</th>
                     <th>Inspector</th>
                     <th>Remarks</th>
+                    <th>Created Date</th>
+                    <th>Created Time</th>
                     <th>Observations</th>
                     <th sec:authorize="hasRole('ADMIN')">Delete</th>
                 </tr>
@@ -319,6 +321,8 @@
                     <td th:text="${entry.supplier}"></td>
                     <td th:text="${entry.inspector}"></td>
                     <td th:text="${entry.remarks}"></td>
+                    <td th:text="${entry.createdDate}"></td>
+                    <td th:text="${entry.createdTime}"></td>
 
                     <!-- Observation Button -->
                     <td>

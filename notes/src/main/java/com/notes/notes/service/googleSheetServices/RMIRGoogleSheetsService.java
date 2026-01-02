@@ -33,7 +33,7 @@ public class RMIRGoogleSheetsService {
             ValueRange body = new ValueRange().setValues(rows);
 
             sheetsClient.spreadsheets().values()
-                    .append(spreadsheetId, RMIR_SHEET + "!A:R", body)
+                    .append(spreadsheetId, RMIR_SHEET + "!A:T", body)
                     .setValueInputOption("USER_ENTERED")  // Changed from RAW
                     .setInsertDataOption("INSERT_ROWS")   // Add this
                     .execute();
@@ -144,6 +144,8 @@ public class RMIRGoogleSheetsService {
         row.add(rmir.getSupplier() != null ? rmir.getSupplier() : "");
         row.add(rmir.getInspector() != null ? rmir.getInspector() : "");
         row.add(rmir.getRemarks() != null ? rmir.getRemarks() : "");
+        row.add(rmir.getCreatedDate() != null ? rmir.getCreatedDate().toString() : "");
+        row.add(rmir.getCreatedTime() != null ? rmir.getCreatedTime().toString() : "");
 
         // Observation fields (nullable)
         if (obs != null) {

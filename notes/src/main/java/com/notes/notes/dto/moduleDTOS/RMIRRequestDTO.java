@@ -1,7 +1,11 @@
 package com.notes.notes.dto.moduleDTOS;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +28,14 @@ public class RMIRRequestDTO {
     private String supplier;
     private String inspector;
     private String remarks;
+
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate createdDate;
+
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+    private LocalTime createdTime;
 
     private List<ObservationDTO> observations = new ArrayList<>();
 

@@ -53,6 +53,9 @@ public class RMIRServiceImpl implements RMIRService {
             rmir.setInspector(dto.getInspector());
             rmir.setRemarks(dto.getRemarks());
 
+            rmir.setCreatedDate(dto.getCreatedDate());
+            rmir.setCreatedTime(dto.getCreatedTime());
+
             // Handle Observations
             if (dto.getObservations() != null) {
                 dto.getObservations().forEach(obsDto -> {
@@ -133,6 +136,9 @@ public class RMIRServiceImpl implements RMIRService {
         rmir.setSupplier(dto.getSupplier());
         rmir.setInspector(dto.getInspector());
         rmir.setRemarks(dto.getRemarks());
+
+        rmir.setCreatedDate(dto.getCreatedDate());
+        rmir.setCreatedTime(dto.getCreatedTime());
 
         // Clear and rebuild observations
         rmir.getObservations().clear();

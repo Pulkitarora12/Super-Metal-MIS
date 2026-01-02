@@ -16,6 +16,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +47,9 @@ public class RMIRController {
         RMIRRequestDTO dto = new RMIRRequestDTO();
         String username = userDetails.getUsername();
         dto.setInspector(username);
+        dto.setCreatedDate(LocalDate.now());
+        dto.setCreatedTime(LocalTime.now());
+
 
         model.addAttribute("dto", dto);
         model.addAttribute("grades", grades);
@@ -99,7 +105,9 @@ public class RMIRController {
                     .append(entry.getBundleSize()).append(",")
                     .append(entry.getSupplier()).append(",")
                     .append(entry.getInspector()).append(",")
-                    .append(entry.getRemarks()).append("\n");
+                    .append(entry.getRemarks()).append("\n")
+                    .append(entry.getCreatedDate()).append("\n")
+                    .append(entry.getCreatedTime()).append("\n");
         }
 
         return ResponseEntity.ok()

@@ -272,6 +272,20 @@
             <label>Remarks:</label>
             <input type="text" th:field="*{remarks}" />
         </div>
+
+        <div class="form-field">
+            <label>Created Date:</label>
+            <input type="date"
+                   th:field="*{createdDate}"
+                   required />
+        </div>
+
+        <div class="form-field">
+            <label>Created Time:</label>
+            <input type="time"
+                   th:field="*{createdTime}"
+                   required />
+        </div>
     </div>
 
     <!-- Observations -->
@@ -315,10 +329,10 @@
         function addObservation() {
         const table = document.getElementById('observationTable').querySelector('tbody');
         const row = `<tr>
-            <td><input type="number" name="observations[${observationIndex}].l" required></td>
-            <td><input type="number" name="observations[${observationIndex}].b" required></td>
-            <td><input type="number" name="observations[${observationIndex}].h" required></td>
-            <td><input type="text" name="observations[${observationIndex}].gwSheet" required></td>
+            <td><input type="number" step="any" name="observations[${observationIndex}].l" required></td>
+            <td><input type="number" step="any" name="observations[${observationIndex}].b" required></td>
+            <td><input type="number" step="any" name="observations[${observationIndex}].h" required></td>
+            <td><input type="text" step="any" name="observations[${observationIndex}].gwSheet" required></td>
             <td><button type="button" onclick="removeRow(this)">Remove</button></td>
         </tr>`;
         table.insertAdjacentHTML('beforeend', row);
@@ -332,10 +346,10 @@
         function resetObservations() {
         const tableBody = document.getElementById('observationTable').querySelector('tbody');
         tableBody.innerHTML = `<tr>
-            <td><input type="number" name="observations[0].l" required></td>
-            <td><input type="number" name="observations[0].b" required></td>
-            <td><input type="number" name="observations[0].h" required></td>
-            <td><input type="text" name="observations[0].gwSheet" required></td>
+            <td><input type="number" step="any" name="observations[0].l" required></td>
+            <td><input type="number" step="any"  name="observations[0].b" required></td>
+            <td><input type="number" step="any" name="observations[0].h" required></td>
+            <td><input type="text" step="any" name="observations[0].gwSheet" required></td>
             <td><button type="button" onclick="removeRow(this)" disabled style="opacity: 0.5; cursor: not-allowed;">Remove</button></td>
         </tr>`;
         observationIndex = 1;

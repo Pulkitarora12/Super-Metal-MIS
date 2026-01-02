@@ -88,7 +88,6 @@ public class SecurityConfig {
 
             // If admin user already exists, skip
             if (userRepository.findByEmail(adminEmail).isPresent()) {
-                System.out.println("[ADMIN] Admin user already exists.");
                 return;
             }
 
@@ -124,8 +123,6 @@ public class SecurityConfig {
             admin.setEmployeePhone("9990627700");
 
             userRepository.save(admin);
-
-            System.out.println("[ADMIN] Default admin created successfully!");
         };
     }
 

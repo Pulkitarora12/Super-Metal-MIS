@@ -3,6 +3,9 @@ package com.notes.notes.entity.moduleEntities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +32,12 @@ public class RMIR {
     private String supplier;
     private String inspector;
     private String remarks;
+
+    @Column(nullable = true)
+    private LocalDate createdDate;
+
+    @Column(nullable = true)
+    private LocalTime createdTime;
 
     @OneToMany(mappedBy = "rmir", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Observation> observations = new ArrayList<>();
