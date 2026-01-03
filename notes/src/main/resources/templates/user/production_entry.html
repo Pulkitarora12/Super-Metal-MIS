@@ -398,18 +398,10 @@
 
         const rejected = document.querySelector('input[name="timeSlot.rejected"]').value;
         const reason = document.querySelector('select[name="timeSlot.reason"]').value;
-        const fromTime = document.querySelector('input[name="timeSlot.fromTime"]').value;
-        const toTime = document.querySelector('input[name="timeSlot.toTime"]').value;
 
         if (rejected && parseInt(rejected) > 0 && !reason) {
             e.preventDefault();
             alert('Please select a rejection reason');
-            return;
-        }
-
-        if (fromTime && toTime && toTime <= fromTime) {
-            e.preventDefault();
-            alert('To Time must be greater than From Time');
             return;
         }
 
