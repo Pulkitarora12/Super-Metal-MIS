@@ -28,10 +28,12 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf ->
-                csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/api/auth/public/**", "public/**", "/logout")
-        );
+//        http.csrf(csrf ->
+//                csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+//                        .ignoringRequestMatchers("/api/auth/public/**", "public/**", "/logout")
+//        );
+
+        http.csrf(csrf -> csrf.disable());
 
         http.authorizeHttpRequests(requests -> requests
                 .requestMatchers("/auth/**", "/verification/**", "/api/csrf-token", "/logout").permitAll()

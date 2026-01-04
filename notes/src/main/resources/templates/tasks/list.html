@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Tasks</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: white;
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f7fafc;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 14px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        .task-no {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-LOW {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .priority-MEDIUM {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .priority-HIGH {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .priority-CRITICAL {
+            background: #feb2b2;
+            color: #9b2c2c;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-CREATED {
+            background: #e6f0ff;
+            color: #2c5aa0;
+        }
+
+        .status-IN_PROGRESS {
+            background: #fff5e6;
+            color: #c87d0e;
+        }
+
+        .status-REVIEW {
+            background: #f3e6ff;
+            color: #6b2c91;
+        }
+
+        .status-SUBMITTED {
+            background: #e6f7ff;
+            color: #0c5da5;
+        }
+
+        .status-CLOSED {
+            background: #e6ffe6;
+            color: #276749;
+        }
+
+        .action-link {
+            color: #667eea;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .action-link:hover {
+            background: #f7fafc;
+            transform: translateX(2px);
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #a0aec0;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        @media (max-width: 1024px) {
+            .sections-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+
+            .task-no {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Manage Tasks</h2>
+        <a th:href="@{/tasks/new}" class="btn">➕ Create Task</a>
+    </div>
+
+    <div class="sections-grid">
+        <!-- ================= CREATED TASKS ================= -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">📝</div>
+                <div class="section-title">Tasks Created by Me</div>
+            </div>
+
+            <table th:if="${!createdTasks.isEmpty()}">
+                <thead>
+                <tr>
+                    <th>Task No</th>
+                    <th>Title</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="task : ${createdTasks}">
+                    <td>
+                        <span class="task-no" th:text="${task.taskNo}">TSK-001</span>
+                    </td>
+                    <td th:text="${task.title}">Task title</td>
+                    <td>
+                        <span class="priority-badge"
+                              th:classappend="${'priority-' + task.priority}"
+                              th:text="${task.priority}">HIGH</span>
+                    </td>
+                    <td>
+                        <span class="status-badge"
+                              th:classappend="${'status-' + task.status}"
+                              th:text="${task.status}">CREATED</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/tasks/{id}(id=${task.taskId})}"
+                           class="action-link">View →</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="empty" th:if="${createdTasks.isEmpty()}">
+                You haven't created any tasks yet.
+            </div>
+        </div>
+
+        <!-- ================= ASSIGNED TASKS ================= -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">📋</div>
+                <div class="section-title">Tasks Assigned to Me</div>
+            </div>
+
+            <table th:if="${!assignedTasks.isEmpty()}">
+                <thead>
+                <tr>
+                    <th>Task No</th>
+                    <th>Title</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="task : ${assignedTasks}">
+                    <td>
+                        <span class="task-no" th:text="${task.taskNo}">TSK-002</span>
+                    </td>
+                    <td th:text="${task.title}">Assigned task</td>
+                    <td>
+                        <span class="priority-badge"
+                              th:classappend="${'priority-' + task.priority}"
+                              th:text="${task.priority}">MEDIUM</span>
+                    </td>
+                    <td>
+                        <span class="status-badge"
+                              th:classappend="${'status-' + task.status}"
+                              th:text="${task.status}">IN_PROGRESS</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/tasks/{id}(id=${task.taskId})}"
+                           class="action-link">View →</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="empty" th:if="${assignedTasks.isEmpty()}">
+                No tasks assigned to you yet.
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
