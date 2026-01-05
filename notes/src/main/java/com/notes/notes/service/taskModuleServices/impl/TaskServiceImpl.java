@@ -3,6 +3,8 @@ package com.notes.notes.service.taskModuleServices.impl;
 import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskStatusHistory;
+import com.notes.notes.repository.taskModuleRepositories.TaskAssignmentRepository;
+import com.notes.notes.repository.taskModuleRepositories.TaskCommentRepository;
 import com.notes.notes.repository.taskModuleRepositories.TaskRepository;
 import com.notes.notes.repository.taskModuleRepositories.TaskStatusHistoryRepository;
 import com.notes.notes.service.taskModuleServices.TaskService;
@@ -17,11 +19,17 @@ import java.util.UUID;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskAssignmentRepository taskAssignmentRepository;
+    private final TaskCommentRepository taskCommentRepository;
     private final TaskStatusHistoryRepository taskStatusHistoryRepository;
 
     public TaskServiceImpl(TaskRepository taskRepository,
+                           TaskAssignmentRepository taskAssignmentRepository,
+                           TaskCommentRepository taskCommentRepository,
                            TaskStatusHistoryRepository taskStatusHistoryRepository) {
         this.taskRepository = taskRepository;
+        this.taskAssignmentRepository = taskAssignmentRepository;
+        this.taskCommentRepository = taskCommentRepository;
         this.taskStatusHistoryRepository = taskStatusHistoryRepository;
     }
 
@@ -82,6 +90,19 @@ public class TaskServiceImpl implements TaskService {
         taskStatusHistoryRepository.save(history);
 
         return updatedTask;
+    }
+
+    @Override
+    @Transactional
+    public void deleteTask(Task task) {
+
+        // 1️⃣ Delete dependent entities first (safe & explicit)
+        taskAssignmentRepository.deleteByTask(task);
+        taskCommentRepository.deleteByTask(task);
+        taskStatusHistoryRepository.deleteByTask(task);
+
+        // 2️⃣ Delete task
+        taskRepository.delete(task);
     }
 
     @Override

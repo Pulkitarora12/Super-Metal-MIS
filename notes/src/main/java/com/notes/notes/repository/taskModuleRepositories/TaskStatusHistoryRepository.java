@@ -12,4 +12,6 @@ public interface TaskStatusHistoryRepository extends JpaRepository<TaskStatusHis
 
     // Fetch the history of a specific task, ordered by latest changes first
     List<TaskStatusHistory> findByTaskOrderByTimestampDesc(Task task);
+
+    void deleteByTask(Task task);
 }

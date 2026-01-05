@@ -129,6 +129,20 @@ public class TaskController {
         return "redirect:/tasks/" + taskId;
     }
 
+    @GetMapping("/{taskId}/assign")
+    public String assignPage(@PathVariable Long taskId, Model model) {
+
+        Task task = taskService.getTaskById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+
+        model.addAttribute("task", task);
+        model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("assignees",
+                taskAssignmentService.getAssigneesByTask(task));
+
+        return "tasks/assign";
+    }
+
     @PostMapping("/{taskId}/assign")
     public String assignUser(@PathVariable Long taskId,
                              @RequestParam(required = false) Long userId,
@@ -190,5 +204,41 @@ public class TaskController {
 
         taskCommentService.addComment(task, loggedInUser, content, null);
         return "redirect:/tasks/" + taskId;
+    }
+
+    @PostMapping("/{taskId}/delete")
+    public String deleteTask(@PathVariable Long taskId,
+                             @ModelAttribute("loggedInUser") User loggedInUser,
+                             RedirectAttributes redirectAttributes) {
+
+        Task task = taskService.getTaskById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+
+        // Rule 1: Only creator can delete
+        if (!task.getCreator().getUserId().equals(loggedInUser.getUserId())) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "Only the task creator can delete this task."
+            );
+            return "redirect:/tasks/" + taskId;
+        }
+
+        // Rule 2: Closed tasks cannot be deleted
+        if (task.getStatus() == Task.TaskStatus.CLOSED) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "Closed tasks cannot be deleted."
+            );
+            return "redirect:/tasks/" + taskId;
+        }
+
+        taskService.deleteTask(task);
+
+        redirectAttributes.addFlashAttribute(
+                "successMessage",
+                "Task deleted successfully."
+        );
+
+        return "redirect:/tasks";
     }
 }

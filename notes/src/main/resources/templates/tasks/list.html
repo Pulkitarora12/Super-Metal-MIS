@@ -252,6 +252,40 @@
                 padding: 3px 8px;
             }
         }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #e53e3e;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background: #fed7d7;
+            transform: translateX(2px);
+        }
+
+        .delete-btn:disabled {
+            color: #a0aec0;
+            cursor: not-allowed;
+            background: transparent;
+        }
+
+        .disabled-delete {
+            cursor: not-allowed;
+            opacity: 0.5;
+            background: transparent;
+        }
+
+        td:last-child {
+            white-space: nowrap;
+        }
+
     </style>
 </head>
 
@@ -278,7 +312,8 @@
                     <th>Title</th>
                     <th>Priority</th>
                     <th>Status</th>
-                    <th></th>
+                    <th>View</th>
+                    <th>Delete</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -288,21 +323,37 @@
                     </td>
                     <td th:text="${task.title}">Task title</td>
                     <td>
-                        <span class="priority-badge"
-                              th:classappend="${'priority-' + task.priority}"
-                              th:text="${task.priority}">HIGH</span>
-                    </td>
-                    <td>
-                        <span class="status-badge"
-                              th:classappend="${'status-' + task.status}"
-                              th:text="${task.status}">CREATED</span>
-                    </td>
+                    <span class="priority-badge"
+                          th:classappend="${'priority-' + task.priority}"
+                          th:text="${task.priority}">HIGH</span>
+                                </td>
+                                <td>
+                    <span class="status-badge"
+                          th:classappend="${'status-' + task.status}"
+                          th:text="${task.status}">CREATED</span>
+                                </td>
                     <td>
                         <a th:href="@{/tasks/{id}(id=${task.taskId})}"
                            class="action-link">View →</a>
                     </td>
-                </tr>
-                </tbody>
+
+                    <td>
+                        <form th:action="@{/tasks/{id}/delete(id=${task.taskId})}"
+                              method="post"
+                              th:if="${task.status != T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CLOSED}"
+                              onsubmit="return confirm('Are you sure you want to delete this task?');"
+                              style="display:inline;">
+                            <button type="submit" class="delete-btn">Delete ✖</button>
+                        </form>
+
+                        <span th:if="${task.status == T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CLOSED}"
+                              class="delete-btn disabled-delete">
+                        Delete ✖
+                    </span>
+                    </td>
+                            </tr>
+                            </tbody>
+
             </table>
 
             <div class="empty" th:if="${createdTasks.isEmpty()}">

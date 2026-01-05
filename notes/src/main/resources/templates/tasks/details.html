@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
@@ -60,20 +60,32 @@
             transform: translateX(-3px);
         }
 
+        /* THREE COLUMN LAYOUT */
         .main-layout {
             display: grid;
-            grid-template-columns: 420px 1fr;
+            grid-template-columns: 380px 1fr 380px;
             gap: 20px;
             align-items: start;
         }
 
-        /* LEFT SIDEBAR */
-        .left-sidebar {
+        /* LEFT COLUMN - Task Details & Assignees */
+        .left-column {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            position: sticky;
-            top: 20px;
+        }
+
+        /* MIDDLE COLUMN - Chat */
+        .middle-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* RIGHT COLUMN - Status & History */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .task-card {
@@ -387,7 +399,7 @@
             transform: translateY(-2px);
         }
 
-        /* RIGHT CHAT AREA */
+        /* CHAT CONTAINER */
         .chat-container {
             background: white;
             border-radius: 12px;
@@ -427,7 +439,7 @@
         .chat-message {
             display: flex;
             flex-direction: column;
-            max-width: 70%;
+            max-width: 75%;
             animation: fadeIn 0.3s ease;
         }
 
@@ -550,13 +562,23 @@
             transform: translateY(0);
         }
 
-        @media (max-width: 1024px) {
+        /* RESPONSIVE */
+        @media (max-width: 1400px) {
+            .main-layout {
+                grid-template-columns: 340px 1fr 340px;
+            }
+        }
+
+        @media (max-width: 1200px) {
             .main-layout {
                 grid-template-columns: 1fr;
             }
 
-            .left-sidebar {
-                position: static;
+            .left-column,
+            .right-column {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
             }
 
             .chat-container {
@@ -565,6 +587,17 @@
 
             .chat-message {
                 max-width: 85%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .left-column,
+            .right-column {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-message {
+                max-width: 90%;
             }
         }
 
@@ -598,10 +631,6 @@
             .chat-input-area {
                 padding: 18px 20px;
             }
-
-            .chat-message {
-                max-width: 90%;
-            }
         }
 
         /* Custom scrollbar */
@@ -630,8 +659,7 @@
 </head>
 <body>
 
-<!-- ================= FLASH MESSAGES ================= -->
-
+<!-- FLASH MESSAGES -->
 <div th:if="${successMessage}"
      style="
         margin-bottom: 18px;
@@ -660,7 +688,6 @@
     ⚠️ <span th:text="${errorMessage}"></span>
 </div>
 
-
 <div class="container">
     <div class="header">
         <h2>Task Details</h2>
@@ -670,8 +697,8 @@
     </div>
 
     <div class="main-layout">
-        <!-- LEFT SIDEBAR -->
-        <div class="left-sidebar">
+        <!-- LEFT COLUMN: Task Details & Assignees -->
+        <div class="left-column">
             <!-- Task Info -->
             <div class="task-card">
                 <div class="task-info-grid">
@@ -712,6 +739,82 @@
                 </div>
             </div>
 
+            <!-- Assignees -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">👥</div>
+                    <h3>Assignees</h3>
+                </div>
+
+                <ul class="assignee-list" th:if="${not #lists.isEmpty(assignees)}">
+                    <li class="assignee-item" th:each="assignment : ${assignees}">
+                        <span class="assignee-name" th:text="${assignment.user.userName}">John Doe</span>
+                        <span class="assignee-role" th:text="${assignment.roleType}">MAIN</span>
+                    </li>
+                </ul>
+                <div class="empty-state" th:if="${#lists.isEmpty(assignees)}">
+                    No assignees yet
+                </div>
+
+                <div th:if="${task.status == T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CLOSED}"
+                     class="empty-state">
+                    🔒 Assignees cannot be modified for closed tasks.
+                </div>
+
+                <a th:if="${task.status != T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CLOSED}"
+                   th:href="@{/tasks/{id}/assign(id=${task.taskId})}"
+                   class="add-assignee-link">
+                    ➕ Add More Assignees
+                </a>
+            </div>
+        </div>
+
+        <!-- MIDDLE COLUMN: Chat/Comments -->
+        <div class="middle-column">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="section-icon">💬</div>
+                    <h3>Comments</h3>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div th:if="${#lists.isEmpty(comments)}" class="empty-state" style="margin: auto;">
+                        No comments yet. Start the conversation!
+                    </div>
+
+                    <div th:each="comment : ${comments}"
+                         class="chat-message"
+                         th:classappend="${comment.sender.userId == currentUserId} ? 'sent' : 'received'">
+                        <span class="message-author" th:text="${comment.sender.userName}">John Doe</span>
+                        <div class="message-bubble" th:text="${comment.content}">
+                            This is a comment message
+                        </div>
+                        <span class="message-time" th:text="${#temporals.format(comment.changedAt, 'dd MMM yyyy HH:mm')}">01 Jan 2024 10:00</span>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <div th:if="${task.status == T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CLOSED}"
+                         class="empty-state">
+                        🔒 Comments are disabled because this task is closed.
+                    </div>
+
+                    <form th:if="${task.status != T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CLOSED}"
+                          th:action="@{/tasks/{id}/comment(id=${task.taskId})}"
+                          method="post"
+                          class="chat-form">
+                        <textarea name="content"
+                                  class="chat-textarea"
+                                  placeholder="Type your comment..."
+                                  required></textarea>
+                        <button type="submit" class="chat-send-btn">Send 📤</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Status Update & History -->
+        <div class="right-column">
             <!-- Update Status -->
             <div class="section">
                 <div class="section-header">
@@ -743,36 +846,6 @@
                 </form>
             </div>
 
-            <!-- Assignees -->
-            <div class="section">
-                <div class="section-header">
-                    <div class="section-icon">👥</div>
-                    <h3>Assignees</h3>
-                </div>
-
-                <ul class="assignee-list" th:if="${not #lists.isEmpty(assignees)}">
-                    <li class="assignee-item" th:each="assignment : ${assignees}">
-                        <span class="assignee-name" th:text="${assignment.user.userName}">John Doe</span>
-                        <span class="assignee-role" th:text="${assignment.roleType}">MAIN</span>
-                    </li>
-                </ul>
-                <div class="empty-state" th:if="${#lists.isEmpty(assignees)}">
-                    No assignees yet
-                </div>
-
-                <div th:if="${task.status == T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CLOSED}"
-                     class="empty-state">
-                    🔒 Assignees cannot be modified for closed tasks.
-                </div>
-
-                <a th:if="${task.status != T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CLOSED}"
-                   th:href="@{/tasks/{id}/assign(id=${task.taskId})}"
-                   class="add-assignee-link">
-                    ➕ Add More Assignees
-                </a>
-
-            </div>
-
             <!-- Status History -->
             <div class="section">
                 <div class="section-header">
@@ -796,49 +869,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- RIGHT CHAT AREA -->
-        <div class="chat-container">
-            <div class="chat-header">
-                <div class="section-icon">💬</div>
-                <h3>Comments</h3>
-            </div>
-
-            <div class="chat-messages" id="chatMessages">
-                <div th:if="${#lists.isEmpty(comments)}" class="empty-state" style="margin: auto;">
-                    No comments yet. Start the conversation!
-                </div>
-
-                <div th:each="comment : ${comments}"
-                     class="chat-message"
-                     th:classappend="${comment.sender.userId == currentUserId} ? 'sent' : 'received'">
-                    <span class="message-author" th:text="${comment.sender.userName}">John Doe</span>
-                    <div class="message-bubble" th:text="${comment.content}">
-                        This is a comment message
-                    </div>
-                    <span class="message-time" th:text="${#temporals.format(comment.changedAt, 'dd MMM yyyy HH:mm')}">01 Jan 2024 10:00</span>
-                </div>
-            </div>
-
-            <div class="chat-input-area">
-                <div th:if="${task.status == T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CLOSED}"
-                     class="empty-state">
-                    🔒 Comments are disabled because this task is closed.
-                </div>
-
-                <form th:if="${task.status != T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CLOSED}"
-                      th:action="@{/tasks/{id}/comment(id=${task.taskId})}"
-                      method="post"
-                      class="chat-form">
-        <textarea name="content"
-                  class="chat-textarea"
-                  placeholder="Type your comment..."
-                  required></textarea>
-                    <button type="submit" class="chat-send-btn">Send 📤</button>
-                </form>
-            </div>
-
-        </div>
     </div>
 </div>
 
@@ -852,29 +882,42 @@
     // Auto-resize textarea
     const textarea = document.querySelector('.chat-textarea');
     if (textarea) {
-        textarea.addEventListener('input', function() {
+        textarea.addEventListener('input', function () {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
 
         // Handle Enter key to submit (Shift+Enter for new line)
-        textarea.addEventListener('keydown', function(e) {
+        textarea.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                this.closest('form').submit();
+                const form = this.closest('form');
+                if (form) {
+                    form.submit();
+                }
             }
         });
     }
 
-    // Scroll to bottom when new comment is added
-    window.addEventListener('load', function() {
+    // Scroll to bottom when page loads (after Thymeleaf renders)
+    window.addEventListener('load', function () {
         if (chatMessages) {
-            setTimeout(function() {
+            setTimeout(function () {
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }, 100);
         }
     });
-</script>
 
+    // Prevent double submission of comment form
+    const chatForm = document.querySelector('.chat-form');
+    const sendButton = document.querySelector('.chat-send-btn');
+
+    if (chatForm && sendButton) {
+        chatForm.addEventListener('submit', function () {
+            sendButton.disabled = true;
+            sendButton.innerText = 'Sending...';
+        });
+    }
+</script>
 </body>
 </html>

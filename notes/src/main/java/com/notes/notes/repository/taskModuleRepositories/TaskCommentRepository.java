@@ -12,4 +12,6 @@ public interface TaskCommentRepository extends JpaRepository<TaskComment, Long> 
 
     // Fetch all comments for a specific task, oldest first (like a chat)
     List<TaskComment> findByTaskOrderByChangedAtAsc(Task task);
+
+    void deleteByTask(Task task);
 }

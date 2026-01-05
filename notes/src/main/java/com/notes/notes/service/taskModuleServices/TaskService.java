@@ -36,4 +36,6 @@ public interface TaskService {
     // Fetch tasks by status
     List<Task> getTasksByStatus(Task.TaskStatus status);
 
+    void deleteTask(Task task);
+
 }

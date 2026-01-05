@@ -23,4 +23,6 @@ public interface TaskAssignmentRepository extends JpaRepository<TaskAssignment, 
     // 4. Find the 'Main Assignee' specifically (Optional)
     // (Useful for the Appraisal system later to find who gets the points)
     TaskAssignment findByTaskAndRoleType(Task task, TaskAssignment.AssignmentRole roleType);
+
+    void deleteByTask(Task task);
 }

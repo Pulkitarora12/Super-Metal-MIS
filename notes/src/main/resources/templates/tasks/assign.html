@@ -256,7 +256,6 @@
         </div>
 
         <form th:action="@{/tasks/{id}/assign(id=${task.taskId})}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <input type="hidden" name="role" value="MAIN"/>
 
             <div class="form-group">
@@ -281,7 +280,6 @@
         </div>
 
         <form th:action="@{/tasks/{id}/assign(id=${task.taskId})}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <input type="hidden" name="role" value="SUPPORTING"/>
 
             <div class="supporting-container" id="supporting-container">
