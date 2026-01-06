@@ -4,6 +4,7 @@ import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskAssignment;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +15,8 @@ public interface TaskService {
             String title,
             String description,
             Task.TaskPriority priority,
-            User creator
+            User creator,
+            LocalDate dueDate
     );
 
     // Update task status and log history
@@ -37,5 +39,32 @@ public interface TaskService {
     List<Task> getTasksByStatus(Task.TaskStatus status);
 
     void deleteTask(Task task);
+
+//    List<Task> getCreatedTasksWithFilter(
+//            User creator,
+//            Task.TaskPriority priority,
+//            Task.TaskStatus status
+//    );
+
+//    List<Task> filterTasks(
+//            List<Task> tasks,
+//            Task.TaskPriority priority,
+//            Task.TaskStatus status
+//    );
+//
+//    List<Task> searchCreatedTasks(
+//            User creator,
+//            String search,
+//            Task.TaskPriority priority,
+//            Task.TaskStatus status
+//    );
+
+    List<Task> searchAndFilterTasks(
+            List<Task> tasks,
+            String search,
+            Task.TaskPriority priority,
+            Task.TaskStatus status,
+            String progress
+    );
 
 }

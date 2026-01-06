@@ -5,11 +5,13 @@ import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskAssignment;
 import com.notes.notes.service.authServices.UserService;
 import com.notes.notes.service.taskModuleServices.*;
+import com.notes.notes.util.TimeUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -34,28 +36,51 @@ public class TaskController {
         this.userService = userService;
     }
 
-
     @GetMapping
     public String listTasks(Model model,
+                            @RequestParam(required = false) String search,
+                            @RequestParam(required = false) Task.TaskPriority priority,
+                            @RequestParam(required = false) Task.TaskStatus status,
+                            @RequestParam(required = false) String progress,
                             @ModelAttribute("loggedInUser") User loggedInUser) {
 
-        // Tasks created by user
-        model.addAttribute(
-                "createdTasks",
-                taskService.getTasksCreatedByUser(loggedInUser)
+        // ================= CREATED TASKS =================
+        List<Task> createdTasks = taskService.searchAndFilterTasks(
+                taskService.getTasksCreatedByUser(loggedInUser),
+                search,
+                priority,
+                status,
+                progress
         );
 
-        // Tasks assigned to user
-        model.addAttribute(
-                "assignedTasks",
-                taskAssignmentService.getAssignmentsByUser(loggedInUser)
-                        .stream()
-                        .map(TaskAssignment::getTask)
-                        .toList()
+        model.addAttribute("createdTasks", createdTasks);
+
+        // ================= ASSIGNED TASKS =================
+        List<Task> assignedTasks = taskAssignmentService
+                .getAssignmentsByUser(loggedInUser)
+                .stream()
+                .map(TaskAssignment::getTask)
+                .toList();
+
+        assignedTasks = taskService.searchAndFilterTasks(
+                assignedTasks,
+                search,
+                priority,
+                status,
+                progress
         );
+
+        model.addAttribute("assignedTasks", assignedTasks);
+
+        // ================= UI STATE =================
+        model.addAttribute("search", search);
+        model.addAttribute("selectedPriority", priority);
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("selectedProgress", progress);
 
         return "tasks/list";
     }
+
 
     @GetMapping("/new")
     public String createTaskPage() {
@@ -66,19 +91,34 @@ public class TaskController {
     public String createTask(@RequestParam String title,
                              @RequestParam String description,
                              @RequestParam Task.TaskPriority priority,
+                             @RequestParam LocalDate dueDate,
                              @ModelAttribute("loggedInUser") User loggedInUser) {
         System.out.println("CREATE TASK HIT");
         System.out.println(title + " | " + description + " | " + priority);
-        Task task = taskService.createTask(title, description, priority, loggedInUser);
+        Task task = taskService.createTask(title, description, priority, loggedInUser, dueDate);
 
         return "redirect:/tasks/" + task.getTaskId() + "/assign";
     }
 
     @GetMapping("/{taskId}")
-    public String taskDetails(@PathVariable Long taskId, Model model) {
+    public String taskDetails(@PathVariable Long taskId, Model model,
+                        @ModelAttribute("loggedInUser") User loggedInUser,
+                              RedirectAttributes redirectAttributes) {
 
         Task task = taskService.getTaskById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+
+        if (!canAccessTask(task, loggedInUser)) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "You are not authorized to access this task."
+            );
+            return "redirect:/tasks";
+        }
+
+
+        String remainingTime = TimeUtil.getRemainingTime(task.getDueDate());
+        model.addAttribute("remainingTime", remainingTime);
 
         model.addAttribute("task", task);
         model.addAttribute("assignees",
@@ -158,7 +198,7 @@ public class TaskController {
                     "errorMessage",
                     "Assignees cannot be modified after task closure."
             );
-            return "redirect:/tasks/" + taskId;
+            return "redirect:/tasks/" + taskId + "/assign";
         }
 
         if ("MAIN".equalsIgnoreCase(role)) {
@@ -182,7 +222,7 @@ public class TaskController {
                 "Assignees updated successfully."
         );
 
-        return "redirect:/tasks/" + taskId;
+        return "redirect:/tasks/" + taskId + "/assign";
     }
 
     @PostMapping("/{taskId}/comment")
@@ -240,5 +280,15 @@ public class TaskController {
         );
 
         return "redirect:/tasks";
+    }
+
+    private boolean canAccessTask(Task task, User user) {
+        // Creator can always access
+        if (task.getCreator().getUserId().equals(user.getUserId())) {
+            return true;
+        }
+
+        // Assigned users can access
+        return taskAssignmentService.isUserAssignedToTask(task, user);
     }
 }

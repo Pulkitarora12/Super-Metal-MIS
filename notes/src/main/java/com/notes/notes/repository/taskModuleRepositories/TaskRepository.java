@@ -16,4 +16,14 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     // 3. Find tasks by status (Optional, useful for filters like "Show all Closed tasks")
     List<Task> findByStatus(Task.TaskStatus status);
+
+//    List<Task> findByCreatorAndPriority(User creator, Task.TaskPriority priority);
+//
+//    List<Task> findByCreatorAndStatus(User creator, Task.TaskStatus status);
+//
+//    List<Task> findByCreatorAndPriorityAndStatus(
+//            User creator,
+//            Task.TaskPriority priority,
+//            Task.TaskStatus status
+//    );
 }

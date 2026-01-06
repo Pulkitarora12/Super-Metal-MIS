@@ -286,6 +286,12 @@
             white-space: nowrap;
         }
 
+        .filter-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
     </style>
 </head>
 
@@ -295,6 +301,125 @@
     <div class="header">
         <h2>Manage Tasks</h2>
         <a th:href="@{/tasks/new}" class="btn">➕ Create Task</a>
+    </div>
+
+    <div class="filter-wrapper">
+        <form th:action="@{/tasks}" method="get"
+              style="margin-bottom: 30px; display:flex; gap:16px; align-items:end;">
+            <!-- Search -->
+            <div>
+                <label style="font-size:12px; font-weight:600; color:#718096;">
+                    Search
+                </label>
+                <input type="text"
+                       name="search"
+                       placeholder="Task No or Title"
+                       th:value="${search}"
+                       style="
+               padding:10px 14px;
+               border-radius:8px;
+               border:2px solid #e2e8f0;
+               min-width:220px;
+               font-size:14px;
+           ">
+            </div>
+
+
+            <!-- Priority Filter -->
+            <div>
+                <label style="font-size:12px; font-weight:600; color:#718096;">
+                    Priority
+                </label>
+                <select name="priority"
+                        style="padding:10px 14px; border-radius:8px; border:2px solid #e2e8f0;">
+                    <option value="">All</option>
+                    <option value="LOW"
+                            th:selected="${selectedPriority == T(com.notes.notes.entity.taskModuleEntities.Task.TaskPriority).LOW}">
+                        LOW
+                    </option>
+                    <option value="MEDIUM"
+                            th:selected="${selectedPriority == T(com.notes.notes.entity.taskModuleEntities.Task.TaskPriority).MEDIUM}">
+                        MEDIUM
+                    </option>
+                    <option value="HIGH"
+                            th:selected="${selectedPriority == T(com.notes.notes.entity.taskModuleEntities.Task.TaskPriority).HIGH}">
+                        HIGH
+                    </option>
+                    <option value="CRITICAL"
+                            th:selected="${selectedPriority == T(com.notes.notes.entity.taskModuleEntities.Task.TaskPriority).CRITICAL}">
+                        CRITICAL
+                    </option>
+                </select>
+            </div>
+
+            <!-- Status Filter -->
+            <div>
+                <label style="font-size:12px; font-weight:600; color:#718096;">
+                    Status
+                </label>
+                <select name="status"
+                        style="padding:10px 14px; border-radius:8px; border:2px solid #e2e8f0;">
+                    <option value="">All</option>
+                    <option value="CREATED"
+                            th:selected="${selectedStatus == T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CREATED}">
+                        CREATED
+                    </option>
+                    <option value="IN_PROGRESS"
+                            th:selected="${selectedStatus == T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).IN_PROGRESS}">
+                        IN_PROGRESS
+                    </option>
+                    <option value="REVIEW"
+                            th:selected="${selectedStatus == T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).REVIEW}">
+                        REVIEW
+                    </option>
+                    <option value="SUBMITTED"
+                            th:selected="${selectedStatus == T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).SUBMITTED}">
+                        SUBMITTED
+                    </option>
+                    <option value="CLOSED"
+                            th:selected="${selectedStatus == T(com.notes.notes.entity.taskModuleEntities.Task.TaskStatus).CLOSED}">
+                        CLOSED
+                    </option>
+                </select>
+            </div>
+
+            <!-- Progress Filter -->
+            <div>
+                <label style="font-size:12px; font-weight:600; color:#718096;">
+                    Progress
+                </label>
+                <select name="progress"
+                        style="padding:10px 14px; border-radius:8px; border:2px solid #e2e8f0;">
+                    <option value="">All</option>
+                    <option value="PENDING"
+                            th:selected="${selectedProgress == 'PENDING'}">
+                        Pending
+                    </option>
+                    <option value="COMPLETED"
+                            th:selected="${selectedProgress == 'COMPLETED'}">
+                        Completed
+                    </option>
+                    <option value="OVERDUE"
+                            th:selected="${selectedProgress == 'OVERDUE'}">
+                        Overdue
+                    </option>
+                </select>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn" style="height:42px;">
+                🔍 Filter
+            </button>
+
+            <!-- Reset -->
+            <a th:href="@{/tasks}"
+               class="btn"
+               style="height:42px; background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+          box-shadow: 0 4px 12px rgba(113, 128, 150, 0.3);">
+                ↺ Reset
+            </a>
+
+        </form>
     </div>
 
     <div class="sections-grid">
