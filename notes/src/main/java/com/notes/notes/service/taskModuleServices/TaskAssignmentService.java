@@ -24,4 +24,6 @@ public interface TaskAssignmentService {
     boolean isUserAssignedToTask(Task task, User user);
 
     List<TaskAssignment> getAssignmentsByUser(User user);
+
+    TaskAssignment getAssignment(Task task, User user);
 }

@@ -81,4 +81,9 @@ public class TaskAssignmentServiceImpl implements TaskAssignmentService {
     public List<TaskAssignment> getAssignmentsByUser(User user) {
         return taskAssignmentRepository.findByUser(user);
     }
+
+    @Override
+    public TaskAssignment getAssignment(Task task, User user) {
+        return taskAssignmentRepository.findByTaskAndUser(task, user);
+    }
 }

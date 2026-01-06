@@ -91,6 +91,9 @@ public class User {
     @Column(name = "employee_phone")
     private String employeePhone;
 
+    @Column(name = "performance_points", nullable = false)
+    private int performancePoints = 0;
+
     public User(String userName, String email, String password) {
         this.userName = userName;
         this.email = email;

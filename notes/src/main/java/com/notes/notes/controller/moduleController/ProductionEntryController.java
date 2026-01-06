@@ -67,11 +67,12 @@ public class ProductionEntryController {
     public String saveProduction(@ModelAttribute ProductionEntryRequestDTO dto,
                                  RedirectAttributes redirectAttributes) {
         try {
-            service.saveProduction(dto);
+            ProductionEntry savedEntry = service.saveProduction(dto);
             redirectAttributes.addFlashAttribute(
                     "success",
                     "Production entry saved successfully!"
             );
+            redirectAttributes.addFlashAttribute("savedId", savedEntry.getId());
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute(
                     "error",

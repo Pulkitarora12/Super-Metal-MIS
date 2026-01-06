@@ -3,6 +3,7 @@ package com.notes.notes.service.taskModuleServices.impl;
 import com.notes.notes.entity.authEntities.AppRole;
 import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
+import com.notes.notes.entity.taskModuleEntities.TaskAssignment;
 import com.notes.notes.entity.taskModuleEntities.TaskStatusHistory;
 import com.notes.notes.repository.authRepo.UserRepository;
 import com.notes.notes.repository.taskModuleRepositories.TaskAssignmentRepository;
@@ -71,10 +72,11 @@ public class TaskServiceImpl implements TaskService {
                 userRepository.findByRole_RoleName(AppRole.ROLE_ADMIN);
 
         for (User admin : admins) {
-            boolean alreadyAssigned =
-                    taskAssignmentService.isUserAssignedToTask(task, admin);
 
-            if (!alreadyAssigned) {
+            TaskAssignment assignment =
+                    taskAssignmentService.getAssignment(task, admin);
+
+            if (assignment == null) {
                 taskAssignmentService.addSupportingAssignee(task, admin);
             }
         }
@@ -109,6 +111,17 @@ public class TaskServiceImpl implements TaskService {
         history.setOldStatus(oldStatus);
         history.setNewStatus(newStatus);
         taskStatusHistoryRepository.save(history);
+
+        if (newStatus == Task.TaskStatus.CLOSED) {
+
+            int points = calculatePoints(updatedTask);
+            TaskAssignment mainAssignee =
+                    taskAssignmentRepository.findByTaskAndRoleType(
+                            task, TaskAssignment.AssignmentRole.MAIN_ASSIGNEE);
+            User main = mainAssignee.getUser();
+            main.setPerformancePoints(main.getPerformancePoints() + points);
+            userRepository.save(main);
+        }
 
         return updatedTask;
     }
@@ -264,5 +277,17 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<Task> getTasksByStatus(Task.TaskStatus status) {
         return taskRepository.findByStatus(status);
+    }
+
+    private int calculatePoints(Task task) {
+        LocalDate today = LocalDate.now();
+        LocalDate dueDate = task.getDueDate();
+
+        if (!today.isAfter(dueDate)) {
+            return 10; // on time or early
+        }
+
+        long overdueDays = today.toEpochDay() - dueDate.toEpochDay();
+        return (int) (-overdueDays * 5);
     }
 }

@@ -299,9 +299,26 @@
 
 <div class="container">
     <div class="header">
-        <h2>Manage Tasks</h2>
+        <div>
+            <h2>Manage Tasks</h2>
+
+            <div style="
+            margin-top: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+        ">
+                ⭐ Your Performance Points:
+                <span style="color:#667eea;"
+                      th:text="${performancePoints != null ? performancePoints : 0}">
+                0
+            </span>
+            </div>
+        </div>
+
         <a th:href="@{/tasks/new}" class="btn">➕ Create Task</a>
     </div>
+
 
     <div class="filter-wrapper">
         <form th:action="@{/tasks}" method="get"

@@ -65,11 +65,12 @@ public class RMIRController {
     public String submitRMIR(@ModelAttribute RMIRRequestDTO dto,
                              RedirectAttributes redirectAttributes) {
         try {
-            service.saveRMIR(dto);
+            RMIR savedEntry = service.saveRMIR(dto);
             redirectAttributes.addFlashAttribute(
                     "success",
                     "RMIR submitted successfully!"
             );
+            redirectAttributes.addFlashAttribute("savedId", savedEntry.getId());
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute(
                     "error",

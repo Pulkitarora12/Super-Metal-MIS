@@ -77,6 +77,7 @@ public class TaskController {
         model.addAttribute("selectedPriority", priority);
         model.addAttribute("selectedStatus", status);
         model.addAttribute("selectedProgress", progress);
+        model.addAttribute("selectedProgress", progress);model.addAttribute("performancePoints", loggedInUser.getPerformancePoints());
 
         return "tasks/list";
     }

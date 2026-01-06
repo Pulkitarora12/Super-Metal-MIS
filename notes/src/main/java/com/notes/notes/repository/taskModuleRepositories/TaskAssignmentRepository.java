@@ -25,4 +25,6 @@ public interface TaskAssignmentRepository extends JpaRepository<TaskAssignment, 
     TaskAssignment findByTaskAndRoleType(Task task, TaskAssignment.AssignmentRole roleType);
 
     void deleteByTask(Task task);
+
+    TaskAssignment findByTaskAndUser(Task task, User user);
 }

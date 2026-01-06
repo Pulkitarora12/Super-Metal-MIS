@@ -189,7 +189,12 @@
 <h2>Raw Material Inspection (RMIR)</h2>
 
 <div th:if="${success}" class="success-message">
-    <p th:text="${success}"></p>
+    <p>
+        <span th:text="${success}"></span>
+        <br/>
+        <strong>Entry ID:</strong>
+        <span th:text="${savedId}"></span>
+    </p>
 </div>
 
 <form th:action="@{/rmir-entry}" method="post" th:object="${dto}">

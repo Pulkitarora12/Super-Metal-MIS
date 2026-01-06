@@ -26,7 +26,7 @@ public class RMIRServiceImpl implements RMIRService {
     private static final Set<Long> activeDeletes = ConcurrentHashMap.newKeySet();
 
     @Override
-    public void saveRMIR(RMIRRequestDTO dto) {
+    public RMIR saveRMIR(RMIRRequestDTO dto) {
 
         String user = dto.getInspector();
 
@@ -76,13 +76,17 @@ public class RMIRServiceImpl implements RMIRService {
             // ✅ NEW: Sync to Google Sheets
             try {
                 rmirGoogleSheetsService.addRMIRToSheet(savedRMIR);
+
             } catch (Exception e) {
                 System.err.println("⚠️ Failed to sync RMIR to Google Sheets: " + e.getMessage());
                 // Don't throw - we still want the DB save to succeed
             }
+
+            return savedRMIR;
         } finally {
             activeUsers.remove(user);
         }
+
     }
 
     @Override

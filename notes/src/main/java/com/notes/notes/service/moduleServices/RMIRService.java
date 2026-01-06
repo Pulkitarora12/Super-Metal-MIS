@@ -6,7 +6,7 @@ import com.notes.notes.entity.moduleEntities.RMIR;
 import java.util.List;
 
 public interface RMIRService {
-    void saveRMIR(RMIRRequestDTO dto);
+    RMIR saveRMIR(RMIRRequestDTO dto);
 
     List<RMIR> getAllEntries();
 
