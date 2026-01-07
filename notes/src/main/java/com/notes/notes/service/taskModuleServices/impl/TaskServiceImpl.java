@@ -112,6 +112,7 @@ public class TaskServiceImpl implements TaskService {
         history.setNewStatus(newStatus);
         taskStatusHistoryRepository.save(history);
 
+        // performance points with closed status
         if (newStatus == Task.TaskStatus.CLOSED) {
 
             int points = calculatePoints(updatedTask);

@@ -881,6 +881,97 @@
     </div>
 </div>
 
+<!-- Add BEFORE your existing <script> tag -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script th:inline="javascript">
+    const taskId = /*[[${task.taskId}]]*/ 0;
+    const currentUser = /*[[${loggedInUser.userName}]]*/ '';
+
+    let stompClient = null;
+
+    // Connect to WebSocket
+    function connect() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function(frame) {
+            console.log('Connected: ' + frame);
+
+            // Subscribe to comments for this task
+            stompClient.subscribe('/topic/task/' + taskId + '/comments', function(message) {
+                const comment = JSON.parse(message.body);
+                addCommentToUI(comment);
+            });
+
+            // Subscribe to status updates for this task
+            stompClient.subscribe('/topic/task/' + taskId + '/status', function(message) {
+                const update = JSON.parse(message.body);
+                updateStatusUI(update);
+            });
+        });
+    }
+
+    // Add comment to UI in real-time
+    function addCommentToUI(comment) {
+        const chatMessages = document.getElementById('chatMessages');
+        const isSent = comment.senderName === currentUser;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message ' + (isSent ? 'sent' : 'received');
+
+        messageDiv.innerHTML = `
+            <span class="message-author">${comment.senderName}</span>
+            <div class="message-bubble">${comment.content}</div>
+            <span class="message-time">Just now</span>
+        `;
+
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function updateStatusUI(update) {
+
+        const taskStatusBadge =
+            document.querySelector('.task-card .status-badge');
+
+        if (taskStatusBadge) {
+            taskStatusBadge.textContent = update.newStatus;
+            taskStatusBadge.className =
+                'status-badge status-' + update.newStatus;
+        }
+
+        const historyList = document.querySelector('.history-list');
+        if (historyList) {
+            const item = document.createElement('li');
+            item.className = 'history-item';
+
+            item.innerHTML = `
+            <div class="history-author">
+                ${update.changedByUserName}
+            </div>
+            <div class="history-change">
+                <span class="status-badge status-${update.oldStatus}">
+                    ${update.oldStatus}
+                </span>
+                →
+                <span class="status-badge status-${update.newStatus}">
+                    ${update.newStatus}
+                </span>
+            </div>
+            <div class="history-time">
+                Just now
+            </div>
+        `;
+
+            historyList.prepend(item);
+        }
+    }
+
+
+    // Connect on page load
+    window.addEventListener('load', connect);
+</script>
 <script>
     // Auto-scroll to bottom of chat
     const chatMessages = document.getElementById('chatMessages');

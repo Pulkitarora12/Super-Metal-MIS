@@ -1,11 +1,15 @@
 package com.notes.notes.controller.taskModuleControllers;
 
+import com.notes.notes.dto.taskManagementDTO.TaskCommentMessage;
+import com.notes.notes.dto.taskManagementDTO.TaskStatusMessage;
 import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskAssignment;
+import com.notes.notes.entity.taskModuleEntities.TaskComment;
 import com.notes.notes.service.authServices.UserService;
 import com.notes.notes.service.taskModuleServices.*;
 import com.notes.notes.util.TimeUtil;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,18 +26,21 @@ public class TaskController {
     private final TaskAssignmentService taskAssignmentService;
     private final TaskCommentService taskCommentService;
     private final TaskStatusHistoryService taskStatusHistoryService;
+    private final SimpMessagingTemplate messagingTemplate;
     private final UserService userService;
 
     public TaskController(TaskService taskService,
                           TaskAssignmentService taskAssignmentService,
                           TaskCommentService taskCommentService,
                           TaskStatusHistoryService taskStatusHistoryService,
-                          UserService userService) {
+                          UserService userService,
+                          SimpMessagingTemplate messagingTemplate) {
         this.taskService = taskService;
         this.taskAssignmentService = taskAssignmentService;
         this.taskCommentService = taskCommentService;
         this.taskStatusHistoryService = taskStatusHistoryService;
         this.userService = userService;
+        this.messagingTemplate = messagingTemplate;  // ADD THIS
     }
 
     @GetMapping
@@ -160,7 +167,18 @@ public class TaskController {
             return "redirect:/tasks/" + taskId;
         }
 
+        Task.TaskStatus oldStatus = task.getStatus();
         taskService.updateTaskStatus(taskId, status, loggedInUser);
+
+        TaskStatusMessage wsMessage = new TaskStatusMessage();
+        wsMessage.setTaskId(taskId);
+        wsMessage.setOldStatus(oldStatus.name());
+        wsMessage.setNewStatus(status.name());
+        wsMessage.setChangedByUserId(loggedInUser.getUserId());
+        wsMessage.setChangedByUserName(loggedInUser.getUserName());
+        wsMessage.setTimestamp(java.time.LocalDateTime.now());
+
+        messagingTemplate.convertAndSend("/topic/task/" + taskId + "/status", wsMessage);
 
         redirectAttributes.addFlashAttribute(
                 "successMessage",
@@ -243,7 +261,16 @@ public class TaskController {
             return "redirect:/tasks/" + taskId;
         }
 
-        taskCommentService.addComment(task, loggedInUser, content, null);
+        TaskComment savedComment = taskCommentService.addComment(task, loggedInUser, content, null);
+
+        TaskCommentMessage wsMessage = new TaskCommentMessage();
+        wsMessage.setTaskId(taskId);
+        wsMessage.setSenderName(loggedInUser.getUserName());
+        wsMessage.setContent(content);
+        wsMessage.setTimestamp(savedComment.getChangedAt());
+
+        messagingTemplate.convertAndSend("/topic/task/" + taskId + "/comments", wsMessage);
+
         return "redirect:/tasks/" + taskId;
     }
 
