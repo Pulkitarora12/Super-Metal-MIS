@@ -215,10 +215,47 @@
         #timeSlotTable td {
             vertical-align: middle;
         }
+
+        /* Top action buttons */
+        .top-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .top-actions a button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .top-actions .btn-dashboard {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .top-actions .btn-dashboard:hover {
+            background: #cbd5e0;
+        }
+
     </style>
 </head>
 
 <body>
+
+<div class="top-actions">
+    <a th:href="@{/auth/dashboard}">
+        <button type="button" class="btn-dashboard">
+            Back to Dashboard
+        </button>
+    </a>
+</div>
+
 
 <h2>Production Entry</h2>
 
@@ -250,6 +287,7 @@
                 <option value="">-- Select Line --</option>
                 <option value="Line 1">Line 1</option>
                 <option value="Line 2">Line 2</option>
+                <option value="Line 3">Line 3</option>
             </select>
         </div>
         <div class="form-field">

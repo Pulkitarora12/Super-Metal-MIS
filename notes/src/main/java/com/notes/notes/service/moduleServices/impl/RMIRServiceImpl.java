@@ -7,6 +7,7 @@ import com.notes.notes.repository.moduleRepo.RMIRRepository;
 import com.notes.notes.service.googleSheetServices.RMIRGoogleSheetsService;
 import com.notes.notes.service.moduleServices.RMIRService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -91,7 +92,9 @@ public class RMIRServiceImpl implements RMIRService {
 
     @Override
     public List<RMIR> getAllEntries() {
-        return rmirRepository.findAll();
+        return rmirRepository.findAll(
+                Sort.by(Sort.Direction.DESC, "createdDate", "createdTime")
+        );
     }
 
     @Override

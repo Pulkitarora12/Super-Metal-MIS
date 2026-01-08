@@ -101,12 +101,46 @@
         .back-link:hover {
             background: #cbd5e0;
         }
+
+        .top-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .top-actions a button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .top-actions .btn-dashboard {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .top-actions .btn-dashboard:hover {
+            background: #cbd5e0;
+        }
+
     </style>
 </head>
 
 <body>
-
 <div class="task-container">
+    <div class="top-actions">
+        <a th:href="@{/auth/dashboard}">
+            <button type="button" class="btn-dashboard">
+                Back to Dashboard
+            </button>
+        </a>
+    </div>
+
     <h2>Create New Task</h2>
 
     <form th:action="@{/tasks}" method="post">

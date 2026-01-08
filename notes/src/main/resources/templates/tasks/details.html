@@ -793,7 +793,7 @@
 
                     <div th:each="comment : ${comments}"
                          class="chat-message"
-                         th:classappend="${comment.sender.userId == currentUserId} ? 'sent' : 'received'">
+                         th:classappend="${comment.sender.userId == loggedInUser.userId} ? 'sent' : 'received'">
                         <span class="message-author" th:text="${comment.sender.userName}">John Doe</span>
                         <div class="message-bubble" th:text="${comment.content}">
                             This is a comment message
@@ -931,6 +931,11 @@
     }
 
     function updateStatusUI(update) {
+        // Prevent duplicate entry for the user who triggered the change
+        if (update.changedByUserName === currentUser) {
+            return;
+        }
+
 
         const taskStatusBadge =
             document.querySelector('.task-card .status-badge');

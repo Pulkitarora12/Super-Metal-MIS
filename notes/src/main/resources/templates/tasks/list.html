@@ -316,7 +316,18 @@
             </div>
         </div>
 
-        <a th:href="@{/tasks/new}" class="btn">➕ Create Task</a>
+        <div style="display:flex; gap:12px;">
+            <a th:href="@{/tasks/new}" class="btn">➕ Create Task</a>
+
+            <a th:href="@{/auth/dashboard}"
+               class="btn"
+               style="
+           background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+           box-shadow: 0 4px 12px rgba(113, 128, 150, 0.3);
+       ">
+                ⬅ Back to Dashboard
+            </a>
+        </div>
     </div>
 
 

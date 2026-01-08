@@ -8,6 +8,7 @@ import com.notes.notes.repository.moduleRepo.ProductionEntryRepository;
 import com.notes.notes.service.googleSheetServices.ProductionGoogleSheetsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Set;
@@ -95,8 +96,9 @@ public class ProductionEntryService {
     }
 
     public List<ProductionEntry> getAllEntries() {
-        List<ProductionEntry> entries = repository.findAll();
-        return entries;
+        return repository.findAll(
+                Sort.by(Sort.Direction.DESC, "date", "id")
+        );
     }
 
     public TimeSlot getTimeSlotByEntry(Long id) {
