@@ -22,7 +22,8 @@ public class EmailService {
         String verifyLink = "http://157.20.196.25:8080/admin/verify?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(fromEmail); // change if needed
+        message.setFrom(fromEmail);   // 🔑 REQUIRED
+        message.setTo(fromEmail);
         message.setSubject("New Account Verification Required");
         message.setText(
                 "New user registered!\n\n" +
