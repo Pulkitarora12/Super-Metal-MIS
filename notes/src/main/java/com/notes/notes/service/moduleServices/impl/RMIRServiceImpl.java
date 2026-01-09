@@ -113,7 +113,7 @@ public class RMIRServiceImpl implements RMIRService {
     ) {
 
         return rmirRepository.findAll(
-                        Sort.by(Sort.Direction.DESC, "createdDate", "createdTime")
+                        Sort.by(Sort.Direction.DESC, "createdDate", "createdTime", "id")
                 ).stream()
 
                 // Month filter
