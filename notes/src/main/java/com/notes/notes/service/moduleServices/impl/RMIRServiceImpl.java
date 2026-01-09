@@ -6,6 +6,8 @@ import com.notes.notes.entity.moduleEntities.RMIR;
 import com.notes.notes.repository.moduleRepo.RMIRRepository;
 import com.notes.notes.service.googleSheetServices.RMIRGoogleSheetsService;
 import com.notes.notes.service.moduleServices.RMIRService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class RMIRServiceImpl implements RMIRService {
 
     private static final Set<String> activeUsers = ConcurrentHashMap.newKeySet();
     private static final Set<Long> activeDeletes = ConcurrentHashMap.newKeySet();
+    private static final Logger log = LoggerFactory.getLogger(RMIRService.class);
 
     @Override
     public RMIR saveRMIR(RMIRRequestDTO dto) {
@@ -141,14 +144,16 @@ public class RMIRServiceImpl implements RMIRService {
 
                 //overweight
                 .filter(e -> !overweight ||
-                        (e.getBundleGW() != null &&
-                                e.getStdGW() != null &&
-                                e.getBundleGW() > e.getStdGW()))
-
+                        (e.getStdGW() != null &&
+                                e.getObservations() != null &&
+                                e.getObservations().stream()
+                                        .anyMatch(obs ->
+                                                obs.getGwSheet() != null &&
+                                                        obs.getGwSheet() > e.getStdGW()
+                                        )))
 
                 .toList();
     }
-
 
     @Override
     public void deleteRMIR(Long id) {
