@@ -484,7 +484,9 @@
                     <td>
                         <span class="task-no" th:text="${task.taskNo}">TSK-001</span>
                     </td>
-                    <td th:text="${task.title}">Task title</td>
+                    <td>
+                        <span class="task-title" th:text="${task.title}">Task title</span>
+                    </td>
                     <td>
                     <span class="priority-badge"
                           th:classappend="${'priority-' + task.priority}"
@@ -546,7 +548,9 @@
                     <td>
                         <span class="task-no" th:text="${task.taskNo}">TSK-002</span>
                     </td>
-                    <td th:text="${task.title}">Assigned task</td>
+                    <td>
+                        <span class="task-title" th:text="${task.title}">Task title</span>
+                    </td>
                     <td>
                         <span class="priority-badge"
                               th:classappend="${'priority-' + task.priority}"

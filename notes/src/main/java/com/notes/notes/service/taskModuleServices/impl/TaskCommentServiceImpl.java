@@ -45,36 +45,6 @@ public class TaskCommentServiceImpl implements TaskCommentService {
 
         TaskComment savedComment = taskCommentRepository.save(comment);
 
-        // Notify ALL assignees
-        List<TaskAssignment> assignments =
-                taskAssignmentService.getAssigneesByTask(task);
-
-        for (TaskAssignment assignment : assignments) {
-
-            User assignee = assignment.getUser();
-
-            if (assignee == null) {
-                continue;
-            }
-
-            String email = assignee.getEmail();
-
-            if (assignee.getUserId().equals(sender.getUserId())) {
-                continue;
-            }
-
-            if (email == null || email.isBlank()) {
-                continue;
-            }
-
-            emailService.sendTaskCommentNotification(
-                    email,
-                    task,
-                    sender,
-                    content
-            );
-        }
-
         return savedComment;
     }
 
