@@ -1,6 +1,7 @@
-package com.notes.notes.service.moduleServices;
+package com.notes.notes.service.emailService;
 
 import com.notes.notes.entity.authEntities.User;
+import com.notes.notes.entity.taskModuleEntities.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -49,4 +50,29 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendTaskCommentNotification(
+            String toEmail,
+            Task task,
+            User commenter,
+            String commentContent
+    ) {
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("New Comment on Task " + task.getTaskNo());
+
+        message.setText(
+                "A new comment has been added to a task you are assigned to.\n\n" +
+                        "📌 Task: " + task.getTaskNo() + " - " + task.getTitle() + "\n" +
+                        "👤 Commented by: " + commenter.getUserName() + "\n\n" +
+                        "💬 Comment:\n" +
+                        commentContent + "\n\n" +
+                        "Please log in to view the full discussion."
+        );
+
+        mailSender.send(message);
+    }
+
 }

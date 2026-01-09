@@ -5,7 +5,7 @@ import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.repository.authRepo.UserRepository;
 import com.notes.notes.security.request.SignupRequest;
 import com.notes.notes.security.services.UserDetailsImpl;
-import com.notes.notes.service.moduleServices.EmailService;
+import com.notes.notes.service.emailService.EmailService;
 import com.notes.notes.service.authServices.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

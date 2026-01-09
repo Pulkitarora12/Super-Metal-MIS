@@ -8,7 +8,7 @@ import com.notes.notes.repository.authRepo.RoleRepository;
 import com.notes.notes.repository.authRepo.UserRepository;
 import com.notes.notes.repository.authRepo.VerificationTokenRepository;
 import com.notes.notes.service.googleSheetServices.GoogleSheetsService;
-import com.notes.notes.service.moduleServices.EmailService;
+import com.notes.notes.service.emailService.EmailService;
 import com.notes.notes.service.authServices.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
