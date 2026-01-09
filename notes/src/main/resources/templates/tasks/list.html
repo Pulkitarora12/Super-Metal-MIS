@@ -319,6 +319,15 @@
         <div style="display:flex; gap:12px;">
             <a th:href="@{/tasks/new}" class="btn">➕ Create Task</a>
 
+            <a th:href="@{/tasks/closed}"
+               class="btn"
+               style="
+           background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
+           box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+       ">
+                🕒 Task History
+            </a>
+
             <a th:href="@{/auth/dashboard}"
                class="btn"
                style="
@@ -328,6 +337,7 @@
                 ⬅ Back to Dashboard
             </a>
         </div>
+
     </div>
 
 

@@ -44,16 +44,20 @@ public class TaskController {
     }
 
     @GetMapping
-    public String listTasks(Model model,
-                            @RequestParam(required = false) String search,
-                            @RequestParam(required = false) Task.TaskPriority priority,
-                            @RequestParam(required = false) Task.TaskStatus status,
-                            @RequestParam(required = false) String progress,
-                            @ModelAttribute("loggedInUser") User loggedInUser) {
+    public String listOpenTasks(Model model,
+                                @RequestParam(required = false) String search,
+                                @RequestParam(required = false) Task.TaskPriority priority,
+                                @RequestParam(required = false) Task.TaskStatus status,
+                                @RequestParam(required = false) String progress,
+                                @ModelAttribute("loggedInUser") User loggedInUser) {
 
-        // ================= CREATED TASKS =================
-        List<Task> createdTasks = taskService.searchAndFilterTasks(
-                taskService.getTasksCreatedByUser(loggedInUser),
+        List<Task> createdTasks = taskService.getTasksCreatedByUser(loggedInUser)
+                .stream()
+                .filter(task -> task.getStatus() != Task.TaskStatus.CLOSED)
+                .toList();
+
+        createdTasks = taskService.searchAndFilterTasks(
+                createdTasks,
                 search,
                 priority,
                 status,
@@ -62,11 +66,11 @@ public class TaskController {
 
         model.addAttribute("createdTasks", createdTasks);
 
-        // ================= ASSIGNED TASKS =================
         List<Task> assignedTasks = taskAssignmentService
                 .getAssignmentsByUser(loggedInUser)
                 .stream()
                 .map(TaskAssignment::getTask)
+                .filter(task -> task.getStatus() != Task.TaskStatus.CLOSED)
                 .toList();
 
         assignedTasks = taskService.searchAndFilterTasks(
@@ -84,10 +88,63 @@ public class TaskController {
         model.addAttribute("selectedPriority", priority);
         model.addAttribute("selectedStatus", status);
         model.addAttribute("selectedProgress", progress);
-        model.addAttribute("selectedProgress", progress);model.addAttribute("performancePoints", loggedInUser.getPerformancePoints());
+        model.addAttribute("performancePoints", loggedInUser.getPerformancePoints());
+        model.addAttribute("pageType", "OPEN"); // useful for button toggle
 
         return "tasks/list";
     }
+
+    @GetMapping("/closed")
+    public String listClosedTasks(Model model,
+                                  @RequestParam(required = false) String search,
+                                  @RequestParam(required = false) Task.TaskPriority priority,
+                                  @RequestParam(required = false) String progress,
+                                  @ModelAttribute("loggedInUser") User loggedInUser) {
+
+        // ================= CREATED BY ME (CLOSED) =================
+        List<Task> createdTasks = taskService.getTasksCreatedByUser(loggedInUser)
+                .stream()
+                .filter(task -> task.getStatus() == Task.TaskStatus.CLOSED)
+                .toList();
+
+        createdTasks = taskService.searchAndFilterTasks(
+                createdTasks,
+                search,
+                priority,
+                Task.TaskStatus.CLOSED,
+                progress
+        );
+
+        model.addAttribute("createdTasks", createdTasks);
+
+        // ================= ASSIGNED TO ME (CLOSED) =================
+        List<Task> assignedTasks = taskAssignmentService
+                .getAssignmentsByUser(loggedInUser)
+                .stream()
+                .map(TaskAssignment::getTask)
+                .filter(task -> task.getStatus() == Task.TaskStatus.CLOSED)
+                .toList();
+
+        assignedTasks = taskService.searchAndFilterTasks(
+                assignedTasks,
+                search,
+                priority,
+                Task.TaskStatus.CLOSED,
+                progress
+        );
+
+        model.addAttribute("assignedTasks", assignedTasks);
+
+        // ================= UI STATE =================
+        model.addAttribute("search", search);
+        model.addAttribute("selectedPriority", priority);
+        model.addAttribute("selectedProgress", progress);
+        model.addAttribute("pageType", "CLOSED"); // for UI toggle / heading
+        model.addAttribute("performancePoints", loggedInUser.getPerformancePoints());
+
+        return "tasks/list"; // reuse same view
+    }
+
 
 
     @GetMapping("/new")
