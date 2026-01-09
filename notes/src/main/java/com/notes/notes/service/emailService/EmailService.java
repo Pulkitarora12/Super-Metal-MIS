@@ -2,6 +2,7 @@ package com.notes.notes.service.emailService;
 
 import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
+import com.notes.notes.entity.taskModuleEntities.TaskAssignment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -70,6 +71,27 @@ public class EmailService {
                         "💬 Comment:\n" +
                         commentContent + "\n\n" +
                         "Please log in to view the full discussion."
+        );
+
+        mailSender.send(message);
+    }
+
+    public void sendTaskAssignmentNotification(
+            String toEmail,
+            Task task,
+            TaskAssignment.AssignmentRole role
+    ) {
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("You have been assigned a task");
+
+        message.setText(
+                "You have been assigned to a task.\n\n" +
+                        "📌 Task: " + task.getTaskNo() + " - " + task.getTitle() + "\n" +
+                        "👤 Role: " + role.name().replace("_", " ") + "\n\n" +
+                        "Please log in to view the task details."
         );
 
         mailSender.send(message);
