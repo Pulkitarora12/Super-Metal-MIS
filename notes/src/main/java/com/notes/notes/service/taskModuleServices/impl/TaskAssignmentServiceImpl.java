@@ -1,5 +1,6 @@
 package com.notes.notes.service.taskModuleServices.impl;
 
+import com.notes.notes.entity.authEntities.AppRole;
 import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskAssignment;
@@ -29,6 +30,7 @@ public class TaskAssignmentServiceImpl implements TaskAssignmentService {
     @Transactional
     public TaskAssignment assignMainAssignee(Task task, User user) {
 
+        // 1. Remove existing MAIN_ASSIGNEE (if any)
         TaskAssignment existingMain =
                 taskAssignmentRepository.findByTaskAndRoleType(
                         task, TaskAssignment.AssignmentRole.MAIN_ASSIGNEE);
@@ -37,6 +39,24 @@ public class TaskAssignmentServiceImpl implements TaskAssignmentService {
             taskAssignmentRepository.delete(existingMain);
         }
 
+        // 2. If the new MAIN_ASSIGNEE is ADMIN,
+        //    remove that SAME user from SUPPORTING_ASSIGNEE
+        if (user.getRole() != null
+                && user.getRole().getRoleName() == AppRole.ROLE_ADMIN) {
+
+            TaskAssignment adminSupporting =
+                    taskAssignmentRepository.findByTaskAndUserAndRoleType(
+                            task,
+                            user,
+                            TaskAssignment.AssignmentRole.SUPPORTING
+                    );
+
+            if (adminSupporting != null) {
+                taskAssignmentRepository.delete(adminSupporting);
+            }
+        }
+
+        // 3. Assign new MAIN_ASSIGNEE
         TaskAssignment assignment = new TaskAssignment();
         assignment.setTask(task);
         assignment.setUser(user);
@@ -45,7 +65,7 @@ public class TaskAssignmentServiceImpl implements TaskAssignmentService {
         TaskAssignment savedAssignment =
                 taskAssignmentRepository.save(assignment);
 
-        // Notify newly assigned user
+        // 4. Notify newly assigned user (if not creator)
         User creator = task.getCreator();
 
         if (!user.getUserId().equals(creator.getUserId())) {
@@ -63,6 +83,7 @@ public class TaskAssignmentServiceImpl implements TaskAssignmentService {
 
         return savedAssignment;
     }
+
 
     @Override
     @Transactional
