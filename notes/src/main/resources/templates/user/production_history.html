@@ -189,6 +189,101 @@
                 font-size: 12px;
             }
         }
+
+        .filter-bar {
+            background: white;
+            padding: 18px 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-item label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            height: 36px;
+            padding: 6px 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+            background-color: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            border-color: #1976d2;
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-actions button {
+            height: 36px;
+            padding: 0 18px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .filter-actions button:hover {
+            background-color: #1565c0;
+        }
+
+        .reset-btn {
+            height: 36px;
+            padding: 0 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #757575;
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .reset-btn:hover {
+            background-color: #616161;
+        }
+
+        @media (max-width: 768px) {
+            .filter-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-actions {
+                justify-content: flex-start;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -202,6 +297,89 @@
             <a th:href="@{/auth/dashboard}" class="btn btn-secondary">Back to Dashboard</a>
         </div>
     </div>
+
+    <form method="get" th:action="@{/production-entry/getAll}" class="filter-bar">
+
+        <!-- Month Filter -->
+        <div class="filter-item">
+            <label>Month</label>
+            <select name="month">
+                <option value="">All</option>
+                <option value="1"  th:selected="${month == 1}">January</option>
+                <option value="2"  th:selected="${month == 2}">February</option>
+                <option value="3"  th:selected="${month == 3}">March</option>
+                <option value="4"  th:selected="${month == 4}">April</option>
+                <option value="5"  th:selected="${month == 5}">May</option>
+                <option value="6"  th:selected="${month == 6}">June</option>
+                <option value="7"  th:selected="${month == 7}">July</option>
+                <option value="8"  th:selected="${month == 8}">August</option>
+                <option value="9"  th:selected="${month == 9}">September</option>
+                <option value="10" th:selected="${month == 10}">October</option>
+                <option value="11" th:selected="${month == 11}">November</option>
+                <option value="12" th:selected="${month == 12}">December</option>
+            </select>
+        </div>
+
+        <!-- Date Filter -->
+        <div class="filter-item">
+            <label>Date</label>
+            <input type="date" name="date" th:value="${date}" />
+        </div>
+
+        <!-- Line Filter -->
+        <div class="filter-item">
+            <label>Line</label>
+            <select name="line">
+                <option value="">All</option>
+                <option value="Line 1" th:selected="${line=='Line 1'}">Line 1</option>
+                <option value="Line 2" th:selected="${line=='Line 2'}">Line 2</option>
+                <option value="Line 3" th:selected="${line=='Line 3'}">Line 3</option>
+            </select>
+        </div>
+
+        <!-- Part Filter -->
+        <div class="filter-item">
+            <label>Part (No / Name)</label>
+            <input type="text"
+                   name="part"
+                   placeholder="Search part"
+                   th:value="${part}" />
+        </div>
+
+        <!-- Machine Filter -->
+        <div class="filter-item">
+            <label>Machine</label>
+            <select name="machine">
+                <option value="">All</option>
+                <option th:each="m : ${machines}"
+                        th:value="${m}"
+                        th:text="${m}"
+                        th:selected="${machine == m}">
+                </option>
+            </select>
+        </div>
+
+        <!-- Operation Filter -->
+        <div class="filter-item">
+            <label>Operation</label>
+            <select name="operation">
+                <option value="">All</option>
+                <option th:each="o : ${operations}"
+                        th:value="${o}"
+                        th:text="${o}"
+                        th:selected="${operation == o}">
+                </option>
+            </select>
+        </div>
+
+        <!-- Actions -->
+        <div class="filter-actions">
+            <button type="submit">Apply Filters</button>
+            <a th:href="@{/production-entry/getAll}" class="reset-btn">Reset</a>
+        </div>
+
+    </form>
+
 
     <div class="table-container">
         <table>

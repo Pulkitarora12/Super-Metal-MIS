@@ -112,6 +112,20 @@ public class MasterServiceImpl implements MasterService {
     }
 
     @Override
+    public List<String> getPartGrades() {
+        Master master = masterRepository.findByName("Part Master");
+        List<String> grades = new ArrayList<>();
+
+        if (master != null && master.getFields().size() > 4) {
+            MasterField gradeField = master.getFields().get(4); // PART GRADE
+            for (FieldData data : gradeField.getFieldData()) {
+                grades.add(data.getValue());
+            }
+        }
+        return grades;
+    }
+
+    @Override
     public void deleteMaster(Long id) {
         masterRepository.deleteById(id);
     }

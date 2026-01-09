@@ -19,7 +19,7 @@ public class RMIRRequestDTO {
     private String partName;
     private String rmSize;
     private String grade;
-    private String stdGW;
+    private Double stdGW;
     private String bundleGrade;
     private String bundleNo;
     private Double bundleGW;
@@ -44,6 +44,6 @@ public class RMIRRequestDTO {
         private Double l;
         private Double b;
         private Double h;
-        private String gwSheet;
+        private Double gwSheet;
     }
 }

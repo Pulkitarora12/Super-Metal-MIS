@@ -23,7 +23,7 @@ public class RMIR {
     private String partName;
     private String rmSize;
     private String grade;
-    private String stdGW;
+    private Double stdGW;
     private String bundleGrade;
     private String bundleNo;
     private Double bundleGW;

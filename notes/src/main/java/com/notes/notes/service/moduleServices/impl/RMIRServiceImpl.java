@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -96,6 +97,58 @@ public class RMIRServiceImpl implements RMIRService {
                 Sort.by(Sort.Direction.DESC, "createdDate", "createdTime")
         );
     }
+
+    @Override
+    public List<RMIR> getFilteredEntries(
+            Integer month,
+            LocalDate createdDate,
+            String part,
+            String supplier,
+            String grade,
+            String inspector,
+            boolean overweight
+    ) {
+
+        return rmirRepository.findAll(
+                        Sort.by(Sort.Direction.DESC, "createdDate", "createdTime")
+                ).stream()
+
+                // Month filter
+                .filter(e -> month == null
+                        || (e.getCreatedDate() != null
+                        && e.getCreatedDate().getMonthValue() == month))
+
+                // Date filter
+                .filter(e -> createdDate == null
+                        || createdDate.equals(e.getCreatedDate()))
+
+                // Part filter (No OR Name)
+                .filter(e -> part == null || part.isBlank()
+                        || e.getPartNo().toLowerCase().contains(part.toLowerCase())
+                        || e.getPartName().toLowerCase().contains(part.toLowerCase()))
+
+                // Supplier
+                .filter(e -> supplier == null || supplier.isBlank()
+                        || supplier.equals(e.getSupplier()))
+
+                // Grade
+                .filter(e -> grade == null || grade.isBlank()
+                        || grade.equals(e.getGrade()))
+
+                // Inspector
+                .filter(e -> inspector == null || inspector.isBlank()
+                        || inspector.equals(e.getInspector()))
+
+                //overweight
+                .filter(e -> !overweight ||
+                        (e.getBundleGW() != null &&
+                                e.getStdGW() != null &&
+                                e.getBundleGW() > e.getStdGW()))
+
+
+                .toList();
+    }
+
 
     @Override
     public void deleteRMIR(Long id) {

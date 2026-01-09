@@ -249,6 +249,94 @@
             background: #dbeafe;
             color: #1e40af;
         }
+
+        .filter-bar {
+            background: white;
+            padding: 22px 24px;
+            margin-bottom: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            align-items: end;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-item label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            height: 40px;
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-actions button {
+            height: 40px;
+            padding: 0 22px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-actions button:hover {
+            background: #4338ca;
+        }
+
+        .reset-btn {
+            height: 40px;
+            padding: 0 20px;
+            background: #e5e7eb;
+            color: #374151;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .reset-btn:hover {
+            background: #d1d5db;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .filter-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -289,6 +377,96 @@
         </div>
 
     </div>
+
+    <form method="get" th:action="@{/rmir-entry/getAll}" class="filter-bar">
+
+        <!-- Month -->
+        <div class="filter-item">
+            <label>Month</label>
+            <select name="month">
+                <option value="">All</option>
+                <option value="1"  th:selected="${month==1}">January</option>
+                <option value="2"  th:selected="${month==2}">February</option>
+                <option value="3"  th:selected="${month==3}">March</option>
+                <option value="4"  th:selected="${month==4}">April</option>
+                <option value="5"  th:selected="${month==5}">May</option>
+                <option value="6"  th:selected="${month==6}">June</option>
+                <option value="7"  th:selected="${month==7}">July</option>
+                <option value="8"  th:selected="${month==8}">August</option>
+                <option value="9"  th:selected="${month==9}">September</option>
+                <option value="10" th:selected="${month==10}">October</option>
+                <option value="11" th:selected="${month==11}">November</option>
+                <option value="12" th:selected="${month==12}">December</option>
+            </select>
+        </div>
+
+        <!-- Date -->
+        <div class="filter-item">
+            <label>Date</label>
+            <input type="date" name="createdDate" th:value="${createdDate}">
+        </div>
+
+        <!-- Part -->
+        <div class="filter-item">
+            <label>Part (No / Name)</label>
+            <input type="text" name="part" th:value="${part}" placeholder="Search part">
+        </div>
+
+        <!-- Supplier -->
+        <div class="filter-item">
+            <label>Supplier</label>
+            <select name="supplier">
+                <option value="">All</option>
+                <option th:each="s : ${suppliers}"
+                        th:value="${s}"
+                        th:text="${s}"
+                        th:selected="${supplier == s}">
+                </option>
+            </select>
+        </div>
+
+        <!-- Grade -->
+<!--        <div class="filter-item">-->
+<!--            <label>Grade</label>-->
+<!--            <select name="grade">-->
+<!--                <option value="">All</option>-->
+<!--                <option th:each="g : ${grades}"-->
+<!--                        th:value="${g}"-->
+<!--                        th:text="${g}"-->
+<!--                        th:selected="${grade == g}">-->
+<!--                </option>-->
+<!--            </select>-->
+<!--        </div>-->
+
+        <!-- Inspector -->
+<!--        <div class="filter-item">-->
+<!--            <label>Inspector</label>-->
+<!--            <select name="inspector">-->
+<!--                <option value="">All</option>-->
+<!--                <option th:each="i : ${inspectors}"-->
+<!--                        th:value="${i}"-->
+<!--                        th:text="${i}"-->
+<!--                        th:selected="${inspector == i}">-->
+<!--                </option>-->
+<!--            </select>-->
+<!--        </div>-->
+
+        <div class="filter-item" style="flex-direction: row; align-items: center; gap: 10px;">
+            <input type="checkbox"
+                   name="overweight"
+                   value="true"
+                   th:checked="${overweight}">
+            <label style="margin: 0;">Overweight Only</label>
+        </div>
+
+        <!-- Actions -->
+        <div class="filter-actions">
+            <button type="submit">Apply</button>
+            <a th:href="@{/rmir-entry/getAll}" class="reset-btn">Reset</a>
+        </div>
+
+    </form>
+
 
     <div class="table-container">
         <div class="table-wrapper">

@@ -80,11 +80,42 @@ public class RMIRController {
 
         return "redirect:/rmir-entry";
     }
+
     @GetMapping("/getAll")
-    public String getRMIRHistory(Model model) {
-        model.addAttribute("entries", service.getAllEntries());
+    public String getRMIRHistory(
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) LocalDate createdDate,
+            @RequestParam(required = false) String part,
+            @RequestParam(required = false) String supplier,
+            @RequestParam(required = false) String grade,
+            @RequestParam(required = false) String inspector,
+            @RequestParam(defaultValue = "false") boolean overweight,
+            Model model
+    ) {
+
+        List<RMIR> entries = service.getFilteredEntries(
+                month, createdDate, part, supplier, grade, inspector, overweight
+        );
+
+        model.addAttribute("entries", entries);
+
+        // retain filter values
+        model.addAttribute("month", month);
+        model.addAttribute("createdDate", createdDate);
+        model.addAttribute("part", part);
+        model.addAttribute("supplier", supplier);
+        model.addAttribute("grade", grade);
+        model.addAttribute("inspector", inspector);
+        model.addAttribute("overweight", overweight);
+
+        // dropdown data
+        model.addAttribute("suppliers", masterService.getSuppliers());
+        model.addAttribute("grades", masterService.getPartGrades());
+        model.addAttribute("inspectors", masterService.getInspectors());
+
         return "user/rmir_history";
     }
+
 
     @GetMapping("/export")
     public ResponseEntity<String> exportToCSV() {

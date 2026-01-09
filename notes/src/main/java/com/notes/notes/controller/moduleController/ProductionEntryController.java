@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -84,10 +85,36 @@ public class ProductionEntryController {
     }
 
     @GetMapping("/getAll")
-    public String getProductionHistory(Model model) {
-        model.addAttribute("entries", service.getAllEntries());
+    public String getProductionHistory(
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) LocalDate date,
+            @RequestParam(required = false) String line,
+            @RequestParam(required = false) String part,
+            @RequestParam(required = false) String machine,
+            @RequestParam(required = false) String operation,
+            Model model) {
+
+        List<ProductionEntry> entries = service.getFilteredEntries(
+                month, date, line, part, machine, operation
+        );
+
+        model.addAttribute("entries", entries);
+
+        // send filter values back (for retaining UI state)
+        model.addAttribute("month", month);
+        model.addAttribute("date", date);
+        model.addAttribute("line", line);
+        model.addAttribute("part", part);
+        model.addAttribute("machine", machine);
+        model.addAttribute("operation", operation);
+
+        // dropdown data
+        model.addAttribute("machines", masterService.getMachineNames());
+        model.addAttribute("operations", masterService.getOperations());
+
         return "user/production_history";
     }
+
 
     @GetMapping("/export")
     public ResponseEntity<String> exportProductionCSV() {

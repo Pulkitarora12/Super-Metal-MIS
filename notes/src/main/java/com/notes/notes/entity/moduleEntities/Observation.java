@@ -16,7 +16,7 @@ public class Observation {
     private Double l;
     private Double b;
     private Double h;
-    private String gwSheet;
+    private Double gwSheet;
 
     @ManyToOne
     @JoinColumn(name = "rmir_id")

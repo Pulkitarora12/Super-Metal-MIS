@@ -15,6 +15,8 @@ public interface MasterService {
 
     Master updateMaster(Long id, MasterCreateDTO masterDTO);
 
+    List<String> getPartGrades();
+
     void deleteMaster(Long id);
 
     List<String> getMachineNames();

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -100,6 +101,43 @@ public class ProductionEntryService {
                 Sort.by(Sort.Direction.DESC, "date", "id")
         );
     }
+
+    public List<ProductionEntry> getFilteredEntries(
+            Integer month,
+            LocalDate date,
+            String line,
+            String part,
+            String machine,
+            String operation
+    ) {
+
+        return repository.findAll(
+                        Sort.by(Sort.Direction.DESC, "date", "id")
+                ).stream()
+
+                // Month filter
+                .filter(e -> month == null || e.getDate().getMonthValue() == month)
+
+                // Date filter (exact)
+                .filter(e -> date == null || e.getDate().equals(date))
+
+                // Line filter
+                .filter(e -> line == null || line.isBlank() || line.equals(e.getLine()))
+
+                // Machine filter
+                .filter(e -> machine == null || machine.isBlank() || machine.equals(e.getMachine()))
+
+                // Operation filter
+                .filter(e -> operation == null || operation.isBlank() || operation.equals(e.getOperation()))
+
+                // Part filter (part no OR name)
+                .filter(e -> part == null || part.isBlank()
+                        || e.getPartNo().toLowerCase().contains(part.toLowerCase())
+                        || e.getPartName().toLowerCase().contains(part.toLowerCase()))
+
+                .toList();
+    }
+
 
     public TimeSlot getTimeSlotByEntry(Long id) {
         ProductionEntry entry = repository.findById(id)
