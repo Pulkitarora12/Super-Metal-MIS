@@ -56,8 +56,10 @@ public class TaskServiceImpl implements TaskService {
         task.setDueDate(dueDate);
         task.setCreator(creator);
 
-        // Generate task number (can be improved later)
-        task.setTaskNo("TSK-" + UUID.randomUUID().toString().substring(0, 8));
+        // Generate sequential task number
+        Long maxTaskId = taskRepository.findMaxTaskId();
+        Long nextId = (maxTaskId == null) ? 1 : maxTaskId + 1;
+        task.setTaskNo("TSK-" + nextId);
 
         Task savedTask = taskRepository.save(task);
 
