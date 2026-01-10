@@ -28,24 +28,10 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         template.setTemplateName(dto.getTemplateName());
         template.setDescription(dto.getDescription());
         template.setPriority(dto.getPriority());
+        template.setDueDate(dto.getDueDate());
 
         // Recurrence fields — SAVED AS-IS (NO LOGIC)
         template.setRecurrenceFrequency(dto.getRecurrenceFrequency());
-        template.setDayOfWeek(dto.getDayOfWeek());
-        template.setDayOfMonth(dto.getDayOfMonth());
-
-        if (dto.getQuarterlyDay() != null) {
-            template.setDayOfMonth(dto.getQuarterlyDay());
-        }
-        if (dto.getQuarterlyMonth() != null) {
-            template.setMonthOfYear(dto.getQuarterlyMonth());
-        }
-        if (dto.getYearlyDay() != null) {
-            template.setDayOfMonth(dto.getYearlyDay());
-        }
-        if (dto.getYearlyMonth() != null) {
-            template.setMonthOfYear(dto.getYearlyMonth());
-        }
 
         template.setDaysBeforeToFlash(dto.getDaysBeforeToFlash());
         template.setCreator(creator);

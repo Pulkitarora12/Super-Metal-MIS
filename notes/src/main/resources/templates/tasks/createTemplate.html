@@ -191,6 +191,18 @@
                           placeholder="Describe the purpose and details of this recurring task..."></textarea>
             </div>
 
+            <div class="form-group">
+                <label for="dueDate">Default Due Date</label>
+
+                <input type="date"
+                       id="dueDate"
+                       class="form-control"
+                       th:field="*{dueDate}"
+                       required>
+
+                <div class="text-danger" th:errors="*{dueDate}"></div>
+            </div>
+
             <!-- PRIORITY -->
             <div class="mb-3">
                 <label class="form-label">Priority Level</label>
@@ -201,83 +213,6 @@
                             th:text="${p}">
                     </option>
                 </select>
-            </div>
-
-            <!-- RECURRENCE SECTION -->
-            <div class="section-divider">
-                <div class="section-title">🔄 Recurrence Settings</div>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Recurrence Frequency</label>
-                <select class="form-select" th:field="*{recurrenceFrequency}" required>
-                    <option value="">-- Select Frequency --</option>
-                    <option th:each="f : ${T(com.notes.notes.entity.taskModuleEntities.TaskTemplate.RecurrenceFrequency).values()}"
-                            th:value="${f}"
-                            th:text="${f}">
-                    </option>
-                </select>
-            </div>
-
-            <!-- RECURRENCE FIELDS -->
-            <div class="recurrence-fields">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label class="form-label">Day of Week</label>
-                        <input type="number" class="form-control"
-                               th:field="*{dayOfWeek}"
-                               placeholder="1-7"
-                               min="1" max="7">
-                        <div class="field-hint">1=Mon, 7=Sun</div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label">Day of Month</label>
-                        <input type="number" class="form-control"
-                               th:field="*{dayOfMonth}"
-                               placeholder="1-31"
-                               min="1" max="31">
-                        <div class="field-hint">For monthly</div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label">Quarterly Day</label>
-                        <input type="number" class="form-control"
-                               th:field="*{quarterlyDay}"
-                               placeholder="1-31"
-                               min="1" max="31">
-                        <div class="field-hint">Day of quarter</div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label">Quarterly Month</label>
-                        <input type="number" class="form-control"
-                               th:field="*{quarterlyMonth}"
-                               placeholder="1-12"
-                               min="1" max="12">
-                        <div class="field-hint">Starting month</div>
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Yearly Day</label>
-                        <input type="number" class="form-control"
-                               th:field="*{yearlyDay}"
-                               placeholder="1-31"
-                               min="1" max="31">
-                        <div class="field-hint">Day for yearly recurrence</div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Yearly Month</label>
-                        <input type="number" class="form-control"
-                               th:field="*{yearlyMonth}"
-                               placeholder="1-12"
-                               min="1" max="12">
-                        <div class="field-hint">Month (1-12)</div>
-                    </div>
-                </div>
             </div>
 
             <!-- DAYS BEFORE TO FLASH -->

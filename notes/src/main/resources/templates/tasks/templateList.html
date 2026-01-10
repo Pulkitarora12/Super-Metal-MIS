@@ -275,6 +275,20 @@
         .top-actions .btn-dashboard:hover {
             background: #cbd5e0;
         }
+
+        .table {
+            margin-bottom: 0;
+            width: 100%; /* Add this line */
+            table-layout: fixed; /* Optional: makes columns equal width */
+        }
+
+        .table thead th:nth-child(1) { width: 20%; } /* Template Name */
+        .table thead th:nth-child(2) { width: 12%; } /* Priority */
+        .table thead th:nth-child(3) { width: 15%; } /* Recurrence */
+        .table thead th:nth-child(4) { width: 12%; } /* Status */
+        .table thead th:nth-child(5) { width: 15%; } /* Created By */
+        .table thead th:nth-child(6) { width: 26%; } /* Actions */
+
     </style>
 </head>
 <body class="list-body">

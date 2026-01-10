@@ -18,7 +18,7 @@
         .card {
             background: white;
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             border-radius: 14px;
             padding: 30px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
@@ -26,7 +26,7 @@
 
         h2 {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
             color: #1a202c;
         }
 
@@ -56,10 +56,19 @@
             font-weight: 600;
         }
 
+        .section-title {
+            margin-top: 25px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            color: #1976d2;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 6px;
+        }
+
         .actions {
             display: flex;
             gap: 12px;
-            margin-top: 28px;
+            margin-top: 30px;
         }
 
         .btn {
@@ -97,6 +106,9 @@
 <div class="card">
     <h2>Task Template Details</h2>
 
+    <!-- BASIC DETAILS -->
+    <div class="section-title">📌 Basic Information</div>
+
     <div class="row">
         <div class="label">Template Name</div>
         <div class="value" th:text="${template.templateName}"></div>
@@ -110,19 +122,27 @@
     </div>
 
     <div class="row">
+        <div class="label">Default Due Date</div>
+        <div class="value"
+             th:text="${template.dueDate != null ? template.dueDate : '—'}">
+        </div>
+    </div>
+
+    <div class="row">
         <div class="label">Priority</div>
         <div class="value" th:text="${template.priority}"></div>
     </div>
 
-    <div class="row">
-        <div class="label">Recurrence Frequency</div>
-        <div class="value" th:text="${template.recurrenceFrequency}"></div>
-    </div>
+    <!-- TASK CREATION SETTINGS -->
+    <div class="section-title">⚡ Task Creation Settings</div>
 
     <div class="row">
-        <div class="label">Days Before to Flash</div>
+        <div class="label">Days Before To Flash</div>
         <div class="value" th:text="${template.daysBeforeToFlash}"></div>
     </div>
+
+    <!-- META INFO -->
+    <div class="section-title">ℹ️ Meta Information</div>
 
     <div class="row">
         <div class="label">Status</div>
@@ -137,14 +157,13 @@
         <div class="value" th:text="${template.creator.userName}"></div>
     </div>
 
+    <!-- ACTIONS -->
     <div class="actions">
-        <!-- Create Task from Template -->
         <a th:href="@{/task-templates/{id}/create-task(id=${template.templateId})}"
            class="btn btn-primary">
             Create Task
         </a>
 
-        <!-- Back -->
         <a th:href="@{/task-templates}" class="btn btn-secondary">
             Back to Templates
         </a>

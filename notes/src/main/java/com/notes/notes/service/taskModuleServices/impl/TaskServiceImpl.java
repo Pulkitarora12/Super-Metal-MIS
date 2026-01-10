@@ -57,8 +57,10 @@ public class TaskServiceImpl implements TaskService {
         task.setDueDate(dueDate);
         task.setCreator(creator);
 
+        TaskTemplate template = null;
+
         if (sourceTemplateId != null) {
-            TaskTemplate template = taskTemplateRepository.findById(sourceTemplateId)
+            template = taskTemplateRepository.findById(sourceTemplateId)
                     .orElseThrow(() -> new IllegalArgumentException("Template not found"));
             task.setSourceTemplate(template);
         }
@@ -69,6 +71,13 @@ public class TaskServiceImpl implements TaskService {
 
         Task savedTask = taskRepository.save(task);
 
+        // RECURRENCE ANCHOR UPDATE
+        if (template != null) {
+            template.setLastGeneratedDate(LocalDate.now());
+            taskTemplateRepository.save(template);
+        }
+
+        // rest of your logic unchanged
         TaskStatusHistory history = new TaskStatusHistory();
         history.setTask(savedTask);
         history.setChangedBy(creator);

@@ -117,6 +117,7 @@ public class TaskTemplateController {
         model.addAttribute("prefillDescription", template.getDescription());
         model.addAttribute("prefillPriority", template.getPriority());
         model.addAttribute("sourceTemplateId", template.getTemplateId());
+        model.addAttribute("prefillDueDate", template.getDueDate());
 
         // Reuse existing task creation page
         return "tasks/create";

@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class CreateTemplateRequestDTO {
 
@@ -15,22 +17,11 @@ public class CreateTemplateRequestDTO {
 
     private String description;
 
+    @NotNull(message = "Due Date is required")
+    private LocalDate dueDate;
+
     @NotNull(message = "Recurrence frequency is required")
     private RecurrenceFrequency recurrenceFrequency;
-
-    // For WEEKLY
-    private Integer dayOfWeek; // 1-7 (Monday to Sunday)
-
-    // For MONTHLY
-    private Integer dayOfMonth; // 1-31
-
-    // For QUARTERLY
-    private Integer quarterlyDay; // 1-31
-    private Integer quarterlyMonth; // 1, 4, 7, 10 (Jan, Apr, Jul, Oct)
-
-    // For YEARLY
-    private Integer yearlyDay; // 1-31
-    private Integer yearlyMonth; // 1-12
 
     @NotNull(message = "Priority is required")
     private TaskPriority priority;

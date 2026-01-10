@@ -4,6 +4,7 @@ import com.notes.notes.entity.authEntities.User;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,17 +22,17 @@ public class TaskTemplate {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(nullable = false)
+    private LocalDate dueDate;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RecurrenceFrequency recurrenceFrequency; // WEEKLY, MONTHLY, QUARTERLY, YEARLY
 
-    // For recurrence date specification
-    private Integer dayOfWeek; // 1-7 (Monday to Sunday) - used when WEEKLY
-    private Integer dayOfMonth; // 1-31 - used when MONTHLY or QUARTERLY
-    private Integer monthOfYear; // 1-12 - used when YEARLY or QUARTERLY
-
     @Enumerated(EnumType.STRING)
     private Task.TaskPriority priority;
+
+    private LocalDate lastGeneratedDate;
 
     @Column(nullable = false)
     private Integer daysBeforeToFlash; // days before due date to create task

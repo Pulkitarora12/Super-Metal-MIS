@@ -203,14 +203,16 @@
         <!-- Due Date -->
         <div class="form-group">
             <label for="dueDate">Due Date</label>
-            <input type="date" id="dueDate" name="dueDate" required>
+            <input type="date"
+                   id="dueDate"
+                   name="dueDate"
+                   required
+                   th:value="${prefillDueDate}">
         </div>
 
             <input type="hidden"
                    name="sourceTemplateId"
                    th:value="${sourceTemplateId}">
-
-
 
         <div class="actions">
             <button type="submit">Create Task</button>
