@@ -39,6 +39,10 @@ public class Task {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @ManyToOne
+    @JoinColumn(name = "template_id", nullable = true)
+    private TaskTemplate sourceTemplate;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

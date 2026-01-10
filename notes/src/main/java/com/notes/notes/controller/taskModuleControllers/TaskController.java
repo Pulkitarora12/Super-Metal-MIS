@@ -157,10 +157,17 @@ public class TaskController {
                              @RequestParam String description,
                              @RequestParam Task.TaskPriority priority,
                              @RequestParam LocalDate dueDate,
+                             @RequestParam(required = false) Long sourceTemplateId,
                              @ModelAttribute("loggedInUser") User loggedInUser) {
-        System.out.println("CREATE TASK HIT");
-        System.out.println(title + " | " + description + " | " + priority);
-        Task task = taskService.createTask(title, description, priority, loggedInUser, dueDate);
+
+        Task task = taskService.createTask(
+                title,
+                description,
+                priority,
+                loggedInUser,
+                dueDate,
+                sourceTemplateId
+        );
 
         return "redirect:/tasks/" + task.getTaskId() + "/assign";
     }

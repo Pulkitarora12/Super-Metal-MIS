@@ -3,6 +3,7 @@ package com.notes.notes.service.taskModuleServices;
 import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskAssignment;
+import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,12 +12,13 @@ import java.util.Optional;
 public interface TaskService {
 
     // Create a new task
-    Task createTask(
+    public Task createTask(
             String title,
             String description,
             Task.TaskPriority priority,
             User creator,
-            LocalDate dueDate
+            LocalDate dueDate,
+            Long sourceTemplateId
     );
 
     // Update task status and log history

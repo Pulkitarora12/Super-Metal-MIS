@@ -5,11 +5,9 @@ import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskAssignment;
 import com.notes.notes.entity.taskModuleEntities.TaskStatusHistory;
+import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
 import com.notes.notes.repository.authRepo.UserRepository;
-import com.notes.notes.repository.taskModuleRepositories.TaskAssignmentRepository;
-import com.notes.notes.repository.taskModuleRepositories.TaskCommentRepository;
-import com.notes.notes.repository.taskModuleRepositories.TaskRepository;
-import com.notes.notes.repository.taskModuleRepositories.TaskStatusHistoryRepository;
+import com.notes.notes.repository.taskModuleRepositories.*;
 import com.notes.notes.service.taskModuleServices.TaskAssignmentService;
 import com.notes.notes.service.taskModuleServices.TaskService;
 import org.springframework.stereotype.Service;
@@ -18,11 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class TaskServiceImpl implements TaskService {
 
+    private final TaskTemplateRepository taskTemplateRepository;
     private final TaskRepository taskRepository;
     private final TaskAssignmentRepository taskAssignmentRepository;
     private final TaskCommentRepository taskCommentRepository;
@@ -30,10 +28,11 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final TaskAssignmentService taskAssignmentService;
 
-    public TaskServiceImpl(TaskRepository taskRepository,
+    public TaskServiceImpl(TaskTemplateRepository taskTemplateRepository, TaskRepository taskRepository,
                            TaskAssignmentRepository taskAssignmentRepository,
                            TaskCommentRepository taskCommentRepository,
                            TaskStatusHistoryRepository taskStatusHistoryRepository, UserRepository userRepository, TaskAssignmentService taskAssignmentService) {
+        this.taskTemplateRepository = taskTemplateRepository;
         this.taskRepository = taskRepository;
         this.taskAssignmentRepository = taskAssignmentRepository;
         this.taskCommentRepository = taskCommentRepository;
@@ -47,7 +46,9 @@ public class TaskServiceImpl implements TaskService {
     public Task createTask(String title,
                            String description,
                            Task.TaskPriority priority,
-                           User creator, LocalDate dueDate) {
+                           User creator,
+                           LocalDate dueDate,
+                           Long sourceTemplateId) {
 
         Task task = new Task();
         task.setTitle(title);
@@ -56,37 +57,40 @@ public class TaskServiceImpl implements TaskService {
         task.setDueDate(dueDate);
         task.setCreator(creator);
 
-        // Generate sequential task number
+        if (sourceTemplateId != null) {
+            TaskTemplate template = taskTemplateRepository.findById(sourceTemplateId)
+                    .orElseThrow(() -> new IllegalArgumentException("Template not found"));
+            task.setSourceTemplate(template);
+        }
+
         Long maxTaskId = taskRepository.findMaxTaskId();
         Long nextId = (maxTaskId == null) ? 1 : maxTaskId + 1;
         task.setTaskNo("TSK-" + nextId);
 
         Task savedTask = taskRepository.save(task);
 
-        // Initial status history
         TaskStatusHistory history = new TaskStatusHistory();
         history.setTask(savedTask);
         history.setChangedBy(creator);
         history.setOldStatus(null);
         history.setNewStatus(Task.TaskStatus.CREATED);
+        taskStatusHistoryRepository.save(history);
 
         List<User> admins =
                 userRepository.findByRole_RoleName(AppRole.ROLE_ADMIN);
 
         for (User admin : admins) {
-
             TaskAssignment assignment =
-                    taskAssignmentService.getAssignment(task, admin);
+                    taskAssignmentService.getAssignment(savedTask, admin);
 
             if (assignment == null) {
-                taskAssignmentService.addSupportingAssignee(task, admin);
+                taskAssignmentService.addSupportingAssignee(savedTask, admin);
             }
         }
 
-        taskStatusHistoryRepository.save(history);
-
         return savedTask;
     }
+
 
     @Override
     @Transactional

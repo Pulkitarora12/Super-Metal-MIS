@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Task Template</title>
+    <meta charset="UTF-8">
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #1a202c;
+        }
+
+        .row {
+            margin-bottom: 14px;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .value {
+            margin-top: 4px;
+            font-size: 15px;
+            color: #2d3748;
+        }
+
+        .status-active {
+            color: #2f855a;
+            font-weight: 600;
+        }
+
+        .status-inactive {
+            color: #c53030;
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Task Template Details</h2>
+
+    <div class="row">
+        <div class="label">Template Name</div>
+        <div class="value" th:text="${template.templateName}"></div>
+    </div>
+
+    <div class="row">
+        <div class="label">Description</div>
+        <div class="value"
+             th:text="${template.description != null ? template.description : '—'}">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="label">Priority</div>
+        <div class="value" th:text="${template.priority}"></div>
+    </div>
+
+    <div class="row">
+        <div class="label">Recurrence Frequency</div>
+        <div class="value" th:text="${template.recurrenceFrequency}"></div>
+    </div>
+
+    <div class="row">
+        <div class="label">Days Before to Flash</div>
+        <div class="value" th:text="${template.daysBeforeToFlash}"></div>
+    </div>
+
+    <div class="row">
+        <div class="label">Status</div>
+        <div class="value"
+             th:class="${template.isActive ? 'status-active' : 'status-inactive'}"
+             th:text="${template.isActive ? 'ACTIVE' : 'INACTIVE'}">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="label">Created By</div>
+        <div class="value" th:text="${template.creator.userName}"></div>
+    </div>
+
+    <div class="actions">
+        <!-- Create Task from Template -->
+        <a th:href="@{/task-templates/{id}/create-task(id=${template.templateId})}"
+           class="btn btn-primary">
+            Create Task
+        </a>
+
+        <!-- Back -->
+        <a th:href="@{/task-templates}" class="btn btn-secondary">
+            Back to Templates
+        </a>
+    </div>
+</div>
+
+</body>
+</html>
