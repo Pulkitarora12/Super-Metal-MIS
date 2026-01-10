@@ -250,13 +250,6 @@
             font-size: 15px;
         }
 
-        .top-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
         .top-actions a button {
             padding: 8px 16px;
             border-radius: 6px;
@@ -265,15 +258,6 @@
             border: none;
             cursor: pointer;
             transition: 0.2s ease;
-        }
-
-        .top-actions .btn-dashboard {
-            background: #e2e8f0;
-            color: #2d3748;
-        }
-
-        .top-actions .btn-dashboard:hover {
-            background: #cbd5e0;
         }
 
         .table {
@@ -293,20 +277,19 @@
 </head>
 <body class="list-body">
 
-<div class="top-actions">
-    <a th:href="@{/auth/dashboard}">
-        <button type="button" class="btn-dashboard">
-            Back to Dashboard
-        </button>
-    </a>
-</div>
-
 <div class="list-container container">
     <div class="page-header-card">
         <h2>📋 Task Templates</h2>
-        <a th:href="@{/task-templates/new}" class="btn btn-primary create-btn">
-            + Create New Template
-        </a>
+
+        <div style="display: flex; gap: 12px;">
+            <a th:href="@{/auth/dashboard}" class="btn btn-primary create-btn">
+                ← Back to Dashboard
+            </a>
+
+            <a th:href="@{/task-templates/new}" class="btn btn-primary create-btn">
+                + Create New Template
+            </a>
+        </div>
     </div>
 
     <!-- SUCCESS MESSAGE -->
