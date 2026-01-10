@@ -157,7 +157,6 @@ public class TaskController {
                              @RequestParam String description,
                              @RequestParam Task.TaskPriority priority,
                              @RequestParam LocalDate dueDate,
-                             @RequestParam(required = false) Long sourceTemplateId,
                              @ModelAttribute("loggedInUser") User loggedInUser) {
 
         Task task = taskService.createTask(
@@ -165,8 +164,7 @@ public class TaskController {
                 description,
                 priority,
                 loggedInUser,
-                dueDate,
-                sourceTemplateId
+                dueDate
         );
 
         return "redirect:/tasks/" + task.getTaskId() + "/assign";

@@ -5,7 +5,6 @@ import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskAssignment;
 import com.notes.notes.entity.taskModuleEntities.TaskStatusHistory;
-import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
 import com.notes.notes.repository.authRepo.UserRepository;
 import com.notes.notes.repository.taskModuleRepositories.*;
 import com.notes.notes.service.taskModuleServices.TaskAssignmentService;
@@ -20,7 +19,6 @@ import java.util.Optional;
 @Service
 public class TaskServiceImpl implements TaskService {
 
-    private final TaskTemplateRepository taskTemplateRepository;
     private final TaskRepository taskRepository;
     private final TaskAssignmentRepository taskAssignmentRepository;
     private final TaskCommentRepository taskCommentRepository;
@@ -28,11 +26,10 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final TaskAssignmentService taskAssignmentService;
 
-    public TaskServiceImpl(TaskTemplateRepository taskTemplateRepository, TaskRepository taskRepository,
+    public TaskServiceImpl(TaskRepository taskRepository,
                            TaskAssignmentRepository taskAssignmentRepository,
                            TaskCommentRepository taskCommentRepository,
                            TaskStatusHistoryRepository taskStatusHistoryRepository, UserRepository userRepository, TaskAssignmentService taskAssignmentService) {
-        this.taskTemplateRepository = taskTemplateRepository;
         this.taskRepository = taskRepository;
         this.taskAssignmentRepository = taskAssignmentRepository;
         this.taskCommentRepository = taskCommentRepository;
@@ -47,8 +44,7 @@ public class TaskServiceImpl implements TaskService {
                            String description,
                            Task.TaskPriority priority,
                            User creator,
-                           LocalDate dueDate,
-                           Long sourceTemplateId) {
+                           LocalDate dueDate) {
 
         Task task = new Task();
         task.setTitle(title);
@@ -57,25 +53,11 @@ public class TaskServiceImpl implements TaskService {
         task.setDueDate(dueDate);
         task.setCreator(creator);
 
-        TaskTemplate template = null;
-
-        if (sourceTemplateId != null) {
-            template = taskTemplateRepository.findById(sourceTemplateId)
-                    .orElseThrow(() -> new IllegalArgumentException("Template not found"));
-            task.setSourceTemplate(template);
-        }
-
         Long maxTaskId = taskRepository.findMaxTaskId();
         Long nextId = (maxTaskId == null) ? 1 : maxTaskId + 1;
         task.setTaskNo("TSK-" + nextId);
 
         Task savedTask = taskRepository.save(task);
-
-        // RECURRENCE ANCHOR UPDATE
-        if (template != null) {
-            template.setLastGeneratedDate(LocalDate.now());
-            taskTemplateRepository.save(template);
-        }
 
         // rest of your logic unchanged
         TaskStatusHistory history = new TaskStatusHistory();
