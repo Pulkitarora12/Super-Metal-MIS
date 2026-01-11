@@ -116,4 +116,8 @@ public class User {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+    public boolean isAdmin() {
+        return this.role.getRoleName() == AppRole.ROLE_ADMIN;
+    }
 }

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Task Template</title>
+    <meta charset="UTF-8">
+
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+            background-color: #f5f7fa;
+            padding: 40px;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+            padding: 25px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 8px 10px;
+            margin-top: 6px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background-color: #27ae60;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #219150;
+        }
+
+        .btn-secondary {
+            background-color: #7f8c8d;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background-color: #707b7c;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Create Task Template</h2>
+
+<div class="card">
+    <form th:action="@{/template/new}"
+          th:object="${templateDTO}"
+          method="post">
+
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" th:field="*{title}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <textarea th:field="*{description}"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Priority</label>
+            <select th:field="*{priority}">
+                <option value="">-- Select --</option>
+                <option th:value="LOW">LOW</option>
+                <option th:value="MEDIUM">MEDIUM</option>
+                <option th:value="HIGH">HIGH</option>
+                <option th:value="CRITICAL">CRITICAL</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Task Frequency</label>
+            <select th:field="*{taskFrequency}">
+                <option value="">-- Select --</option>
+                <option th:value="DAILY">DAILY</option>
+                <option th:value="WEEKLY">WEEKLY</option>
+                <option th:value="MONTHLY">MONTHLY</option>
+                <option th:value="QUARTERLY">QUARTERLY</option>
+                <option th:value="YEARLY">YEARLY</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Flash Time (days)</label>
+            <input type="number" th:field="*{flashTime}" required>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Create Template</button>
+
+            <a th:href="@{/template}">
+                <button type="button" class="btn-secondary">Cancel</button>
+            </a>
+        </div>
+
+    </form>
+</div>
+
+</body>
+</html>

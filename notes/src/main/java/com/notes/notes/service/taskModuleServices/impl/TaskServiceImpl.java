@@ -5,6 +5,7 @@ import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskAssignment;
 import com.notes.notes.entity.taskModuleEntities.TaskStatusHistory;
+import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
 import com.notes.notes.repository.authRepo.UserRepository;
 import com.notes.notes.repository.taskModuleRepositories.*;
 import com.notes.notes.service.taskModuleServices.TaskAssignmentService;
@@ -25,17 +26,19 @@ public class TaskServiceImpl implements TaskService {
     private final TaskStatusHistoryRepository taskStatusHistoryRepository;
     private final UserRepository userRepository;
     private final TaskAssignmentService taskAssignmentService;
+    private final TaskTemplateRepository taskTemplateRepository;
 
     public TaskServiceImpl(TaskRepository taskRepository,
                            TaskAssignmentRepository taskAssignmentRepository,
                            TaskCommentRepository taskCommentRepository,
-                           TaskStatusHistoryRepository taskStatusHistoryRepository, UserRepository userRepository, TaskAssignmentService taskAssignmentService) {
+                           TaskStatusHistoryRepository taskStatusHistoryRepository, UserRepository userRepository, TaskAssignmentService taskAssignmentService, TaskTemplateRepository taskTemplateRepository) {
         this.taskRepository = taskRepository;
         this.taskAssignmentRepository = taskAssignmentRepository;
         this.taskCommentRepository = taskCommentRepository;
         this.taskStatusHistoryRepository = taskStatusHistoryRepository;
         this.userRepository = userRepository;
         this.taskAssignmentService = taskAssignmentService;
+        this.taskTemplateRepository = taskTemplateRepository;
     }
 
     @Override
@@ -44,7 +47,8 @@ public class TaskServiceImpl implements TaskService {
                            String description,
                            Task.TaskPriority priority,
                            User creator,
-                           LocalDate dueDate) {
+                           LocalDate dueDate,
+                           Long templateId) {
 
         Task task = new Task();
         task.setTitle(title);
@@ -53,19 +57,42 @@ public class TaskServiceImpl implements TaskService {
         task.setDueDate(dueDate);
         task.setCreator(creator);
 
+        /* ================= TEMPLATE MAPPING ================= */
+
+        if (templateId != null) {
+            TaskTemplate template = taskTemplateRepository.findById(templateId)
+                    .orElseThrow(() ->
+                            new IllegalArgumentException("TaskTemplate not found"));
+
+            if (!template.isActive()) {
+                throw new IllegalStateException("TaskTemplate is not active");
+            }
+
+            task.setSourceTemplate(template);
+        } else {
+            task.setSourceTemplate(null); // explicit & clear
+        }
+
+        /* ================= TASK NO GENERATION ================= */
+
         Long maxTaskId = taskRepository.findMaxTaskId();
         Long nextId = (maxTaskId == null) ? 1 : maxTaskId + 1;
         task.setTaskNo("TSK-" + nextId);
 
+        /* ================= SAVE TASK ================= */
+
         Task savedTask = taskRepository.save(task);
 
-        // rest of your logic unchanged
+        /* ================= STATUS HISTORY ================= */
+
         TaskStatusHistory history = new TaskStatusHistory();
         history.setTask(savedTask);
         history.setChangedBy(creator);
         history.setOldStatus(null);
         history.setNewStatus(Task.TaskStatus.CREATED);
         taskStatusHistoryRepository.save(history);
+
+        /* ================= ADMIN ASSIGNMENT ================= */
 
         List<User> admins =
                 userRepository.findByRole_RoleName(AppRole.ROLE_ADMIN);
@@ -287,5 +314,10 @@ public class TaskServiceImpl implements TaskService {
 
         long overdueDays = today.toEpochDay() - dueDate.toEpochDay();
         return (int) (-overdueDays * 5);
+    }
+
+    @Override
+    public List<Task> getTasksByTemplate(TaskTemplate template) {
+        return taskRepository.findBySourceTemplate(template);
     }
 }

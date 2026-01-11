@@ -202,7 +202,8 @@
                    id="dueDate"
                    name="dueDate"
                    required
-                   th:value="${prefillDueDate}">
+                   th:value="${prefillDueDate}"
+                   th:readonly="${sourceTemplateId != null}">
         </div>
 
             <input type="hidden"

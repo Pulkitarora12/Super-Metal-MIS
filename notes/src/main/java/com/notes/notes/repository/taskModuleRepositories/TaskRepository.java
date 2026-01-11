@@ -2,6 +2,7 @@ package com.notes.notes.repository.taskModuleRepositories;
 
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.authEntities.User;
+import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -31,4 +32,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 //            Task.TaskPriority priority,
 //            Task.TaskStatus status
 //    );
+
+    List<Task> findBySourceTemplate(TaskTemplate template);
 }

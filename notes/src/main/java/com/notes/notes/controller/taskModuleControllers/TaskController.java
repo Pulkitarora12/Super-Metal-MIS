@@ -6,6 +6,7 @@ import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskAssignment;
 import com.notes.notes.entity.taskModuleEntities.TaskComment;
+import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
 import com.notes.notes.service.authServices.UserService;
 import com.notes.notes.service.taskModuleServices.*;
 import com.notes.notes.util.TimeUtil;
@@ -28,19 +29,21 @@ public class TaskController {
     private final TaskStatusHistoryService taskStatusHistoryService;
     private final SimpMessagingTemplate messagingTemplate;
     private final UserService userService;
+    private final TaskTemplateService taskTemplateService;
 
     public TaskController(TaskService taskService,
                           TaskAssignmentService taskAssignmentService,
                           TaskCommentService taskCommentService,
                           TaskStatusHistoryService taskStatusHistoryService,
                           UserService userService,
-                          SimpMessagingTemplate messagingTemplate) {
+                          SimpMessagingTemplate messagingTemplate, TaskTemplateService taskTemplateService) {
         this.taskService = taskService;
         this.taskAssignmentService = taskAssignmentService;
         this.taskCommentService = taskCommentService;
         this.taskStatusHistoryService = taskStatusHistoryService;
         this.userService = userService;
         this.messagingTemplate = messagingTemplate;  // ADD THIS
+        this.taskTemplateService = taskTemplateService;
     }
 
     @GetMapping
@@ -148,27 +151,59 @@ public class TaskController {
 
 
     @GetMapping("/new")
-    public String createTaskPage() {
+    public String createTaskPage(
+            @RequestParam(required = false) Long templateId,
+            Model model
+    ) {
+
+        if (templateId != null) {
+
+            TaskTemplate template = taskTemplateService.findById(templateId);
+
+            // Safety: allow only ACTIVE templates
+            if (!template.isActive()) {
+                throw new IllegalStateException("Template is inactive");
+            }
+
+            model.addAttribute("prefillTitle", template.getTitle());
+            model.addAttribute("prefillDescription", template.getDescription());
+            model.addAttribute("prefillPriority", template.getPriority());
+
+            // 🔒 LOCKED auto due date
+            LocalDate autoDueDate =
+                    LocalDate.now().plusDays(template.getFlashTime());
+
+            model.addAttribute("prefillDueDate", autoDueDate);
+            model.addAttribute("sourceTemplateId", templateId);
+        }
+
         return "tasks/create";
     }
 
+
+
     @PostMapping
-    public String createTask(@RequestParam String title,
-                             @RequestParam String description,
-                             @RequestParam Task.TaskPriority priority,
-                             @RequestParam LocalDate dueDate,
-                             @ModelAttribute("loggedInUser") User loggedInUser) {
+    public String createTask(
+            @RequestParam String title,
+            @RequestParam String description,
+            @RequestParam Task.TaskPriority priority,
+            @RequestParam LocalDate dueDate,
+            @RequestParam(required = false) Long sourceTemplateId,
+            @ModelAttribute("loggedInUser") User loggedInUser
+    ) {
 
         Task task = taskService.createTask(
                 title,
                 description,
                 priority,
                 loggedInUser,
-                dueDate
+                dueDate,
+                sourceTemplateId
         );
 
-        return "redirect:/tasks/" + task.getTaskId() + "/assign";
+        return "redirect:/tasks/" + task.getTaskId();
     }
+
 
     @GetMapping("/{taskId}")
     public String taskDetails(@PathVariable Long taskId, Model model,
