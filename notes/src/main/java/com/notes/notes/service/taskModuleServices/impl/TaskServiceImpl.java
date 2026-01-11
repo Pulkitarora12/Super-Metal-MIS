@@ -320,4 +320,72 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> getTasksByTemplate(TaskTemplate template) {
         return taskRepository.findBySourceTemplate(template);
     }
+
+    @Transactional
+    @Override
+    public Task createTaskFromTemplate(TaskTemplate template, User creator) {
+
+        if (!template.isActive()) {
+            throw new IllegalStateException("Template not active");
+        }
+
+        Task task = new Task();
+        task.setTitle(template.getTitle());
+        task.setDescription(template.getDescription());
+        task.setPriority(template.getPriority());
+        task.setCreator(creator);
+        task.setSourceTemplate(template);
+
+        // TASK NO
+        Long maxTaskId = taskRepository.findMaxTaskId();
+        Long nextId = (maxTaskId == null) ? 1 : maxTaskId + 1;
+        task.setTaskNo("TSK-" + nextId);
+
+        task.setDueDate(
+                LocalDate.now().plusDays(template.getFlashTime())
+        );
+
+        List<User> admins =
+                userRepository.findByRole_RoleName(AppRole.ROLE_ADMIN);
+
+
+
+        Task savedTask = taskRepository.save(task);
+
+        /* ================= MAIN ASSIGNEE ================= */
+
+        User mainAssignee = template.getMainAssignee();
+        if (mainAssignee != null) {
+            taskAssignmentService.assignMainAssignee(savedTask, mainAssignee);
+        }
+
+        /* ============== SUPPORTING ASSIGNEES ============== */
+
+        if (template.getAssignees() != null) {
+            for (User user : template.getAssignees()) {
+                taskAssignmentService.addSupportingAssignee(savedTask, user);
+            }
+        }
+
+        /* ================= STATUS HISTORY ================= */
+
+        TaskStatusHistory history = new TaskStatusHistory();
+        history.setTask(savedTask);
+        history.setChangedBy(creator);
+        history.setOldStatus(null);
+        history.setNewStatus(Task.TaskStatus.CREATED);
+        taskStatusHistoryRepository.save(history);
+
+        for (User admin : admins) {
+            TaskAssignment assignment =
+                    taskAssignmentService.getAssignment(savedTask, admin);
+
+            if (assignment == null) {
+                taskAssignmentService.addSupportingAssignee(savedTask, admin);
+            }
+        }
+
+        return savedTask;
+    }
+
 }

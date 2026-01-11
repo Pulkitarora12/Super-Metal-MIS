@@ -35,6 +35,11 @@ public class TaskAssignmentServiceImpl implements TaskAssignmentService {
                 taskAssignmentRepository.findByTaskAndRoleType(
                         task, TaskAssignment.AssignmentRole.MAIN_ASSIGNEE);
 
+        if (existingMain != null &&
+                existingMain.getUser().getUserId().equals(user.getUserId())) {
+            return existingMain;
+        }
+
         if (existingMain != null) {
             taskAssignmentRepository.delete(existingMain);
         }

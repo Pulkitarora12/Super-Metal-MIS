@@ -124,6 +124,35 @@
         </div>
 
         <div class="form-group">
+            <label>Main Assignee</label>
+            <select th:field="*{mainAssigneeId}">
+                <option value="">-- Select Main Assignee --</option>
+
+                <!-- users will be provided later -->
+                <option th:each="user : ${users}"
+                        th:value="${user.userId}"
+                        th:text="${user.userName}">
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Supporting Assignees</label>
+            <select th:field="*{supportingAssigneeIds}"
+                    multiple
+                    size="5">
+                <option th:each="user : ${users}"
+                        th:value="${user.userId}"
+                        th:text="${user.userName}">
+                </option>
+            </select>
+
+            <small style="color:#7f8c8d;">
+                Hold Ctrl / Cmd to select multiple users
+            </small>
+        </div>
+
+        <div class="form-group">
             <label>Flash Time (days)</label>
             <input type="number" th:field="*{flashTime}" required>
         </div>

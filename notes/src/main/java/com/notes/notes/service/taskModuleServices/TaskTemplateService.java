@@ -4,6 +4,8 @@ import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
 import com.notes.notes.dto.taskManagementDTO.TemplateDTO;
+import jakarta.transaction.Transactional;
+
 import java.util.*;
 
 public interface TaskTemplateService {
@@ -18,8 +20,8 @@ public interface TaskTemplateService {
 
     public void deleteTaskTemplateById(Long id);
 
-    public TaskTemplate activate(Long id);
     public TaskTemplate deactivate(Long id);
 
-    Task createTaskFromTemplate(Long id, User creator);
+    @Transactional
+    TaskTemplate activateAndCreateTask(Long id, User creator);
 }

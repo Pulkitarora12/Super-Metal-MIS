@@ -3,6 +3,7 @@ package com.notes.notes.service.taskModuleServices;
 import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -68,4 +69,6 @@ public interface TaskService {
 
     List<Task> getTasksByTemplate(TaskTemplate template);
 
+    @Transactional
+    Task createTaskFromTemplate(TaskTemplate template, User creator);
 }

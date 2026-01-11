@@ -4,6 +4,7 @@
     import com.notes.notes.entity.authEntities.User;
     import com.notes.notes.entity.taskModuleEntities.Task;
     import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
+    import com.notes.notes.service.authServices.UserService;
     import com.notes.notes.service.taskModuleServices.TaskService;
     import com.notes.notes.service.taskModuleServices.TaskTemplateService;
     import org.springframework.stereotype.Controller;
@@ -18,10 +19,12 @@
 
         private final TaskTemplateService taskTemplateService;
         private final TaskService taskService;
+        private final UserService userService;
 
-        public TaskTemplateController(TaskTemplateService taskTemplateService, TaskService taskService) {
+        public TaskTemplateController(TaskTemplateService taskTemplateService, TaskService taskService, UserService userService) {
             this.taskTemplateService = taskTemplateService;
             this.taskService = taskService;
+            this.userService = userService;
         }
 
         /* ===================== LIST ALL TEMPLATES ===================== */
@@ -41,6 +44,10 @@
         public String showCreateTemplateForm(Model model) {
 
             model.addAttribute("templateDTO", new TemplateDTO());
+
+            // ✅ ADD THIS
+            model.addAttribute("users", userService.getAllUsers());
+
             return "tasks/createTemplate";
         }
 
@@ -60,10 +67,10 @@
 
         @PostMapping("/{id}/activate")
         public String activateTemplate(@PathVariable Long id,
-                                    @ModelAttribute("loggedInUser") User loggedInUser) {
+                                       @ModelAttribute("loggedInUser") User loggedInUser) {
 
-            taskTemplateService.activate(id);
-            return "redirect:/tasks/new?templateId=" + id;
+            taskTemplateService.activateAndCreateTask(id, loggedInUser);
+            return "redirect:/template";
         }
 
         /* ===================== DEACTIVATE TEMPLATE ===================== */

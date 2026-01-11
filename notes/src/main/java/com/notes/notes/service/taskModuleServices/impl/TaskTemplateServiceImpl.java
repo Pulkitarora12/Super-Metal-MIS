@@ -4,9 +4,11 @@ import com.notes.notes.dto.taskManagementDTO.TemplateDTO;
 import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
+import com.notes.notes.repository.authRepo.UserRepository;
 import com.notes.notes.repository.taskModuleRepositories.TaskTemplateRepository;
 import com.notes.notes.service.taskModuleServices.TaskService;
 import com.notes.notes.service.taskModuleServices.TaskTemplateService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,10 +19,12 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
 
     private final TaskTemplateRepository taskTemplateRepository;
     private final TaskService taskService;
+    private final UserRepository userRepository;
 
-    public TaskTemplateServiceImpl(TaskTemplateRepository taskTemplateRepository, TaskService taskService) {
+    public TaskTemplateServiceImpl(TaskTemplateRepository taskTemplateRepository, TaskService taskService, UserRepository userRepository) {
         this.taskTemplateRepository = taskTemplateRepository;
         this.taskService = taskService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -41,6 +45,11 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
     @Override
     public TaskTemplate createTaskTemplate(TemplateDTO dto, User creator) {
 
+        // 🔒 VALIDATION: main assignee is mandatory
+        if (dto.getMainAssigneeId() == null) {
+            throw new IllegalArgumentException("Main assignee is required");
+        }
+
         TaskTemplate newTaskTemplate = new TaskTemplate();
         newTaskTemplate.setTitle(dto.getTitle());
         newTaskTemplate.setDescription(dto.getDescription());
@@ -48,11 +57,34 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         newTaskTemplate.setFlashTime(dto.getFlashTime());
         newTaskTemplate.setTaskFrequency(dto.getTaskFrequency());
         newTaskTemplate.setCreator(creator);
-        newTaskTemplate.setCreatedAt(LocalDateTime.now());
         newTaskTemplate.setActive(false);
+
+        /* ================= MAIN ASSIGNEE ================= */
+        User mainAssignee = userRepository.findById(dto.getMainAssigneeId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Main assignee not found"));
+
+        newTaskTemplate.setMainAssignee(mainAssignee);
+
+        /* ============== SUPPORTING ASSIGNEES ============== */
+        if (dto.getSupportingAssigneeIds() != null &&
+                !dto.getSupportingAssigneeIds().isEmpty()) {
+
+            List<User> supportingAssignees =
+                    userRepository.findAllById(dto.getSupportingAssigneeIds());
+
+            // Optional safety: remove main assignee if selected twice
+            supportingAssignees.removeIf(
+                    u -> u.getUserId().equals(mainAssignee.getUserId())
+            );
+
+            newTaskTemplate.setAssignees(supportingAssignees);
+        }
 
         return taskTemplateRepository.save(newTaskTemplate);
     }
+
+
 
     @Override
     public void deleteTaskTemplateById(Long id) {
@@ -61,20 +93,6 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         if (taskTemplate != null) {
             taskTemplateRepository.delete(taskTemplate);
         }
-    }
-
-    @Override
-    public TaskTemplate activate(Long id) {
-
-        TaskTemplate taskTemplate = taskTemplateRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("TaskTemplate not found"));
-
-        if (!taskTemplate.isActive()) {
-            taskTemplate.setActive(true);
-            taskTemplateRepository.save(taskTemplate);
-        }
-
-        return taskTemplate;
     }
 
     @Override
@@ -87,24 +105,25 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         return null;
     }
 
+    @Transactional
     @Override
-    public Task createTaskFromTemplate(Long id, User creator) {
+    public TaskTemplate activateAndCreateTask(Long id, User creator) {
 
-        TaskTemplate taskTemplate = taskTemplateRepository.findById(id)
+        TaskTemplate template = taskTemplateRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("TaskTemplate not found"));
 
-        if (!taskTemplate.isActive()) {
-            throw new IllegalStateException("TaskTemplate is not active");
+        // 🚫 Prevent duplicate task creation
+        if (template.isActive()) {
+            return template;
         }
 
-        return taskService.createTask(
-                taskTemplate.getTitle(),
-                taskTemplate.getDescription(),
-                taskTemplate.getPriority(),
-                creator,
-                null,
-                taskTemplate.getId()
-        );
+        template.setActive(true);
+        taskTemplateRepository.save(template);
+
+        // 🔥 AUTO CREATE TASK
+        taskService.createTaskFromTemplate(template, creator);
+
+        return template;
     }
 
 

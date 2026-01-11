@@ -39,6 +39,18 @@ public class TaskTemplate {
     @Enumerated(EnumType.STRING)
     private TaskFrequency taskFrequency;
 
+    @ManyToOne
+    @JoinColumn(name = "main_assignee_id")
+    private User mainAssignee;
+
+    @ManyToMany
+    @JoinTable(
+            name = "template_assignees",
+            joinColumns = @JoinColumn(name = "template_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> assignees;
+
     @OneToMany(mappedBy = "sourceTemplate")
     private List<Task> tasks;
 
