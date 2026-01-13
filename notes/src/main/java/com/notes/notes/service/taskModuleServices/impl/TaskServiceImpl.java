@@ -10,6 +10,7 @@ import com.notes.notes.repository.authRepo.UserRepository;
 import com.notes.notes.repository.taskModuleRepositories.*;
 import com.notes.notes.service.taskModuleServices.TaskAssignmentService;
 import com.notes.notes.service.taskModuleServices.TaskService;
+import com.notes.notes.service.taskModuleServices.TaskTemplateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,11 +28,12 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final TaskAssignmentService taskAssignmentService;
     private final TaskTemplateRepository taskTemplateRepository;
+    private final TaskTemplateService taskTemplateService;
 
     public TaskServiceImpl(TaskRepository taskRepository,
                            TaskAssignmentRepository taskAssignmentRepository,
                            TaskCommentRepository taskCommentRepository,
-                           TaskStatusHistoryRepository taskStatusHistoryRepository, UserRepository userRepository, TaskAssignmentService taskAssignmentService, TaskTemplateRepository taskTemplateRepository) {
+                           TaskStatusHistoryRepository taskStatusHistoryRepository, UserRepository userRepository, TaskAssignmentService taskAssignmentService, TaskTemplateRepository taskTemplateRepository, TaskTemplateService taskTemplateService) {
         this.taskRepository = taskRepository;
         this.taskAssignmentRepository = taskAssignmentRepository;
         this.taskCommentRepository = taskCommentRepository;
@@ -39,6 +41,7 @@ public class TaskServiceImpl implements TaskService {
         this.userRepository = userRepository;
         this.taskAssignmentService = taskAssignmentService;
         this.taskTemplateRepository = taskTemplateRepository;
+        this.taskTemplateService = taskTemplateService;
     }
 
     @Override
@@ -164,67 +167,6 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.delete(task);
     }
 
-//    @Override
-//    public List<Task> getCreatedTasksWithFilter(
-//            User creator,
-//            Task.TaskPriority priority,
-//            Task.TaskStatus status
-//    ) {
-//
-//        // 3️⃣ Both selected
-//        if (priority != null && status != null) {
-//            return taskRepository
-//                    .findByCreatorAndPriorityAndStatus(creator, priority, status);
-//        }
-//
-//        // 1️⃣ Only priority selected
-//        if (priority != null) {
-//            return taskRepository
-//                    .findByCreatorAndPriority(creator, priority);
-//        }
-//
-//        // 2️⃣ Only status selected
-//        if (status != null) {
-//            return taskRepository
-//                    .findByCreatorAndStatus(creator, status);
-//        }
-//
-//        // No filter
-//        return taskRepository.findByCreator(creator);
-//    }
-
-//    @Override
-//    public List<Task> filterTasks(
-//            List<Task> tasks,
-//            Task.TaskPriority priority,
-//            Task.TaskStatus status
-//    ) {
-//        return tasks.stream()
-//                .filter(task ->
-//                        (priority == null || task.getPriority() == priority) &&
-//                                (status == null || task.getStatus() == status)
-//                )
-//                .toList();
-//    }
-
-//    @Override
-//    public List<Task> searchCreatedTasks(
-//            User creator,
-//            String search,
-//            Task.TaskPriority priority,
-//            Task.TaskStatus status
-//    ) {
-//
-//        List<Task> tasks = taskRepository
-//                .findByCreatorAndTaskNoContainingIgnoreCaseOrCreatorAndTitleContainingIgnoreCase(
-//                        creator, search,
-//                        creator, search
-//                );
-//
-//        // Reuse existing filter logic
-//        return filterTasks(tasks, priority, status);
-//    }
-
     @Override
     public List<Task> searchAndFilterTasks(
             List<Task> tasks,
@@ -341,14 +283,10 @@ public class TaskServiceImpl implements TaskService {
         Long nextId = (maxTaskId == null) ? 1 : maxTaskId + 1;
         task.setTaskNo("TSK-" + nextId);
 
-        task.setDueDate(
-                LocalDate.now().plusDays(template.getFlashTime())
-        );
+        task.setDueDate(LocalDate.now().plusDays(template.getFlashTime()));
 
         List<User> admins =
                 userRepository.findByRole_RoleName(AppRole.ROLE_ADMIN);
-
-
 
         Task savedTask = taskRepository.save(task);
 

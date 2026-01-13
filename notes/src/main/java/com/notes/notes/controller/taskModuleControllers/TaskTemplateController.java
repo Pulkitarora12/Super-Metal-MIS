@@ -4,6 +4,7 @@
     import com.notes.notes.entity.authEntities.User;
     import com.notes.notes.entity.taskModuleEntities.Task;
     import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
+    import com.notes.notes.repository.taskModuleRepositories.TaskTemplateRepository;
     import com.notes.notes.service.authServices.UserService;
     import com.notes.notes.service.taskModuleServices.TaskService;
     import com.notes.notes.service.taskModuleServices.TaskTemplateService;
@@ -11,6 +12,7 @@
     import org.springframework.ui.Model;
     import org.springframework.web.bind.annotation.*;
 
+    import java.time.LocalDate;
     import java.util.List;
 
     @Controller
@@ -20,11 +22,13 @@
         private final TaskTemplateService taskTemplateService;
         private final TaskService taskService;
         private final UserService userService;
+        private final TaskTemplateRepository taskTemplateRepository;
 
-        public TaskTemplateController(TaskTemplateService taskTemplateService, TaskService taskService, UserService userService) {
+        public TaskTemplateController(TaskTemplateService taskTemplateService, TaskService taskService, UserService userService, TaskTemplateRepository taskTemplateRepository) {
             this.taskTemplateService = taskTemplateService;
             this.taskService = taskService;
             this.userService = userService;
+            this.taskTemplateRepository = taskTemplateRepository;
         }
 
         /* ===================== LIST ALL TEMPLATES ===================== */
@@ -59,17 +63,25 @@
                 @ModelAttribute("loggedInUser") User loggedInUser
         ) {
 
-            taskTemplateService.createTaskTemplate(templateDTO, loggedInUser);
+            TaskTemplate template =
+                    taskTemplateService.createTaskTemplate(templateDTO, loggedInUser);
+
+            // ✅ SAME DAY CREATION (controller orchestrates)
+            if (template.getStartDate().equals(LocalDate.now())) {
+                template.setActive(true);
+                taskTemplateService.calculateAndSetNextRunDate(template);
+                taskTemplateRepository.save(template);
+                taskService.createTaskFromTemplate(template, loggedInUser);
+            }
+
             return "redirect:/template";
         }
 
         /* ===================== ACTIVATE TEMPLATE ===================== */
 
         @PostMapping("/{id}/activate")
-        public String activateTemplate(@PathVariable Long id,
-                                       @ModelAttribute("loggedInUser") User loggedInUser) {
-
-            taskTemplateService.activateAndCreateTask(id, loggedInUser);
+        public String activateTemplate(@PathVariable Long id) {
+            taskTemplateService.activateTask(id);
             return "redirect:/template";
         }
 

@@ -72,10 +72,6 @@
             border-radius: 6px;
             cursor: pointer;
         }
-
-        .actions button:hover {
-            background-color: #2980b9;
-        }
     </style>
 </head>
 
@@ -116,6 +112,18 @@
             <td th:text="${taskTemplate.flashTime}"></td>
         </tr>
 
+        <!-- 🔹 ADDED: Start date of the template (from creation rules / DTO mapping) -->
+        <tr>
+            <th>Start Date</th>
+            <td th:text="${taskTemplate.startDate} ?: 'N/A'"></td>
+        </tr>
+
+        <!-- 🔹 ADDED: Next scheduled task creation date -->
+        <tr>
+            <th>Next Task Occurrence</th>
+            <td th:text="${taskTemplate.nextRunDate} ?: 'Not Scheduled'"></td>
+        </tr>
+
         <tr>
             <th>Status</th>
             <td th:class="${taskTemplate.active ? 'status-active' : 'status-inactive'}"
@@ -136,21 +144,21 @@
         <tr>
             <th>Main Assignee</th>
             <td th:text="${taskTemplate.mainAssignee != null
-        ? taskTemplate.mainAssignee.userName
-        : 'Not Assigned'}">
+                    ? taskTemplate.mainAssignee.userName
+                    : 'Not Assigned'}">
             </td>
         </tr>
 
         <tr>
             <th>Supporting Assignees</th>
             <td>
-        <span th:if="${taskTemplate.assignees == null
-                      || #lists.isEmpty(taskTemplate.assignees)}">
-            None
-        </span>
+                <span th:if="${taskTemplate.assignees == null
+                              || #lists.isEmpty(taskTemplate.assignees)}">
+                    None
+                </span>
 
                 <ul th:if="${taskTemplate.assignees != null
-                    && !#lists.isEmpty(taskTemplate.assignees)}"
+                            && !#lists.isEmpty(taskTemplate.assignees)}"
                     style="margin:0; padding-left:18px;">
                     <li th:each="user : ${taskTemplate.assignees}"
                         th:text="${user.userName}">
@@ -159,13 +167,13 @@
             </td>
         </tr>
 
-
     </table>
 
     <div class="actions">
         <a th:href="@{/template}">
             <button>Back to Template List</button>
         </a>
+
         <a th:if="${taskTemplate.active}"
            th:href="@{/template/{id}/tasks(id=${taskTemplate.id})}">
             <button style="margin-left:10px;">

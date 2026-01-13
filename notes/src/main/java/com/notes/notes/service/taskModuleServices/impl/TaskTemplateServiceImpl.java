@@ -8,23 +8,24 @@ import com.notes.notes.repository.authRepo.UserRepository;
 import com.notes.notes.repository.taskModuleRepositories.TaskTemplateRepository;
 import com.notes.notes.service.taskModuleServices.TaskService;
 import com.notes.notes.service.taskModuleServices.TaskTemplateService;
+import com.notes.notes.validator.TaskTemplateValidator;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.List;
 
 @Service
 public class TaskTemplateServiceImpl implements TaskTemplateService {
 
     private final TaskTemplateRepository taskTemplateRepository;
-    private final TaskService taskService;
     private final UserRepository userRepository;
+    private final TaskTemplateValidator taskTemplateValidator;
 
-    public TaskTemplateServiceImpl(TaskTemplateRepository taskTemplateRepository, TaskService taskService, UserRepository userRepository) {
+    public TaskTemplateServiceImpl(TaskTemplateRepository taskTemplateRepository, UserRepository userRepository, TaskTemplateValidator taskTemplateValidator) {
         this.taskTemplateRepository = taskTemplateRepository;
-        this.taskService = taskService;
         this.userRepository = userRepository;
+        this.taskTemplateValidator = taskTemplateValidator;
     }
 
     @Override
@@ -50,6 +51,8 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
             throw new IllegalArgumentException("Main assignee is required");
         }
 
+        taskTemplateValidator.validateRecurrenceFields(dto);
+
         TaskTemplate newTaskTemplate = new TaskTemplate();
         newTaskTemplate.setTitle(dto.getTitle());
         newTaskTemplate.setDescription(dto.getDescription());
@@ -57,7 +60,12 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         newTaskTemplate.setFlashTime(dto.getFlashTime());
         newTaskTemplate.setTaskFrequency(dto.getTaskFrequency());
         newTaskTemplate.setCreator(creator);
-        newTaskTemplate.setActive(false);
+        newTaskTemplate.setActive(false); // Initially inactive
+
+        newTaskTemplate.setRecurrenceDay(dto.getRecurrenceDay());
+        newTaskTemplate.setRecurrenceMonth(dto.getRecurrenceMonth());
+        newTaskTemplate.setFinalDate(dto.getFinalDate());
+        newTaskTemplate.setStartDate(dto.getStartDate());
 
         /* ================= MAIN ASSIGNEE ================= */
         User mainAssignee = userRepository.findById(dto.getMainAssigneeId())
@@ -81,10 +89,14 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
             newTaskTemplate.setAssignees(supportingAssignees);
         }
 
-        return taskTemplateRepository.save(newTaskTemplate);
+        // ✅ SAVE TEMPLATE FIRST
+        TaskTemplate savedTemplate = taskTemplateRepository.save(newTaskTemplate);
+
+        // ✅ CALCULATE NEXT RUN DATE FOR FUTURE
+        calculateAndSetNextRunDate(savedTemplate);
+
+        return taskTemplateRepository.save(savedTemplate);
     }
-
-
 
     @Override
     public void deleteTaskTemplateById(Long id) {
@@ -107,7 +119,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
 
     @Transactional
     @Override
-    public TaskTemplate activateAndCreateTask(Long id, User creator) {
+    public TaskTemplate activateTask(Long id) {
 
         TaskTemplate template = taskTemplateRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("TaskTemplate not found"));
@@ -120,10 +132,127 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         template.setActive(true);
         taskTemplateRepository.save(template);
 
-        // 🔥 AUTO CREATE TASK
-        taskService.createTaskFromTemplate(template, creator);
-
         return template;
+    }
+
+    @Override
+    public void calculateAndSetNextRunDate(TaskTemplate template) {
+
+        LocalDate today = LocalDate.now();
+
+        LocalDate startDate = template.getStartDate();
+
+        LocalDate actualTaskDate;
+
+        if (startDate.isAfter(today)) {
+            actualTaskDate = startDate;
+        }
+
+        else {
+            LocalDate baseDate = today;
+
+            switch (template.getTaskFrequency()) {
+
+                case DAILY:
+                    actualTaskDate = baseDate.plusDays(1);
+                    break;
+
+                case WEEKLY:
+                    actualTaskDate = baseDate.with(
+                            DayOfWeek.of(template.getRecurrenceDay())
+                    );
+                    if (!actualTaskDate.isAfter(baseDate)) {
+                        actualTaskDate = actualTaskDate.plusWeeks(1);
+                    }
+                    break;
+
+                case MONTHLY: {
+                    int day = template.getRecurrenceDay();
+
+                    LocalDate candidate = baseDate.withDayOfMonth(
+                            Math.min(day, baseDate.lengthOfMonth())
+                    );
+
+                    if (!candidate.isAfter(baseDate)) {
+                        LocalDate nextMonth = baseDate.plusMonths(1);
+                        candidate = nextMonth.withDayOfMonth(
+                                Math.min(day, nextMonth.lengthOfMonth())
+                        );
+                    }
+
+                    actualTaskDate = candidate;
+                    break;
+                }
+
+                case QUARTERLY: {
+                    int day = template.getRecurrenceDay();
+
+                    LocalDate candidate = baseDate.withDayOfMonth(
+                            Math.min(day, baseDate.lengthOfMonth())
+                    );
+
+                    if (!candidate.isAfter(baseDate)) {
+                        LocalDate nextQuarter = baseDate.plusMonths(3);
+                        candidate = nextQuarter.withDayOfMonth(
+                                Math.min(day, nextQuarter.lengthOfMonth())
+                        );
+                    }
+
+                    actualTaskDate = candidate;
+                    break;
+                }
+
+                case YEARLY: {
+                    int month = template.getRecurrenceMonth();
+                    int day = template.getRecurrenceDay();
+                    int year = baseDate.getYear();
+
+                    LocalDate candidate = LocalDate.of(
+                            year,
+                            month,
+                            Math.min(
+                                    day,
+                                    Month.of(month).length(Year.isLeap(year))
+                            )
+                    );
+
+                    if (!candidate.isAfter(baseDate)) {
+                        int nextYear = year + 1;
+                        candidate = LocalDate.of(
+                                nextYear,
+                                month,
+                                Math.min(
+                                        day,
+                                        Month.of(month).length(Year.isLeap(nextYear))
+                                )
+                        );
+                    }
+
+                    actualTaskDate = candidate;
+                    break;
+                }
+
+                default:
+                    throw new IllegalArgumentException("Invalid task frequency");
+            }
+        }
+
+    /* =====================================================
+       FINAL DATE SAFETY CHECK
+       ===================================================== */
+        if (actualTaskDate.isAfter(template.getFinalDate())) {
+            template.setActive(false);
+            template.setNextRunDate(null);
+            return;
+        }
+
+    /* =====================================================
+       NEXT RUN DATE (CREATION DATE)
+       ===================================================== */
+        LocalDate nextRunDate =
+                actualTaskDate.minusDays(template.getFlashTime());
+
+        template.setNextRunDate(nextRunDate);
     }
 
 

@@ -23,5 +23,7 @@ public interface TaskTemplateService {
     public TaskTemplate deactivate(Long id);
 
     @Transactional
-    TaskTemplate activateAndCreateTask(Long id, User creator);
+    TaskTemplate activateTask(Long id);
+
+    void calculateAndSetNextRunDate(TaskTemplate template);
 }

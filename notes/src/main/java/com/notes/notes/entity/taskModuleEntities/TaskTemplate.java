@@ -4,6 +4,7 @@ import com.notes.notes.entity.authEntities.User;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,6 +39,27 @@ public class TaskTemplate {
 
     @Enumerated(EnumType.STRING)
     private TaskFrequency taskFrequency;
+
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
+
+    @Column(name = "recurrence_day")
+    private Integer recurrenceDay;
+    // WEEKLY: 1-7 (day of week, 1=Monday, 7=Sunday)
+    // MONTHLY: 1-31 (day of month)
+    // YEARLY: 1-31 (day of the specified month)
+    // DAILY: null
+
+    @Column(name = "recurrence_month")
+    private Integer recurrenceMonth;
+    // ONLY for YEARLY: 1-12 (January=1, December=12)
+    // For other frequencies: null
+
+    @Column(name = "next_run_date")
+    private LocalDate nextRunDate;
+
+    @Column(name = "final_date", nullable = false)
+    private LocalDate finalDate; // Mandatory - template auto-deactivation date
 
     @ManyToOne
     @JoinColumn(name = "main_assignee_id")

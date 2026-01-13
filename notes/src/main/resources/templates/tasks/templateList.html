@@ -132,6 +132,9 @@
         <th>Priority</th>
         <th>Frequency</th>
         <th>Flash Time</th>
+         <th>Next Run Date</th>
+         <th>Final Date</th>
+
         <th>Status</th>
         <th>Actions</th>
     </tr>
@@ -145,6 +148,13 @@
         <td th:text="${template.priority}"></td>
         <td th:text="${template.taskFrequency}"></td>
         <td th:text="${template.flashTime}"></td>
+
+        <!-- 🔹 Shows when the template will next generate a task -->
+         <td th:text="${template.nextRunDate}"></td>
+
+        <!-- 🔹 Template auto-deactivation cutoff date -->
+         <td th:text="${template.finalDate}"></td>
+
         <td th:text="${template.active ? 'ACTIVE' : 'INACTIVE'}"></td>
 
         <td>
@@ -153,23 +163,29 @@
                 <button type="button" class="btn-view">View</button>
             </a>
 
-<!--            <a th:if="${template.active}"-->
-<!--                th:href="@{/tasks/new(templateId=${template.id})}">-->
-<!--                <button type="button" class="btn-view">➕ Create Task</button>-->
-<!--            </a>-->
+            <!-- 🔹 Disabled: task creation is now handled via activation + scheduler -->
+            <!--
+            <a th:if="${template.active}"
+               th:href="@{/tasks/new(templateId=${template.id})}">
+                <button type="button" class="btn-view">➕ Create Task</button>
+            </a>
+            -->
 
+            <!-- 🔹 Activates template (task creation handled backend-side) -->
             <form th:if="${!template.active}"
                   th:action="@{/template/{id}/activate(id=${template.id})}"
                   method="post">
                 <button type="submit" class="btn-activate">Activate</button>
             </form>
 
+            <!-- 🔹 Deactivates template to stop future task creation -->
             <form th:if="${template.active}"
                   th:action="@{/template/{id}/deactivate(id=${template.id})}"
                   method="post">
                 <button type="submit" class="btn-deactivate">Deactivate</button>
             </form>
 
+            <!-- 🔹 Permanently deletes the template -->
             <form th:action="@{/template/{id}/delete(id=${template.id})}"
                   method="post">
                 <button type="submit" class="btn-delete">Delete</button>
