@@ -106,12 +106,25 @@
         form {
             margin: 0;
         }
+
     </style>
 </head>
 
 <body>
 
 <h2>Task Templates</h2>
+
+<div th:if="${successMessage}"
+     style="
+        margin-bottom: 15px;
+        padding: 10px 14px;
+        background-color: #eafaf1;
+        color: #1e8449;
+        border-radius: 6px;
+        font-weight: 500;
+     "
+     th:text="${successMessage}">
+</div>
 
 <div class="top-actions">
     <a th:href="@{/template/new}">
@@ -120,6 +133,10 @@
 
     <a th:href="@{/auth/dashboard}">
         <button>Back to Dashboard</button>
+    </a>
+
+    <a th:href="@{/template/due}">
+        <button>Check if any task is due ?</button>
     </a>
 </div>
 

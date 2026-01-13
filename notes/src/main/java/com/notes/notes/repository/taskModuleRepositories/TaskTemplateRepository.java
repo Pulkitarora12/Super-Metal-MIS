@@ -14,4 +14,6 @@ public interface TaskTemplateRepository extends JpaRepository<TaskTemplate, Long
 
     List<TaskTemplate> findByIsActiveTrueAndNextRunDate(LocalDate date);
 // This will fetch all active templates whose nextRunDate matches today
+
+    List<TaskTemplate> findByIsActiveTrueAndNextRunDateLessThan(LocalDate date);
 }

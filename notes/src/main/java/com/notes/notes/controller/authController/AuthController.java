@@ -7,6 +7,7 @@ import com.notes.notes.security.request.SignupRequest;
 import com.notes.notes.security.services.UserDetailsImpl;
 import com.notes.notes.service.emailService.EmailService;
 import com.notes.notes.service.authServices.UserService;
+import com.notes.notes.service.taskModuleServices.TaskTemplateService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,6 +40,12 @@ public class AuthController {
 
     @Autowired
     UserService userService;
+
+    private final TaskTemplateService taskTemplateService;
+
+    public AuthController(TaskTemplateService taskTemplateService) {
+        this.taskTemplateService = taskTemplateService;
+    }
 
     @GetMapping("/login")
     public String showLoginPage(){
@@ -193,4 +200,6 @@ public class AuthController {
 
         return "redirect:/auth/login";
     }
+
+
 }

@@ -11,6 +11,7 @@
     import org.springframework.stereotype.Controller;
     import org.springframework.ui.Model;
     import org.springframework.web.bind.annotation.*;
+    import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
     import java.time.LocalDate;
     import java.util.List;
@@ -131,4 +132,29 @@
 
             return "tasks/templateTasks";
         }
+
+        @GetMapping("/due")
+        public String processDueTemplates(RedirectAttributes redirectAttributes) {
+
+            LocalDate today = LocalDate.now();
+
+            List<TaskTemplate> dueTemplates =
+                    taskTemplateRepository
+                            .findByIsActiveTrueAndNextRunDateLessThan(today);
+
+            for (TaskTemplate template : dueTemplates) {
+                taskService.createTaskFromTemplate(template, template.getCreator());
+
+                taskTemplateService.calculateAndSetNextRunDate(template);
+                taskTemplateRepository.save(template);
+            }
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "All tasks are up to date ✔"
+            );
+
+            return "redirect:/template";
+        }
+
     }

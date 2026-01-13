@@ -7,7 +7,6 @@ import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
 import com.notes.notes.repository.authRepo.UserRepository;
 import com.notes.notes.repository.taskModuleRepositories.TaskRepository;
 import com.notes.notes.repository.taskModuleRepositories.TaskTemplateRepository;
-import com.notes.notes.service.taskModuleServices.TaskService;
 import com.notes.notes.service.taskModuleServices.TaskTemplateService;
 import com.notes.notes.validator.TaskTemplateValidator;
 import org.springframework.transaction.annotation.Transactional;
@@ -154,9 +153,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
 
         if (startDate.isAfter(today)) {
             actualTaskDate = startDate;
-        }
-
-        else {
+        } else {
             LocalDate baseDate = today;
 
             switch (template.getTaskFrequency()) {
@@ -262,6 +259,4 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
 
         template.setNextRunDate(nextRunDate);
     }
-
-
 }
