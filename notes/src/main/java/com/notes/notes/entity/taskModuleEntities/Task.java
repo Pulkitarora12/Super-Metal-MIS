@@ -3,11 +3,16 @@ package com.notes.notes.entity.taskModuleEntities;
 import com.notes.notes.entity.authEntities.User;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Getter
+@Setter
 @Table(name = "tasks")
 public class Task {
 

@@ -78,13 +78,13 @@ public class TaskServiceImpl implements TaskService {
 
         /* ================= TASK NO GENERATION ================= */
 
-        Long maxTaskId = taskRepository.findMaxTaskId();
-        Long nextId = (maxTaskId == null) ? 1 : maxTaskId + 1;
-        task.setTaskNo("TSK-" + nextId);
+        Task savedTask = taskRepository.save(task);
+        savedTask.setTaskNo("TSK-" + savedTask.getTaskId());
+        taskRepository.save(savedTask);
 
         /* ================= SAVE TASK ================= */
 
-        Task savedTask = taskRepository.save(task);
+        savedTask = taskRepository.save(task);
 
         /* ================= STATUS HISTORY ================= */
 
