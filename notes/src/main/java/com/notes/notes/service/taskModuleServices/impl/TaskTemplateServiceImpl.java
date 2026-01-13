@@ -5,6 +5,7 @@ import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.entity.taskModuleEntities.Task;
 import com.notes.notes.entity.taskModuleEntities.TaskTemplate;
 import com.notes.notes.repository.authRepo.UserRepository;
+import com.notes.notes.repository.taskModuleRepositories.TaskRepository;
 import com.notes.notes.repository.taskModuleRepositories.TaskTemplateRepository;
 import com.notes.notes.service.taskModuleServices.TaskService;
 import com.notes.notes.service.taskModuleServices.TaskTemplateService;
@@ -21,11 +22,13 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
     private final TaskTemplateRepository taskTemplateRepository;
     private final UserRepository userRepository;
     private final TaskTemplateValidator taskTemplateValidator;
+    private final TaskRepository taskRepository;
 
-    public TaskTemplateServiceImpl(TaskTemplateRepository taskTemplateRepository, UserRepository userRepository, TaskTemplateValidator taskTemplateValidator) {
+    public TaskTemplateServiceImpl(TaskTemplateRepository taskTemplateRepository, UserRepository userRepository, TaskTemplateValidator taskTemplateValidator, TaskRepository taskRepository) {
         this.taskTemplateRepository = taskTemplateRepository;
         this.userRepository = userRepository;
         this.taskTemplateValidator = taskTemplateValidator;
+        this.taskRepository = taskRepository;
     }
 
     @Override
@@ -103,6 +106,11 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
 
         TaskTemplate taskTemplate = taskTemplateRepository.findById(id).orElse(null);
         if (taskTemplate != null) {
+            List<Task> tasks = taskRepository.findBySourceTemplate(taskTemplate);
+            for (Task task : tasks) {
+                task.setSourceTemplate(null);
+            }
+            taskRepository.saveAll(tasks);
             taskTemplateRepository.delete(taskTemplate);
         }
     }
