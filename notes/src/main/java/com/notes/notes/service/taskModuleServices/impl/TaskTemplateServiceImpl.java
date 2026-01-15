@@ -145,118 +145,97 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
     @Override
     public void calculateAndSetNextRunDate(TaskTemplate template) {
 
-        LocalDate today = LocalDate.now();
+        // =====================================================
+        // STEP 1: Determine previous DUE DATE
+        // =====================================================
+        LocalDate previousDueDate;
 
-        LocalDate startDate = template.getStartDate();
-
-        LocalDate actualTaskDate;
-
-        if (startDate.isAfter(today)) {
-            actualTaskDate = startDate;
+        if (template.getNextRunDate() == null) {
+            // First run → due date comes from startDate / recurrence rules
+            previousDueDate = template.getStartDate();
         } else {
-            LocalDate baseDate = today;
-
-            switch (template.getTaskFrequency()) {
-
-                case DAILY:
-                    actualTaskDate = baseDate.plusDays(1);
-                    break;
-
-                case WEEKLY:
-                    actualTaskDate = baseDate.with(
-                            DayOfWeek.of(template.getRecurrenceDay())
-                    );
-                    if (!actualTaskDate.isAfter(baseDate)) {
-                        actualTaskDate = actualTaskDate.plusWeeks(1);
-                    }
-                    break;
-
-                case MONTHLY: {
-                    int day = template.getRecurrenceDay();
-
-                    LocalDate candidate = baseDate.withDayOfMonth(
-                            Math.min(day, baseDate.lengthOfMonth())
-                    );
-
-                    if (!candidate.isAfter(baseDate)) {
-                        LocalDate nextMonth = baseDate.plusMonths(1);
-                        candidate = nextMonth.withDayOfMonth(
-                                Math.min(day, nextMonth.lengthOfMonth())
-                        );
-                    }
-
-                    actualTaskDate = candidate;
-                    break;
-                }
-
-                case QUARTERLY: {
-                    int day = template.getRecurrenceDay();
-
-                    LocalDate candidate = baseDate.withDayOfMonth(
-                            Math.min(day, baseDate.lengthOfMonth())
-                    );
-
-                    if (!candidate.isAfter(baseDate)) {
-                        LocalDate nextQuarter = baseDate.plusMonths(3);
-                        candidate = nextQuarter.withDayOfMonth(
-                                Math.min(day, nextQuarter.lengthOfMonth())
-                        );
-                    }
-
-                    actualTaskDate = candidate;
-                    break;
-                }
-
-                case YEARLY: {
-                    int month = template.getRecurrenceMonth();
-                    int day = template.getRecurrenceDay();
-                    int year = baseDate.getYear();
-
-                    LocalDate candidate = LocalDate.of(
-                            year,
-                            month,
-                            Math.min(
-                                    day,
-                                    Month.of(month).length(Year.isLeap(year))
-                            )
-                    );
-
-                    if (!candidate.isAfter(baseDate)) {
-                        int nextYear = year + 1;
-                        candidate = LocalDate.of(
-                                nextYear,
-                                month,
-                                Math.min(
-                                        day,
-                                        Month.of(month).length(Year.isLeap(nextYear))
-                                )
-                        );
-                    }
-
-                    actualTaskDate = candidate;
-                    break;
-                }
-
-                default:
-                    throw new IllegalArgumentException("Invalid task frequency");
-            }
+            // nextRunDate = creationDate = dueDate - flashTime
+            previousDueDate =
+                    template.getNextRunDate().plusDays(template.getFlashTime());
         }
 
-    /* =====================================================
-       FINAL DATE SAFETY CHECK
-       ===================================================== */
-        if (actualTaskDate.isAfter(template.getFinalDate())) {
+        LocalDate nextDueDate;
+
+        // =====================================================
+        // STEP 2: Move DUE DATE based on frequency
+        // =====================================================
+        switch (template.getTaskFrequency()) {
+
+            case DAILY:
+                if (template.getNextRunDate() == null) {
+                    // first task → due on start date
+                    nextDueDate = template.getStartDate();
+                } else {
+                    nextDueDate = previousDueDate.plusDays(1);
+                }
+                break;
+
+            case WEEKLY:
+                if (template.getNextRunDate() == null) {
+                    nextDueDate = template.getStartDate();
+                } else {
+                    nextDueDate = previousDueDate.plusWeeks(1);
+                }
+                break;
+
+            case MONTHLY: {
+                int day = template.getRecurrenceDay();
+                LocalDate candidate = previousDueDate.plusMonths(1);
+                nextDueDate = candidate.withDayOfMonth(
+                        Math.min(day, candidate.lengthOfMonth())
+                );
+                break;
+            }
+
+            case QUARTERLY: {
+                int day = template.getRecurrenceDay();
+                LocalDate candidate = previousDueDate.plusMonths(3);
+                nextDueDate = candidate.withDayOfMonth(
+                        Math.min(day, candidate.lengthOfMonth())
+                );
+                break;
+            }
+
+            case YEARLY: {
+                int day = template.getRecurrenceDay();
+                int month = template.getRecurrenceMonth();
+                int year = previousDueDate.getYear() + 1;
+
+                nextDueDate = LocalDate.of(
+                        year,
+                        month,
+                        Math.min(
+                                day,
+                                Month.of(month).length(Year.isLeap(year))
+                        )
+                );
+                break;
+            }
+
+            default:
+                throw new IllegalArgumentException("Invalid task frequency");
+        }
+
+        // =====================================================
+        // STEP 3: FINAL DATE CHECK (create once, then stop)
+        // =====================================================
+        if (nextDueDate.isAfter(template.getFinalDate())) {
             template.setActive(false);
             template.setNextRunDate(null);
             return;
         }
 
-    /* =====================================================
-       NEXT RUN DATE (CREATION DATE)
-       ===================================================== */
-        LocalDate nextRunDate =
-                actualTaskDate.minusDays(template.getFlashTime());
+        // =====================================================
+        // STEP 4: Derive NEXT CREATION DATE
+        // =====================================================
+        LocalDate nextCreationDate =
+                nextDueDate.minusDays(template.getFlashTime());
 
-        template.setNextRunDate(nextRunDate);
+        template.setNextRunDate(nextCreationDate);
     }
 }

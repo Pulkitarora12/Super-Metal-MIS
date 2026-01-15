@@ -263,8 +263,8 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findBySourceTemplate(template);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public Task createTaskFromTemplate(TaskTemplate template, User creator) {
 
         if (!template.isActive()) {
@@ -278,27 +278,28 @@ public class TaskServiceImpl implements TaskService {
         task.setCreator(creator);
         task.setSourceTemplate(template);
 
-        // TASK NO
+        /* ================= TASK NO ================= */
         Long maxTaskId = taskRepository.findMaxTaskId();
         Long nextId = (maxTaskId == null) ? 1 : maxTaskId + 1;
         task.setTaskNo("TSK-" + nextId);
 
-        task.setDueDate(LocalDate.now().plusDays(template.getFlashTime()));
+        /* ================= DUE DATE (FIXED) ================= */
+        // nextRunDate = creation date
+        // dueDate = creation date + flashTime
+        LocalDate dueDate =
+                template.getNextRunDate().plusDays(template.getFlashTime());
+        task.setDueDate(dueDate);
 
-        List<User> admins =
-                userRepository.findByRole_RoleName(AppRole.ROLE_ADMIN);
-
+        /* ================= SAVE TASK ================= */
         Task savedTask = taskRepository.save(task);
 
         /* ================= MAIN ASSIGNEE ================= */
-
         User mainAssignee = template.getMainAssignee();
         if (mainAssignee != null) {
             taskAssignmentService.assignMainAssignee(savedTask, mainAssignee);
         }
 
         /* ============== SUPPORTING ASSIGNEES ============== */
-
         if (template.getAssignees() != null) {
             for (User user : template.getAssignees()) {
                 taskAssignmentService.addSupportingAssignee(savedTask, user);
@@ -306,13 +307,16 @@ public class TaskServiceImpl implements TaskService {
         }
 
         /* ================= STATUS HISTORY ================= */
-
         TaskStatusHistory history = new TaskStatusHistory();
         history.setTask(savedTask);
         history.setChangedBy(creator);
         history.setOldStatus(null);
         history.setNewStatus(Task.TaskStatus.CREATED);
         taskStatusHistoryRepository.save(history);
+
+        /* ================= ADMIN ASSIGNMENT ================= */
+        List<User> admins =
+                userRepository.findByRole_RoleName(AppRole.ROLE_ADMIN);
 
         for (User admin : admins) {
             TaskAssignment assignment =
@@ -325,5 +329,4 @@ public class TaskServiceImpl implements TaskService {
 
         return savedTask;
     }
-
 }

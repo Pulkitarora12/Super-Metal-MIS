@@ -36,19 +36,41 @@ public class TaskTemplateScheduler {
 
         LocalDate today = LocalDate.now();
 
+    /* =====================================================
+       1️⃣ AUTO-ACTIVATE TEMPLATES ON FIRST CREATION DATE
+       ===================================================== */
+        List<TaskTemplate> allTemplates = taskTemplateRepository.findAll();
+
+        for (TaskTemplate template : allTemplates) {
+
+            LocalDate firstCreationDate =
+                    template.getStartDate().minusDays(template.getFlashTime());
+
+            if (!template.isActive()
+                    && !firstCreationDate.isAfter(today)) {
+
+                template.setActive(true);
+                taskTemplateRepository.save(template);
+            }
+        }
+
+    /* =====================================================
+       2️⃣ FETCH ALL DUE / OVERDUE TEMPLATES
+       ===================================================== */
         List<TaskTemplate> dueTemplates =
                 taskTemplateRepository
-                        .findByIsActiveTrueAndNextRunDate(today);
+                        .findByIsActiveTrueAndNextRunDateLessThan(today.plusDays(1));
+        // nextRunDate ≤ today
 
         if (dueTemplates.isEmpty()) {
-            log.info("Scheduler: No templates due on {}", today);
+            log.info("Scheduler: No templates due up to {}", today);
             return;
         }
 
-        log.info("Scheduler: {} template(s) due on {}", dueTemplates.size(), today);
-
+    /* =====================================================
+       3️⃣ CREATE TASKS
+       ===================================================== */
         for (TaskTemplate template : dueTemplates) {
-
             try {
                 taskService.createTaskFromTemplate(
                         template,
@@ -58,12 +80,17 @@ public class TaskTemplateScheduler {
                 taskTemplateService.calculateAndSetNextRunDate(template);
                 taskTemplateRepository.save(template);
 
-                log.info("Scheduler: Task created for template [{}]", template.getTitle());
-
             } catch (Exception e) {
-                log.error("Scheduler: Failed for template [{}]", template.getTitle(), e);
+                log.error(
+                        "Scheduler: Failed for template [{}]",
+                        template.getTitle(),
+                        e
+                );
             }
         }
     }
+
+
+
 
 }
