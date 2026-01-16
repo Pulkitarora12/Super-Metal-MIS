@@ -60,6 +60,9 @@ public class TaskServiceImpl implements TaskService {
         task.setDueDate(dueDate);
         task.setCreator(creator);
 
+        // CHANGED: status is NOT set here anymore
+        // handled in @PrePersist to avoid duplication / inconsistency
+
         /* ================= TEMPLATE MAPPING ================= */
 
         if (templateId != null) {
@@ -72,19 +75,11 @@ public class TaskServiceImpl implements TaskService {
             }
 
             task.setSourceTemplate(template);
-        } else {
-            task.setSourceTemplate(null); // explicit & clear
         }
-
-        /* ================= TASK NO GENERATION ================= */
-
-        Task savedTask = taskRepository.save(task);
-        savedTask.setTaskNo("TSK-" + savedTask.getTaskId());
-        taskRepository.save(savedTask);
 
         /* ================= SAVE TASK ================= */
 
-        savedTask = taskRepository.save(task);
+        Task savedTask = taskRepository.save(task);
 
         /* ================= STATUS HISTORY ================= */
 
@@ -111,6 +106,7 @@ public class TaskServiceImpl implements TaskService {
 
         return savedTask;
     }
+
 
 
     @Override
