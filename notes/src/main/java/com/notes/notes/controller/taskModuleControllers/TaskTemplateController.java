@@ -9,6 +9,7 @@
     import com.notes.notes.service.taskModuleServices.TaskService;
     import com.notes.notes.service.taskModuleServices.TaskTemplateService;
     import org.springframework.stereotype.Controller;
+    import org.springframework.transaction.annotation.Transactional;
     import org.springframework.ui.Model;
     import org.springframework.web.bind.annotation.*;
     import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -125,6 +126,7 @@
             return "tasks/templateTasks";
         }
 
+        @Transactional
         @GetMapping("/due")
         public String processDueTemplates(RedirectAttributes redirectAttributes) {
 
