@@ -67,14 +67,6 @@
             TaskTemplate template =
                     taskTemplateService.createTaskTemplate(templateDTO, loggedInUser);
 
-            // ✅ SAME DAY CREATION (controller orchestrates)
-            if (template.getStartDate().equals(LocalDate.now())) {
-                template.setActive(true);
-                taskTemplateService.calculateAndSetNextRunDate(template);
-                taskTemplateRepository.save(template);
-                taskService.createTaskFromTemplate(template, loggedInUser);
-            }
-
             return "redirect:/template";
         }
 
@@ -154,6 +146,32 @@
                     "All tasks are up to date ✔"
             );
 
+            return "redirect:/template";
+        }
+
+        // Add manual trigger endpoint
+        @PostMapping("/{id}/create-task-now")
+        public String createTaskNow(@PathVariable Long id,
+                                    @ModelAttribute("loggedInUser") User user,
+                                    RedirectAttributes redirectAttributes) {
+
+            TaskTemplate template = taskTemplateService.findById(id);
+
+            if (!template.isActive()) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Template must be active");
+                return "redirect:/template";
+            }
+
+            // Create task immediately
+            taskService.createTaskFromTemplate(template, user);
+
+            // Update nextRunDate for next scheduled task
+            taskTemplateService.calculateAndSetNextRunDate(template);
+            taskTemplateRepository.save(template);
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Task created successfully");
             return "redirect:/template";
         }
 

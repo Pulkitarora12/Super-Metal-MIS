@@ -103,6 +103,11 @@
             color: #fff;
         }
 
+        .btn-create-now {
+            background-color: #8e44ad;
+            color: #fff;
+        }
+
         form {
             margin: 0;
         }
@@ -180,14 +185,6 @@
                 <button type="button" class="btn-view">View</button>
             </a>
 
-            <!-- 🔹 Disabled: task creation is now handled via activation + scheduler -->
-            <!--
-            <a th:if="${template.active}"
-               th:href="@{/tasks/new(templateId=${template.id})}">
-                <button type="button" class="btn-view">➕ Create Task</button>
-            </a>
-            -->
-
             <!-- 🔹 Activates template (task creation handled backend-side) -->
             <form th:if="${!template.active}"
                   th:action="@{/template/{id}/activate(id=${template.id})}"
@@ -200,6 +197,12 @@
                   th:action="@{/template/{id}/deactivate(id=${template.id})}"
                   method="post">
                 <button type="submit" class="btn-deactivate">Deactivate</button>
+            </form>
+
+            <form th:if="${template.active}"
+                  th:action="@{/template/{id}/create-task-now(id=${template.id})}"
+                  method="post">
+                <button type="submit" class="btn-create-now">Create Task Now</button>
             </form>
 
             <!-- 🔹 Permanently deletes the template -->

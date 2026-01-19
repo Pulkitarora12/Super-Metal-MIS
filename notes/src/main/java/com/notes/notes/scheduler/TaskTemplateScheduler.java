@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,46 +31,44 @@ public class TaskTemplateScheduler {
         this.taskTemplateService = taskTemplateService;
     }
 
-    @Transactional
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void runDailyTemplates() {
 
         LocalDate today = LocalDate.now();
 
-    /* =====================================================
-       1️⃣ AUTO-ACTIVATE TEMPLATES ON FIRST CREATION DATE
-       ===================================================== */
-        List<TaskTemplate> allTemplates = taskTemplateRepository.findAll();
+        log.info("========================================");
+        log.info("SCHEDULER STARTED at {}", LocalDateTime.now());
+        log.info("========================================");
 
-        for (TaskTemplate template : allTemplates) {
+        int activatedCount = 0;
+        int tasksCreatedCount = 0;
 
-            LocalDate firstCreationDate =
-                    template.getStartDate().minusDays(template.getFlashTime());
+        /* ===== PHASE 1: AUTO-ACTIVATE (Optimized) ===== */
+        List<TaskTemplate> templatesToActivate =
+                taskTemplateRepository.findTemplatesReadyForActivation(today);
 
-            if (!template.isActive()
-                    && !firstCreationDate.isAfter(today)) {
+        log.info("Found {} templates ready for activation", templatesToActivate.size());
 
+        for (TaskTemplate template : templatesToActivate) {
+            try {
                 template.setActive(true);
+                taskTemplateService.calculateAndSetNextRunDate(template);
                 taskTemplateRepository.save(template);
+                activatedCount++;
+                log.debug("Activated template: {}", template.getTitle());
+            } catch (Exception e) {
+                log.error("Failed to activate template {}: {}",
+                        template.getId(), e.getMessage());
             }
         }
 
-    /* =====================================================
-       2️⃣ FETCH ALL DUE / OVERDUE TEMPLATES
-       ===================================================== */
+        /* ===== PHASE 2: CREATE TASKS (Already optimized) ===== */
         List<TaskTemplate> dueTemplates =
                 taskTemplateRepository
                         .findByIsActiveTrueAndNextRunDateLessThan(today.plusDays(1));
-        // nextRunDate ≤ today
 
-        if (dueTemplates.isEmpty()) {
-            log.info("Scheduler: No templates due up to {}", today);
-            return;
-        }
+        log.info("Found {} templates due for task creation", dueTemplates.size());
 
-    /* =====================================================
-       3️⃣ CREATE TASKS
-       ===================================================== */
         for (TaskTemplate template : dueTemplates) {
             try {
                 taskService.createTaskFromTemplate(
@@ -80,17 +79,19 @@ public class TaskTemplateScheduler {
                 taskTemplateService.calculateAndSetNextRunDate(template);
                 taskTemplateRepository.save(template);
 
+                tasksCreatedCount++;
+                log.debug("Created task from template: {}", template.getTitle());
+
             } catch (Exception e) {
-                log.error(
-                        "Scheduler: Failed for template [{}]",
-                        template.getTitle(),
-                        e
-                );
+                log.error("Failed to create task from template {}: {}",
+                        template.getId(), e.getMessage());
             }
         }
+
+        log.info("========================================");
+        log.info("SCHEDULER COMPLETED:");
+        log.info("  - {} templates activated", activatedCount);
+        log.info("  - {} tasks created", tasksCreatedCount);
+        log.info("========================================");
     }
-
-
-
-
 }

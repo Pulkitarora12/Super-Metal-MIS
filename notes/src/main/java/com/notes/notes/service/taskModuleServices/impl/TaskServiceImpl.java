@@ -274,11 +274,6 @@ public class TaskServiceImpl implements TaskService {
         task.setCreator(creator);
         task.setSourceTemplate(template);
 
-        /* ================= TASK NO ================= */
-        Long maxTaskId = taskRepository.findMaxTaskId();
-        Long nextId = (maxTaskId == null) ? 1 : maxTaskId + 1;
-        task.setTaskNo("TSK-" + nextId);
-
         /* ================= DUE DATE (FIXED) ================= */
         // nextRunDate = creation date
         // dueDate = creation date + flashTime
