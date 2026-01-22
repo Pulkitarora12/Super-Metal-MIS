@@ -29,8 +29,20 @@ public class TaskComment {
 
     private LocalDateTime changedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MessageType messageType;
+
+    public enum MessageType {
+        TEXT,
+        FILE
+    }
+
     @PrePersist
     protected void onCreate() {
         this.changedAt = LocalDateTime.now();
+        if (this.messageType == null) {
+            this.messageType = MessageType.TEXT;
+        }
     }
 }

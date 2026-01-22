@@ -43,9 +43,14 @@ public class TaskCommentServiceImpl implements TaskCommentService {
         comment.setContent(content);
         comment.setAttachmentUrl(attachmentUrl);
 
-        TaskComment savedComment = taskCommentRepository.save(comment);
+        // 🔹 IMPORTANT: set message type
+        if (attachmentUrl != null && !attachmentUrl.isBlank()) {
+            comment.setMessageType(TaskComment.MessageType.FILE);
+        } else {
+            comment.setMessageType(TaskComment.MessageType.TEXT);
+        }
 
-        return savedComment;
+        return taskCommentRepository.save(comment);
     }
 
     @Override
