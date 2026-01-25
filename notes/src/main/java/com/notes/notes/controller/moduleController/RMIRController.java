@@ -1,6 +1,7 @@
 package com.notes.notes.controller.moduleController;
 
 import com.notes.notes.dto.moduleDTOS.RMIRRequestDTO;
+import com.notes.notes.entity.moduleEntities.Observation;
 import com.notes.notes.entity.moduleEntities.RMIR;
 import com.notes.notes.entity.authEntities.User;
 import com.notes.notes.repository.moduleRepo.RMIRRepository;
@@ -31,10 +32,10 @@ public class RMIRController {
 
     @Autowired
     private RMIRRepository repository;
+    
     @Autowired
     private MasterService masterService;
-
-
+    
     @GetMapping
     public String showForm(Model model, @ModelAttribute("loggedInUser") User loggedInUser,
                            @AuthenticationPrincipal UserDetails userDetails) {
@@ -119,27 +120,75 @@ public class RMIRController {
 
     @GetMapping("/export")
     public ResponseEntity<String> exportToCSV() {
+
         List<RMIR> entries = service.getAllEntries();
-
         StringBuilder csvData = new StringBuilder();
-        csvData.append("ID,Part No,Part Name,RM Size,Grade Master,Bundle Grade,Bundle No,Bundle GW,Bundle NW,Bundle Size,Supplier,Inspector,Remarks\n");
 
+        // 1️⃣ Header
+        csvData.append(
+                "RMIR ID,Part No,Part Name,RM Size,Grade,Std GW,Bundle Grade,Bundle No," +
+                        "Bundle GW,Bundle NW,Bundle Size,Supplier,Inspector,Remarks," +
+                        "Created Date,Created Time," +
+                        "Observation ID,L,B,H,GW Sheet\n"
+        );
+
+        // 2️⃣ Data rows
         for (RMIR entry : entries) {
-            csvData.append(entry.getId()).append(",")
-                    .append(entry.getPartNo()).append(",")
-                    .append(entry.getPartName()).append(",")
-                    .append(entry.getRmSize()).append(",")
-                    .append(entry.getGrade()).append(",")
-                    .append(entry.getBundleGrade()).append(",")
-                    .append(entry.getBundleNo()).append(",")
-                    .append(entry.getBundleGW()).append(",")
-                    .append(entry.getBundleNW()).append(",")
-                    .append(entry.getBundleSize()).append(",")
-                    .append(entry.getSupplier()).append(",")
-                    .append(entry.getInspector()).append(",")
-                    .append(entry.getRemarks()).append("\n")
-                    .append(entry.getCreatedDate()).append("\n")
-                    .append(entry.getCreatedTime()).append("\n");
+
+            // Case A: No observations
+            if (entry.getObservations() == null || entry.getObservations().isEmpty()) {
+
+                csvData.append(entry.getId()).append(",")
+                        .append(entry.getPartNo()).append(",")
+                        .append(entry.getPartName()).append(",")
+                        .append(entry.getRmSize()).append(",")
+                        .append(entry.getGrade()).append(",")
+                        .append(entry.getStdGW()).append(",")
+                        .append(entry.getBundleGrade()).append(",")
+                        .append(entry.getBundleNo()).append(",")
+                        .append(entry.getBundleGW()).append(",")
+                        .append(entry.getBundleNW()).append(",")
+                        .append(entry.getBundleSize()).append(",")
+                        .append(entry.getSupplier()).append(",")
+                        .append(entry.getInspector()).append(",")
+                        .append(entry.getRemarks()).append(",")
+                        .append(entry.getCreatedDate()).append(",")
+                        .append(entry.getCreatedTime()).append(",")
+                        // Observation columns empty
+                        .append(",,,,")
+                        .append("\n");
+
+            }
+            // Case B: One or more observations
+            else {
+                for (Observation obs : entry.getObservations()) {
+
+                    csvData.append(entry.getId()).append(",")
+                            .append(entry.getPartNo()).append(",")
+                            .append(entry.getPartName()).append(",")
+                            .append(entry.getRmSize()).append(",")
+                            .append(entry.getGrade()).append(",")
+                            .append(entry.getStdGW()).append(",")
+                            .append(entry.getBundleGrade()).append(",")
+                            .append(entry.getBundleNo()).append(",")
+                            .append(entry.getBundleGW()).append(",")
+                            .append(entry.getBundleNW()).append(",")
+                            .append(entry.getBundleSize()).append(",")
+                            .append(entry.getSupplier()).append(",")
+                            .append(entry.getInspector()).append(",")
+                            .append(entry.getRemarks()).append(",")
+                            .append(entry.getCreatedDate()).append(",")
+                            .append(entry.getCreatedTime()).append(",")
+
+                            // Observation data
+                            .append(obs.getId()).append(",")
+                            .append(obs.getL()).append(",")
+                            .append(obs.getB()).append(",")
+                            .append(obs.getH()).append(",")
+                            .append(obs.getGwSheet())
+                            .append("\n");
+                }
+            }
         }
 
         return ResponseEntity.ok()
@@ -147,6 +196,7 @@ public class RMIRController {
                 .contentType(org.springframework.http.MediaType.parseMediaType("text/csv"))
                 .body(csvData.toString());
     }
+
 
     @GetMapping("/{id}/observations")
     public String viewObservations(@PathVariable Long id, Model model) {

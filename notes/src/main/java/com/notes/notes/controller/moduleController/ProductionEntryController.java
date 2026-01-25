@@ -121,9 +121,17 @@ public class ProductionEntryController {
         List<ProductionEntry> entries = service.getAllEntries();
 
         StringBuilder csvData = new StringBuilder();
-        csvData.append("ID,Date,Shift,Line,Machine,Operation,Operator 1,Operator 2,Part No,Part Name,Remarks\n");
+
+        // Header
+        csvData.append(
+                "ID,Date,Shift,Line,Machine,Operation,Operator 1,Operator 2,Part No,Part Name,Remarks," +
+                        "From Time,To Time,Produced,Segregated,Rejected,Slot Reason,Slot Remarks\n"
+        );
 
         for (ProductionEntry entry : entries) {
+
+            TimeSlot t = entry.getTimeSlot();
+
             csvData.append(entry.getId()).append(",")
                     .append(entry.getDate()).append(",")
                     .append(entry.getShift()).append(",")
@@ -134,7 +142,23 @@ public class ProductionEntryController {
                     .append(entry.getOperator2()).append(",")
                     .append(entry.getPartNo()).append(",")
                     .append(entry.getPartName()).append(",")
-                    .append(entry.getRemarks()).append("\n");
+                    .append(entry.getRemarks()).append(",");
+
+            // TimeSlot data
+            if (t != null) {
+                csvData.append(t.getFromTime()).append(",")
+                        .append(t.getToTime()).append(",")
+                        .append(t.getProduced()).append(",")
+                        .append(t.getSegregated()).append(",")
+                        .append(t.getRejected()).append(",")
+                        .append(t.getReason()).append(",")
+                        .append(t.getRemarks());
+            } else {
+                // No timeslot → empty columns
+                csvData.append(",,,,,,");
+            }
+
+            csvData.append("\n");
         }
 
         return ResponseEntity.ok()
@@ -142,6 +166,7 @@ public class ProductionEntryController {
                 .contentType(org.springframework.http.MediaType.parseMediaType("text/csv"))
                 .body(csvData.toString());
     }
+
 
     @GetMapping("/{id}/timeslot")
     public String viewTimeSlot(@PathVariable Long id, Model model) {

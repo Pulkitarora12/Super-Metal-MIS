@@ -27,7 +27,7 @@ import java.io.IOException;
 
 
 @Controller
-@RequestMapping("/image")
+@RequestMapping("/file")
 public class ImageUploadController {
 
     private final TaskCommentService taskCommentService;
@@ -48,28 +48,21 @@ public class ImageUploadController {
     }
 
     @PostMapping("/upload/{taskId}")
-    public String uploadImage(
+    public String uploadFile(
             @PathVariable Long taskId,
-            @RequestParam("image") MultipartFile image,
+            @RequestParam("file") MultipartFile file,
             @ModelAttribute("loggedInUser") User loggedInUser,
             RedirectAttributes redirectAttributes
     ) {
         try {
 
-            if (image.isEmpty()) {
+            if (file.isEmpty()) {
                 redirectAttributes.addFlashAttribute("errorMessage", "No file selected");
                 return "redirect:/tasks/" + taskId;
             }
 
-            String contentType = image.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                redirectAttributes.addFlashAttribute(
-                        "errorMessage", "Only image files are allowed");
-                return "redirect:/tasks/" + taskId;
-            }
-
             // ❗ Validate file size (5MB max)
-            if (image.getSize() > 5 * 1024 * 1024) {
+            if (file.getSize() > 5 * 1024 * 1024) {
                 redirectAttributes.addFlashAttribute(
                         "errorMessage", "File size must be under 5MB");
                 return "redirect:/tasks/" + taskId;
@@ -80,11 +73,11 @@ public class ImageUploadController {
             Files.createDirectories(uploadDir);
 
             // 🧾 Original & stored filenames
-            String originalName = image.getOriginalFilename();
+            String originalName = file.getOriginalFilename();
             String storedName = System.currentTimeMillis() + "_" + originalName;
 
             Path filePath = uploadDir.resolve(storedName);
-            Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
             // 📌 Fetch task
             Task task = taskService.getTaskById(taskId)
@@ -109,15 +102,26 @@ public class ImageUploadController {
     }
 
     @GetMapping("/files/{filename}")
-    public ResponseEntity<Resource> viewFile(@PathVariable String filename) throws IOException {
+    public ResponseEntity<Resource> downloadFile(@PathVariable String filename) throws IOException {
 
-        Path filePath = Paths.get(FileStorageConfig.IMAGE_UPLOAD_DIR).resolve(filename);
+        // Base upload directory (normalized)
+        Path uploadDir = Paths.get(FileStorageConfig.IMAGE_UPLOAD_DIR).normalize();
+
+        // Resolve requested file and normalize path
+        Path filePath = uploadDir.resolve(filename).normalize();
+
+        // 🔒 Security check: prevent path traversal (../)
+        if (!filePath.startsWith(uploadDir)) {
+            throw new RuntimeException("Invalid file path");
+        }
+
         Resource resource = new UrlResource(filePath.toUri());
 
-        if (!resource.exists()) {
+        if (!resource.exists() || !resource.isReadable()) {
             throw new RuntimeException("File not found");
         }
 
+        // Detect content type
         String contentType = Files.probeContentType(filePath);
         if (contentType == null) {
             contentType = "application/octet-stream";
@@ -125,11 +129,9 @@ public class ImageUploadController {
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
-                // 👇 THIS LINE enables open-in-new-tab + download
+                // ⬇️ Force download
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + resource.getFilename() + "\"")
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
-
-
 }
