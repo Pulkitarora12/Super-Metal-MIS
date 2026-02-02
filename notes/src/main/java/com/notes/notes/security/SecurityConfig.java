@@ -80,53 +80,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public CommandLineRunner createAdminUser(UserRepository userRepository,
-                                             RoleRepository roleRepository,
-                                             PasswordEncoder passwordEncoder) {
-        return args -> {
 
-            String adminEmail = "info@supermetal.co.in";
-
-            // If admin user already exists, skip
-            if (userRepository.findByEmail(adminEmail).isPresent()) {
-                return;
-            }
-
-            // Ensure ADMIN role exists
-            Role adminRole = roleRepository.findByRoleName(AppRole.valueOf(AppRole.ROLE_ADMIN.name()))
-                    .orElseGet(() -> {
-                        Role newRole = new Role();
-                        newRole.setRoleName(AppRole.valueOf(AppRole.ROLE_ADMIN.name()));
-                        return roleRepository.save(newRole);
-                    });
-
-            Role userRole = roleRepository.findByRoleName(AppRole.valueOf(AppRole.ROLE_USER.name()))
-                    .orElseGet(() -> {
-                        Role newRole = new Role();
-                        newRole.setRoleName(AppRole.valueOf(AppRole.ROLE_USER.name()));
-                        return roleRepository.save(newRole);
-                    });
-
-            // Create Admin User
-            User admin = new User();
-            admin.setUserName("superadmin");
-            admin.setEmail(adminEmail);
-            admin.setPassword(passwordEncoder.encode("Admin@123"));
-            admin.setVerified(true);
-            admin.setEnabled(true);
-            admin.setAccountNonExpired(true);
-            admin.setAccountNonLocked(true);
-            admin.setCredentialsNonExpired(true);
-            admin.setRole(adminRole);
-
-            admin.setEmployeeFullName("Super Admin");
-            admin.setEmployeeDepartment("Management");
-            admin.setEmployeePhone("9990627700");
-
-            userRepository.save(admin);
-        };
-    }
 
 }
 
