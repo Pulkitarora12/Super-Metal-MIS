@@ -324,11 +324,6 @@ Once running, access at: **http://localhost:8080**
 
 ---
 
-## 📄 License
-
-This project is proprietary software. All rights reserved.
-
----
-
 **Built with ❤️ using Spring Boot and Thymeleaf**
+
 
