@@ -275,21 +275,7 @@ java -jar target/notes-0.0.1-SNAPSHOT.jar
 1. Open project in IntelliJ IDEA / Eclipse / VS Code
 2. Locate `NotesApplication.java`
 3. Right-click → **Run**
-
----
-
-## 🔑 Default Credentials
-
-The application creates a default admin account on first run:
-
-```
-Username: superadmin
-Email: info@supermetal.co.in
-Password: Admin@123
-```
-
-**⚠️ IMPORTANT:** Change this password immediately after first login!
-
+4. 
 ---
 
 ## 🌐 Accessing the Application
@@ -345,3 +331,4 @@ This project is proprietary software. All rights reserved.
 ---
 
 **Built with ❤️ using Spring Boot and Thymeleaf**
+
