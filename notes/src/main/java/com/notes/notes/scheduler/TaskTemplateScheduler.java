@@ -31,7 +31,7 @@ public class TaskTemplateScheduler {
         this.taskTemplateService = taskTemplateService;
     }
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void runDailyTemplates() {
 
         LocalDate today = LocalDate.now();

@@ -19,7 +19,7 @@ public class EmailService {
     private String fromEmail;
 
     public void sendVerificationEmailToAdmin(User user, String token) {
-        String verifyLink = "http://157.20.196.25:8080/admin/verify?token=" + token;
+        String verifyLink = "http://localhost:8080/admin/verify?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);   // 🔑 REQUIRED
