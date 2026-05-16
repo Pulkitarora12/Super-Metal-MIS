@@ -4,9 +4,11 @@ import com.notes.notes.dto.moduleDTOS.ProductionEntryRequestDTO;
 import com.notes.notes.entity.moduleEntities.DowntimeEntry;
 import com.notes.notes.entity.moduleEntities.ProductionEntry;
 import com.notes.notes.entity.moduleEntities.TimeSlot;
+import com.notes.notes.events.ProductionEntryEvent;
 import com.notes.notes.repository.moduleRepo.ProductionEntryRepository;
 import com.notes.notes.service.googleSheetServices.ProductionGoogleSheetsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
 
@@ -21,6 +23,9 @@ public class ProductionEntryService {
 
     @Autowired
     private ProductionEntryRepository repository;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Autowired
     private ProductionGoogleSheetsService productionGoogleSheetsService;
@@ -83,12 +88,7 @@ public class ProductionEntryService {
             ProductionEntry savedEntry = repository.save(entry);
 
             // Sync to Google Sheets
-            try {
-                productionGoogleSheetsService.addProductionEntryToSheet(savedEntry);
-            } catch (Exception e) {
-                System.err.println("⚠️ Failed to sync ProductionEntry to Google Sheets: " + e.getMessage());
-                // Don't throw - we still want the DB save to succeed
-            }
+            eventPublisher.publishEvent(new ProductionEntryEvent(this, savedEntry, "SAVE"));
 
             return savedEntry;
         } finally {
@@ -160,22 +160,12 @@ public class ProductionEntryService {
         }
 
         try {
-            if (!repository.existsById(id)) {
-                throw new RuntimeException("Entry not found");
-            }
+            ProductionEntry entry = repository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Entry not found"));
 
-            // Delete from database (cascades to TimeSlot and DowntimeEntries)
             repository.deleteById(id);
 
-            // Delete from Google Sheets
-            try {
-                productionGoogleSheetsService.deleteProductionEntryFromSheet(id);
-            } catch (Exception e) {
-                System.err.println(
-                        "⚠️ Failed to delete ProductionEntry from Google Sheets: "
-                                + e.getMessage()
-                );
-            }
+            eventPublisher.publishEvent(new ProductionEntryEvent(this, entry, "DELETE"));
 
         } finally {
             activeDeletes.remove(id);
@@ -235,11 +225,7 @@ public class ProductionEntryService {
         ProductionEntry updatedEntry = repository.save(entry);
 
         // Sync to Google Sheets
-        try {
-            productionGoogleSheetsService.updateProductionEntryInSheet(updatedEntry);
-        } catch (Exception e) {
-            System.err.println("⚠️ Failed to update ProductionEntry in Google Sheets: " + e.getMessage());
-        }
+        eventPublisher.publishEvent(new ProductionEntryEvent(this, updatedEntry, "UPDATE"));
 
         return updatedEntry;
     }

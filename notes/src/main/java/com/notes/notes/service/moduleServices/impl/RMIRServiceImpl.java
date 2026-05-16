@@ -3,12 +3,14 @@ package com.notes.notes.service.moduleServices.impl;
 import com.notes.notes.dto.moduleDTOS.RMIRRequestDTO;
 import com.notes.notes.entity.moduleEntities.Observation;
 import com.notes.notes.entity.moduleEntities.RMIR;
+import com.notes.notes.events.RMIREvent;
 import com.notes.notes.repository.moduleRepo.RMIRRepository;
 import com.notes.notes.service.googleSheetServices.RMIRGoogleSheetsService;
 import com.notes.notes.service.moduleServices.RMIRService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,9 @@ public class RMIRServiceImpl implements RMIRService {
 
     @Autowired
     RMIRGoogleSheetsService rmirGoogleSheetsService;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     private static final Set<String> activeUsers = ConcurrentHashMap.newKeySet();
     private static final Set<Long> activeDeletes = ConcurrentHashMap.newKeySet();
@@ -79,13 +84,7 @@ public class RMIRServiceImpl implements RMIRService {
             RMIR savedRMIR = rmirRepository.save(rmir);
 
             // ✅ NEW: Sync to Google Sheets
-            try {
-                rmirGoogleSheetsService.addRMIRToSheet(savedRMIR);
-
-            } catch (Exception e) {
-                System.err.println("⚠️ Failed to sync RMIR to Google Sheets: " + e.getMessage());
-                // Don't throw - we still want the DB save to succeed
-            }
+            eventPublisher.publishEvent(new RMIREvent(this, savedRMIR, "SAVE"));
 
             return savedRMIR;
         } finally {
@@ -169,13 +168,12 @@ public class RMIRServiceImpl implements RMIRService {
                 throw new RuntimeException("RMIR entry not found with id: " + id);
             }
 
+            RMIR rmir = rmirRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("RMIR entry not found with id: " + id));
+
             rmirRepository.deleteById(id);
 
-            try {
-                rmirGoogleSheetsService.deleteRMIRFromSheet(id);
-            } catch (Exception e) {
-                System.err.println("⚠️ Failed to delete RMIR from Google Sheets: " + e.getMessage());
-            }
+            eventPublisher.publishEvent(new RMIREvent(this, rmir, "DELETE"));
 
         } finally {
             activeDeletes.remove(id);
@@ -224,11 +222,7 @@ public class RMIRServiceImpl implements RMIRService {
         RMIR updatedRMIR = rmirRepository.save(rmir);
 
         // Sync to Google Sheets
-        try {
-            rmirGoogleSheetsService.updateRMIRInSheet(updatedRMIR);
-        } catch (Exception e) {
-            System.err.println("⚠️ Failed to update RMIR in Google Sheets: " + e.getMessage());
-        }
+        eventPublisher.publishEvent(new RMIREvent(this, updatedRMIR, "UPDATE"));
 
         return updatedRMIR;
     }
