@@ -1,6 +1,8 @@
 package com.notes.notes.listeners;
 
+import com.notes.notes.entity.moduleEntities.ProductionEntry;
 import com.notes.notes.events.ProductionEntryEvent;
+import com.notes.notes.repository.moduleRepo.ProductionEntryRepository;
 import com.notes.notes.service.googleSheetServices.ProductionGoogleSheetsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,9 @@ public class ProductionEntryEventListener {
 
     @Autowired
     private ProductionGoogleSheetsService productionGoogleSheetsService;
+
+    @Autowired
+    private ProductionEntryRepository productionEntryRepository;
 
     @Async
     @EventListener
