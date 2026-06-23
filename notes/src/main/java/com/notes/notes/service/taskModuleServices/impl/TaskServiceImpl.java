@@ -277,8 +277,8 @@ public class TaskServiceImpl implements TaskService {
         /* ================= DUE DATE (FIXED) ================= */
         // nextRunDate = creation date
         // dueDate = creation date + flashTime
-        LocalDate dueDate =
-                template.getNextRunDate().plusDays(template.getFlashTime());
+        LocalDate runDate = template.getNextRunDate() != null ? template.getNextRunDate() : LocalDate.now();
+        LocalDate dueDate = runDate.plusDays(template.getFlashTime());
         task.setDueDate(dueDate);
 
         /* ================= SAVE TASK ================= */
@@ -319,5 +319,24 @@ public class TaskServiceImpl implements TaskService {
         }
 
         return savedTask;
+    }
+
+    @Override
+    @Transactional
+    public int generateTasksForTemplate(TaskTemplate template, User creator) {
+        LocalDate today = LocalDate.now();
+        int generatedCount = 0;
+        int maxBackfillLimit = 100; // safety cap to prevent timeouts or infinite loops
+
+        while (template.isActive() && template.getNextRunDate() != null && !template.getNextRunDate().isAfter(today)) {
+            if (generatedCount >= maxBackfillLimit) {
+                break;
+            }
+            createTaskFromTemplate(template, creator);
+            taskTemplateService.calculateAndSetNextRunDate(template);
+            taskTemplateRepository.save(template);
+            generatedCount++;
+        }
+        return generatedCount;
     }
 }

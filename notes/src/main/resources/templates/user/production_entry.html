@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Production Entry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -243,6 +244,53 @@
             background: #cbd5e0;
         }
 
+        @media (max-width: 1024px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            form {
+                padding: 16px;
+            }
+            .section {
+                padding: 12px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            table {
+                min-width: 600px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .form-field {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            .form-field[style*="grid-column"] {
+                grid-column: span 1 !important;
+            }
+            label {
+                width: auto !important;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            .form-actions button {
+                width: 100%;
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+        }
     </style>
 </head>
 

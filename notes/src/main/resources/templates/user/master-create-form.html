@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Create Master</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <style>
         body {
@@ -111,6 +112,23 @@
             background: #cbd5e0;
         }
 
+        @media (max-width: 768px) {
+            body {
+                padding: 16px 12px;
+            }
+            .container {
+                padding: 20px 16px;
+            }
+            .top-actions {
+                justify-content: center;
+            }
+            .top-actions a {
+                width: 100%;
+            }
+            .top-actions button {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>

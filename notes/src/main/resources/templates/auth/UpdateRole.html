@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Update User Role</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/output.css}">
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <style>
@@ -135,6 +136,20 @@
 
             .card {
                 padding: 24px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 16px 12px;
+            }
+            .header, .card, .back-link-container {
+                padding: 16px;
+            }
+            .back-link {
+                width: 100%;
+                text-align: center;
+                display: block;
             }
         }
     </style>

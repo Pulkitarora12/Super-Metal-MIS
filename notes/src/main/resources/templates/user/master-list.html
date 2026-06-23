@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>All Masters</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <style>
         body {
@@ -93,6 +94,27 @@
             justify-content: flex-end;
             gap: 10px;
             margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px 12px;
+            }
+            .container {
+                padding: 20px 16px;
+            }
+            table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .actions {
+                flex-direction: column;
+            }
+            .actions a, .actions button {
+                width: 100% !important;
+            }
         }
     </style>
 </head>

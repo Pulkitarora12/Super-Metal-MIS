@@ -295,6 +295,10 @@
             margin-bottom: 30px;
         }
 
+        .filter-wrapper form {
+            flex-wrap: wrap;
+        }
+
         .divider {
             margin: 0 8px;
             color: #cbd5e0;
@@ -307,6 +311,33 @@
             align-items: center;
         }
 
+        @media (max-width: 768px) {
+            .header div[style*="display:flex"],
+            .header div[style*="display: flex"] {
+                flex-direction: column;
+                width: 100%;
+            }
+            .header div[style*="display:flex"] .btn,
+            .header div[style*="display: flex"] .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .filter-wrapper form {
+                flex-direction: column;
+                align-items: stretch !important;
+                width: 100%;
+                gap: 12px !important;
+            }
+            .filter-wrapper form > div {
+                width: 100%;
+            }
+            .filter-wrapper form input,
+            .filter-wrapper form select,
+            .filter-wrapper form button,
+            .filter-wrapper form a {
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 

@@ -21,7 +21,7 @@ public interface TaskTemplateRepository extends JpaRepository<TaskTemplate, Long
 
     @Query("SELECT t FROM TaskTemplate t WHERE " +
             "t.isActive = false AND " +
-            "FUNCTION('DATE_ADD', t.startDate, -t.flashTime, 'DAY') <= :today")
+            "t.startDate <= :today")
     List<TaskTemplate> findTemplatesReadyForActivation(@Param("today") LocalDate today);
 
 }

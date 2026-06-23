@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>View Task Template</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
 
     <style>
@@ -71,6 +72,37 @@
             padding: 8px 14px;
             border-radius: 6px;
             cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 16px;
+            }
+            .card {
+                padding: 12px;
+            }
+            table tr {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 8px;
+            }
+            th {
+                width: 100% !important;
+                background-color: transparent !important;
+                padding-bottom: 2px !important;
+            }
+            td {
+                padding-top: 2px !important;
+            }
+            .actions {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .actions button {
+                width: 100%;
+                margin-left: 0 !important;
+            }
         }
     </style>
 </head>

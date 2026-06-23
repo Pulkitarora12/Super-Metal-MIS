@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Upload Master CSV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <style>
         body {
@@ -89,6 +90,22 @@
             font-size: 13px;
             color: #718096;
             margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 16px 12px;
+            }
+            .container {
+                padding: 20px 16px;
+            }
+            .actions, form {
+                display: flex;
+                flex-direction: column;
+            }
+            .actions a, .btn, input[type="file"] {
+                width: 100% !important;
+            }
         }
     </style>
 </head>

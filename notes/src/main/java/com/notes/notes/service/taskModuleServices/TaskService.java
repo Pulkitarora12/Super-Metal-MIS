@@ -71,4 +71,7 @@ public interface TaskService {
 
     @Transactional
     Task createTaskFromTemplate(TaskTemplate template, User creator);
+
+    @Transactional
+    int generateTasksForTemplate(TaskTemplate template, User creator);
 }

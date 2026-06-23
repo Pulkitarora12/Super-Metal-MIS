@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>Account Verified</title>
     <link rel="stylesheet" th:href="@{/output.css}">
@@ -64,6 +65,22 @@
 
         a:hover {
             background: #5568d3;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 20px 10px;
+            }
+            .container {
+                padding: 30px 20px;
+            }
+            h2 {
+                font-size: 22px;
+            }
+            a {
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
 </head>

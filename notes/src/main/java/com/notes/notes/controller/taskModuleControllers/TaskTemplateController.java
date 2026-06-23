@@ -73,9 +73,13 @@
 
         /* ===================== ACTIVATE TEMPLATE ===================== */
 
+        @Transactional
         @PostMapping("/{id}/activate")
         public String activateTemplate(@PathVariable Long id) {
-            taskTemplateService.activateTask(id);
+            TaskTemplate template = taskTemplateService.activateTask(id);
+            if (template != null) {
+                taskService.generateTasksForTemplate(template, template.getCreator());
+            }
             return "redirect:/template";
         }
 
@@ -134,13 +138,10 @@
 
             List<TaskTemplate> dueTemplates =
                     taskTemplateRepository
-                            .findByIsActiveTrueAndNextRunDateLessThan(today);
+                            .findByIsActiveTrueAndNextRunDateLessThan(today.plusDays(1));
 
             for (TaskTemplate template : dueTemplates) {
-                taskService.createTaskFromTemplate(template, template.getCreator());
-
-                taskTemplateService.calculateAndSetNextRunDate(template);
-                taskTemplateRepository.save(template);
+                taskService.generateTasksForTemplate(template, template.getCreator());
             }
 
             redirectAttributes.addFlashAttribute(

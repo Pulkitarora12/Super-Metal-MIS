@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <style>
         * {
@@ -280,6 +281,38 @@
             }
         }
 
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+            .header {
+                padding: 16px;
+            }
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            .change-password-btn, .logout-btn {
+                width: 100%;
+                text-align: center;
+            }
+            .module-card {
+                padding: 12px;
+            }
+            .module-actions {
+                flex-direction: column;
+            }
+            .module-btn {
+                width: 100%;
+                text-align: center;
+            }
+            table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
     </style>
 </head>
 
@@ -340,6 +373,22 @@
                 <div class="module-actions">
                     <a th:href="@{/masters}" class="module-btn module-btn-primary">Master List</a>
                     <a th:href="@{/masters/new}" class="module-btn module-btn-secondary">Create Master</a>
+                </div>
+            </div>
+
+            <!-- HR Module -->
+            <div class="module-card">
+                <div class="module-icon" style="background: #2e7d32;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <h3>HR Module</h3>
+                <p>Manage employee database, imports, document uploads, and records.</p>
+                <div class="module-actions">
+                    <a th:href="@{/hr/employee-master}" class="module-btn" style="background: #2e7d32; color: white;">Employee Master</a>
+                    <a th:href="@{/hr/in-out}" class="module-btn module-btn-secondary">In & Out Logs</a>
+                    <a th:href="@{/hr/in-out/monthly-summary}" class="module-btn module-btn-secondary">Monthly Summary</a>
                 </div>
             </div>
 

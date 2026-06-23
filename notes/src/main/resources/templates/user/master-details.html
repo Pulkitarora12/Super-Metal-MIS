@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Master Details - Excel Style</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <style>
         body {
@@ -100,6 +101,29 @@
 
         .btn-primary:hover {
             background: #1565c0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px 12px;
+            }
+            .container {
+                padding: 20px 16px;
+            }
+            table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        @media (max-width: 600px) {
+            .actions {
+                flex-direction: column;
+            }
+            .actions .btn, .actions form, .actions button {
+                width: 100% !important;
+            }
         }
     </style>
 </head>

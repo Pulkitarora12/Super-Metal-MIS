@@ -52,7 +52,9 @@ public class TaskTemplateScheduler {
         for (TaskTemplate template : templatesToActivate) {
             try {
                 template.setActive(true);
-                taskTemplateService.calculateAndSetNextRunDate(template);
+                if (template.getNextRunDate() == null) {
+                    template.setNextRunDate(template.getStartDate());
+                }
                 taskTemplateRepository.save(template);
                 activatedCount++;
                 log.debug("Activated template: {}", template.getTitle());
@@ -71,19 +73,16 @@ public class TaskTemplateScheduler {
 
         for (TaskTemplate template : dueTemplates) {
             try {
-                taskService.createTaskFromTemplate(
+                int created = taskService.generateTasksForTemplate(
                         template,
                         template.getCreator()
                 );
-
-                taskTemplateService.calculateAndSetNextRunDate(template);
-                taskTemplateRepository.save(template);
-
-                tasksCreatedCount++;
-                log.debug("Created task from template: {}", template.getTitle());
-
+                tasksCreatedCount += created;
+                if (created > 0) {
+                    log.debug("Generated {} tasks from template: {}", created, template.getTitle());
+                }
             } catch (Exception e) {
-                log.error("Failed to create task from template {}: {}",
+                log.error("Failed to create tasks from template {}: {}",
                         template.getId(), e.getMessage());
             }
         }

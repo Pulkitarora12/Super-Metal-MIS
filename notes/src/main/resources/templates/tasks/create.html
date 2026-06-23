@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Create Task</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
 
     <style>
@@ -128,6 +129,20 @@
             background: #cbd5e0;
         }
 
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            .task-container {
+                padding: 20px;
+            }
+            .actions {
+                flex-direction: column;
+            }
+            .back-link {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
