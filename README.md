@@ -1,6 +1,6 @@
-# MIS (Management Information System)
+# MIS (Management Information System) — Super Metal Unit II
 
-A comprehensive enterprise management system built with Spring Boot that handles task management, production tracking, quality inspection, and master data management with real-time updates.
+A comprehensive enterprise management system built with Spring Boot, custom-tailored for **Super Metal Unit II**. It handles task management, production tracking, quality inspection, raw material logs, master data management, and HR employee movement records with real-time updates.
 
 ---
 
@@ -102,6 +102,18 @@ Flexible master data system with CSV/Excel import.
 - Dynamic field creation
 - CSV/Excel upload with auto-detection
 - CRUD operations on masters
+
+---
+
+### 7. **HR & Employee Movement Module**
+A specialized human resource management module designed to maintain employee details and track physical gate entry/exit movements.
+
+**Features:**
+- **Employee Master:** Stores comprehensive profile details including contact info, salary, bank account details, and statutory identifiers (ESI, PF/PSI numbers).
+- **Compliance Document Upload:** Allows storing and serving key scans such as employee photo and cancelled cheque.
+- **Bulk Data Import:** Import employees list using custom CSV or Excel files (`.xlsx` or `.xls`) with automated mapping, column name normalizer, and phone-number-based update/insert checks.
+- **Real-Time In/Out movement logs (Gate Log):** Monitor check-out/check-in logs, calculate movement duration in minutes, and store customizable log remarks.
+- **Monthly Summary & Reporting:** Generate aggregate reports of total check-outs and duration (hours & minutes) for each employee by selecting any month and year.
 
 ---
 
@@ -290,6 +302,9 @@ Once running, access at: **http://localhost:8080**
 - `/production-entry` - Production tracking
 - `/rmir-entry` - Quality inspection
 - `/masters` - Master data management
+- `/hr/employee-master` - Employee database (HR)
+- `/hr/in-out` - Employee gate logs / movement tracking (HR)
+- `/hr/in-out/monthly-summary` - Monthly employee movement summaries (HR)
 - `/admin/users` - User management (ADMIN only)
 
 ---
