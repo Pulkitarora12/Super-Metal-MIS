@@ -369,6 +369,18 @@
                         <td th:text="${employee.name}">John Doe</td>
                     </tr>
                     <tr>
+                        <th>Father's Name</th>
+                        <td th:text="${employee.fatherName ?: 'N/A'}">-</td>
+                    </tr>
+                    <tr>
+                        <th>Employee Code</th>
+                        <td th:text="${employee.employeeCode ?: 'N/A'}">-</td>
+                    </tr>
+                    <tr>
+                        <th>Contractor Name</th>
+                        <td th:text="${employee.contractorName ?: 'N/A'}">-</td>
+                    </tr>
+                    <tr>
                         <th>Phone Number</th>
                         <td th:text="${employee.phoneNumber}">9876543210</td>
                     </tr>
@@ -413,7 +425,7 @@
                         <td th:text="${employee.esiNumber ?: 'N/A'}">ESI-9812-321</td>
                     </tr>
                     <tr>
-                        <th>PSI (PF) Number</th>
+                        <th>PF Number</th>
                         <td th:text="${employee.psiNumber ?: 'N/A'}">PSI-9281-23</td>
                     </tr>
                 </table>

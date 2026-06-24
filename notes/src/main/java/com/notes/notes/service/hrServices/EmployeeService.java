@@ -205,6 +205,9 @@ public class EmployeeService {
     private Employee parseExcelRow(Row row, Map<String, Integer> headerMap) {
         Employee emp = new Employee();
         emp.setName(getValueFromExcel(row, headerMap, "name"));
+        emp.setFatherName(getValueFromExcel(row, headerMap, "fathername", "father"));
+        emp.setEmployeeCode(getValueFromExcel(row, headerMap, "employeecode", "empcode", "code"));
+        emp.setContractorName(getValueFromExcel(row, headerMap, "contractorname", "contractor"));
         emp.setPhoneNumber(getValueFromExcel(row, headerMap, "phonenumber", "phone", "number", "mobile"));
         emp.setGender(getValueFromExcel(row, headerMap, "gender", "sex"));
         emp.setEmail(getValueFromExcel(row, headerMap, "email", "emailaddress"));
@@ -228,6 +231,9 @@ public class EmployeeService {
     private Employee parseCsvRow(List<String> values, Map<String, Integer> headerMap) {
         Employee emp = new Employee();
         emp.setName(getValueFromCsv(values, headerMap, "name"));
+        emp.setFatherName(getValueFromCsv(values, headerMap, "fathername", "father"));
+        emp.setEmployeeCode(getValueFromCsv(values, headerMap, "employeecode", "empcode", "code"));
+        emp.setContractorName(getValueFromCsv(values, headerMap, "contractorname", "contractor"));
         emp.setPhoneNumber(getValueFromCsv(values, headerMap, "phonenumber", "phone", "number", "mobile"));
         emp.setGender(getValueFromCsv(values, headerMap, "gender", "sex"));
         emp.setEmail(getValueFromCsv(values, headerMap, "email", "emailaddress"));

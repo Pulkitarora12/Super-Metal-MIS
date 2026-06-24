@@ -25,6 +25,15 @@ public class Employee {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "father_name")
+    private String fatherName;
+
+    @Column(name = "employee_code", unique = true)
+    private String employeeCode;
+
+    @Column(name = "contractor_name")
+    private String contractorName;
+
     @NotBlank(message = "Phone number is mandatory")
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
